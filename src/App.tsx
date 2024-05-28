@@ -1,64 +1,44 @@
 import { useState, useEffect } from "react";
 import "./App.css";
+import { onAuthStateChanged } from "firebase/auth";
+
+import { auth } from "../firebase.ts";
+import Chat from "./features/chat/Chat.tsx";
+import ChatHeader from "./features/chat/ChatHeader.tsx";
+import ChatUser from "./features/chat/ChatUser.tsx";
+import Logout from "./features/authentication/Logout.tsx";
+import ChatMessages from "./features/chat/ChatMessages.tsx";
+import ChatFooter from "./features/chat/ChatFooter.tsx";
+import ChatNewMessage from "./features/chat/ChatNewMessage.tsx";
+import type User from "./features/authentication/types/Users";
+import Login from "./features/authentication/Login.tsx";
+import LoadingIndicator from "./ui/LoadingIndicator.tsx";
+import ErrorMessage from "./ui/ErrorMessage.tsx";
+import type { Message } from "./features/chat/types/Messages.ts";
 import {
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  signInWithPopup,
-} from "firebase/auth";
-import type { Message } from "./types/Messages.d.ts";
-import type { User } from "./types/Users.d.ts";
-import {
+  getDocs,
   addDoc,
-  getFirestore,
-  onSnapshot,
   collection,
   query,
-  orderBy,
+  where,
   serverTimestamp,
 } from "firebase/firestore";
-import { auth } from "../firebase";
+import { getFirestore } from "firebase/firestore";
 
 function App() {
-  const db = getFirestore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
+  const [selectedKid, setSelectedKid] = useState<User | null>(null);
+  const db = getFirestore();
 
-  useEffect(() => {
-    const q = query(collection(db, "messages"), orderBy("createdAt"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setMessages(
-        snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))
-      );
-    });
-    return unsubscribe;
-  }, []);
-
-  useEffect(() => {
-    setIsLoading(true);
-    setError("");
-    onAuthStateChanged(auth, (user) => {
-      if (user !== null) {
-        setUser(user);
-      } else {
-        setUser(null);
-      }
-      setIsLoading(false);
-    });
-  }, []);
-
-  const handleGoogleSignIn = async () => {
-    try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
-      console.log(user);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "An error occurred");
-    }
+  const catchErrors = (error: unknown) => {
+    setError(error instanceof Error ? error.message : "An error occurred");
+    setIsLoading(false);
   };
 
-  const sendMessage = async () => {
+  const onNewMessage = async (newMessage: Message) => {
     if (!user) {
       console.log("You must be logged in to send a message");
       return;
@@ -70,61 +50,80 @@ function App() {
       uid: user.uid,
     });
     console.log("Document written with ID: ", docRef.id);
-    setNewMessage("");
+    setMessages([...messages, newMessage]);
   };
 
+  const onAvatarClick = async (uid: string) => {
+    console.log("Avatar clicked", uid);
+    const q = query(collection(db, "kids"), where("uid", "==", uid));
+    const snapshot = await getDocs(q);
+    setSelectedKid(snapshot.docs[0].data() as User);
+  };
+
+  useEffect(() => {
+    setIsLoading(true);
+    setError("");
+    onAuthStateChanged(auth, async (user) => {
+      try {
+        if (user !== null) {
+          const db = getFirestore();
+          const q = query(
+            collection(db, "kids"),
+            where("email", "==", user?.email)
+          );
+          const snapshot = await getDocs(q);
+
+          if (snapshot.empty) {
+            setError("You are not authorized to use this app");
+            setUser(null);
+            auth.signOut();
+            return;
+          }
+          setUser(user);
+        } else {
+          setUser(null);
+          console.log("User is not logged in");
+        }
+        setIsLoading(false);
+        setError("");
+      } catch (error) {
+        catchErrors(error);
+      }
+    });
+    return () => {};
+  }, []);
+
   if (isLoading) {
-    return <div className="container">Loading...</div>;
+    return <LoadingIndicator />;
   }
   return (
     <div className="container">
       {user ? (
-        <div className="chat">
-          <header className="header-chat">
-            <h1>Treehouse Chat</h1>
-            <p className="name">{user.displayName}</p>
-            <button onClick={() => auth.signOut()} className="btn right">
-              Logout
-            </button>
-          </header>
+        <Chat>
+          <ChatHeader>
+            <ChatUser displayName={user.displayName || "Anonymous"} />
+            <Logout />
+          </ChatHeader>
           <main>
-            <div className="messages-chat">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`message ${
-                    message.data.uid === user.uid ? "current" : "other"
-                  }`}
-                >
-                  <div className="photo">
-                    <img
-                      src={message.data.photoURL}
-                      alt={message.data.displayName}
-                    />
-                  </div>
-                  <p className="text">{message.data.text}</p>
-                </div>
-              ))}
-            </div>
-            <div className="footer-chat">
-              <input
-                type="text"
-                className="write-message"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
+            <ChatMessages
+              uid={user.uid}
+              onAvatarClick={onAvatarClick}
+              messages={messages}
+            />
+            <ChatFooter>
+              <ChatNewMessage
+                uid={user.uid}
+                onNewMessage={onNewMessage}
+                selectedKid={selectedKid}
               />
-              <button onClick={sendMessage} className="btn">
-                Send
-              </button>
-            </div>
+            </ChatFooter>
           </main>
-        </div>
+        </Chat>
       ) : (
-        <button onClick={handleGoogleSignIn} className="btn">
-          Login with Google
-        </button>
+        <Login catchErrors={catchErrors} />
       )}
-      {error && <p className="error">{error}</p>}
+
+      <ErrorMessage error={error} />
     </div>
   );
 }

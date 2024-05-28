@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
+  "include": ["src", "../treehouse-dashboard/src/__tests__/components/Sidebar"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
