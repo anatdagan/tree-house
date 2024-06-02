@@ -6,6 +6,8 @@ import {
   collection,
   onSnapshot,
   where,
+  limit,
+  orderBy,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { ChatRoom } from "../features/chatroom/types/Rooms";
@@ -29,12 +31,12 @@ const useMessages = (
     const q = query(
       collection(db, "messages"),
       where("roomId", "==", chatRoom.id),
-      where("status", "==", "sent")
+      where("status", "==", "sent"),
+      orderBy("createdAt", "desc"),
+      limit(50)
     );
-
+    setMessages([]);
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setMessages([]);
-
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
           console.log("New message: ", change.doc.data());

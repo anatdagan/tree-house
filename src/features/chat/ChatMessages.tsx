@@ -1,15 +1,20 @@
 import classes from "./chat.module.css";
 import type { Message } from "./types/Messages";
 import { extractTime } from "../../utils/date";
+import { useState } from "react";
+import { ChatRoom } from "../chatroom/types/Rooms";
+import useMessages from "../../hooks/useMessages";
 
 interface Props {
   uid: string;
-  messages: Message[];
+  chatRoom: ChatRoom | null;
   onAvatarClick: (uid: string) => void;
 }
-const ChatMessages = ({ uid, messages, onAvatarClick }: Props) => {
-  console.log("ChatMessages", messages, uid);
-  // const [messages, setMessages] = useState<Message[]>([]);
+const ChatMessages = ({ uid, onAvatarClick, chatRoom }: Props) => {
+  console.log("ChatMessages", uid);
+  const [messages, setMessages] = useState<Message[]>([]);
+  useMessages(setMessages, chatRoom);
+
   return (
     <div className={classes["messages-chat"]}>
       {messages.map((message) => (

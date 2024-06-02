@@ -24,7 +24,6 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
-import useMessages from "./db/useMessages.ts";
 import { ChatRoom } from "./features/chatroom/types/Rooms";
 import ChatroomHeader from "./features/chatroom/ChatroomHeader.tsx";
 import { findViolations } from "./services/apiModeration.ts";
@@ -46,7 +45,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [user, setUser] = useState<User | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
   const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
 
   const catchErrors = (error: unknown) => {
@@ -54,7 +52,6 @@ function App() {
     setIsLoading(false);
   };
   console.log("ChatRoom", chatRoom);
-  useMessages(setMessages, chatRoom);
   const onNewMessage = async (newMessage: Message) => {
     if (!user) {
       console.log("You must be logged in to send a message");
@@ -153,7 +150,7 @@ function App() {
             <ChatMessages
               uid={user.uid}
               onAvatarClick={onAvatarClick}
-              messages={messages}
+              chatRoom={chatRoom}
             />
             <ChatFooter>
               <ChatNewMessage
