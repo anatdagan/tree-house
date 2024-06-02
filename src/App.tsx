@@ -21,44 +21,74 @@ import {
   collection,
   query,
   where,
-  serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
+import useMessages from "./db/useMessages.ts";
+import { ChatRoom } from "./features/chatroom/types/Rooms";
+import ChatroomHeader from "./features/chatroom/ChatroomHeader.tsx";
+import { findViolations } from "./services/apiModeration.ts";
+import InboxIcon from "./features/Inbox/InboxIcon.tsx";
+import { startPrivateChat } from "./services/apiChatRooms.ts";
+const GENERAL_CHATROOM_ID = "general";
+const db = getFirestore();
+
+const getChatRoom = async (id: string) => {
+  const q = query(collection(db, "chatrooms"), where("id", "==", id));
+  const snapshot = await getDocs(q);
+  if (snapshot.empty) {
+    return null;
+  }
+  return snapshot.docs[0].data() as ChatRoom;
+};
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [selectedKid, setSelectedKid] = useState<User | null>(null);
-  const db = getFirestore();
+  const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
 
   const catchErrors = (error: unknown) => {
     setError(error instanceof Error ? error.message : "An error occurred");
     setIsLoading(false);
   };
-
+  console.log("ChatRoom", chatRoom);
+  useMessages(setMessages, chatRoom);
   const onNewMessage = async (newMessage: Message) => {
     if (!user) {
       console.log("You must be logged in to send a message");
       return;
     }
+    if (await findViolations(newMessage)) {
+      console.log("Message is not allowed");
+      return;
+    }
     console.log("Sending message: ", newMessage);
-    const docRef = await addDoc(collection(db, "messages"), {
-      text: newMessage,
-      createdAt: serverTimestamp(),
-      uid: user.uid,
-    });
+    const docRef = await addDoc(collection(db, "messages"), newMessage);
     console.log("Document written with ID: ", docRef.id);
-    setMessages([...messages, newMessage]);
+  };
+  const queryByUid = async (collectionName: string, uid: string) => {
+    const q = query(collection(db, collectionName), where("uid", "==", uid));
+
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+      return null;
+    }
+    return snapshot.docs[0].data();
   };
 
-  const onAvatarClick = async (uid: string) => {
+  async function onAvatarClick(uid: string) {
     console.log("Avatar clicked", uid);
-    const q = query(collection(db, "kids"), where("uid", "==", uid));
-    const snapshot = await getDocs(q);
-    setSelectedKid(snapshot.docs[0].data() as User);
-  };
+    const selectedKid = (await queryByUid("kids", uid)) as User;
+    if (!selectedKid || !user) {
+      setError("Kid not found");
+      return;
+    }
+    console.log("Selected kid", selectedKid);
+    const privateChatRoom = await startPrivateChat(user, selectedKid);
+    setChatRoom(privateChatRoom as ChatRoom);
+  }
 
   useEffect(() => {
     setIsLoading(true);
@@ -66,6 +96,7 @@ function App() {
     onAuthStateChanged(auth, async (user) => {
       try {
         if (user !== null) {
+          setChatRoom(await getChatRoom(GENERAL_CHATROOM_ID));
           const db = getFirestore();
           const q = query(
             collection(db, "kids"),
@@ -78,6 +109,16 @@ function App() {
             setUser(null);
             auth.signOut();
             return;
+          }
+          const uid = snapshot.docs[0].data().uid;
+          if (uid && uid !== user.uid) {
+            setError("You are not authorized to use this app");
+            setUser(null);
+            auth.signOut();
+            return;
+          }
+          if (!uid) {
+            await updateDoc(snapshot.docs[0].ref, { uid: user.uid });
           }
           setUser(user);
         } else {
@@ -102,8 +143,12 @@ function App() {
         <Chat>
           <ChatHeader>
             <ChatUser displayName={user.displayName || "Anonymous"} />
+            {user.email && (
+              <InboxIcon email={user.email} setChatRoom={setChatRoom} />
+            )}
             <Logout />
           </ChatHeader>
+          {chatRoom && <ChatroomHeader room={chatRoom} />}
           <main>
             <ChatMessages
               uid={user.uid}
@@ -114,7 +159,7 @@ function App() {
               <ChatNewMessage
                 uid={user.uid}
                 onNewMessage={onNewMessage}
-                selectedKid={selectedKid}
+                roomId={chatRoom?.id}
               />
             </ChatFooter>
           </main>
@@ -127,5 +172,4 @@ function App() {
     </div>
   );
 }
-
 export default App;

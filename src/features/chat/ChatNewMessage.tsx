@@ -1,23 +1,24 @@
 import { useState } from "react";
 import classes from "./chat.module.css";
-import { Message } from "./types/Messages";
-import User from "../authentication/types/Users";
-import ChatTo from "./ChatTo";
+import { Message, MessageStatus } from "./types/Messages.d";
+import { Timestamp } from "firebase/firestore";
 
 interface Props {
   uid: string;
   onNewMessage: (message: Message) => void;
-  selectedKid: User | null;
+  roomId?: string;
 }
-const ChatNewMessage = ({ uid, onNewMessage, selectedKid }: Props) => {
+const ChatNewMessage = ({ uid, onNewMessage, roomId }: Props) => {
   const [newMessage, setNewMessage] = useState("");
   const sendMessage = async () => {
     console.log("Sending message: ", newMessage);
     onNewMessage({
       id: crypto.randomUUID(),
       text: newMessage,
-      createdAt: Date.now(),
+      createdAt: Timestamp.now(),
       uid: uid,
+      status: MessageStatus.Sent,
+      roomId: roomId || "general",
     });
 
     setNewMessage("");
@@ -25,8 +26,6 @@ const ChatNewMessage = ({ uid, onNewMessage, selectedKid }: Props) => {
 
   return (
     <>
-      {selectedKid && <ChatTo selectedKid={selectedKid} />}
-
       <input
         type="text"
         className={classes["write-message"]}

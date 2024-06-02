@@ -1,5 +1,6 @@
 import classes from "./chat.module.css";
 import type { Message } from "./types/Messages";
+import { extractTime } from "../../utils/date";
 
 interface Props {
   uid: string;
@@ -18,17 +19,11 @@ const ChatMessages = ({ uid, messages, onAvatarClick }: Props) => {
             message.uid === uid ? classes.current : classes.other
           } {message.to === uid ? classes.private : ""}`}
         >
-          <span className={classes.time}>{message.createdAt}</span>
+          <span className={classes.time}>{extractTime(message.createdAt)}</span>
           <div
             className={classes.photo}
             onClick={() => onAvatarClick(message.uid)}
-          >
-            {/* //{" "}
-            <img
-              src={messageEvent.data.photoURL}
-              alt={message.data.displayName}
-            /> */}
-          </div>
+          ></div>
           <p className={classes.text}>{message.text}</p>
         </div>
       ))}

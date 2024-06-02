@@ -1,6 +1,15 @@
+import { Timestamp } from "firebase/firestore";
+
+export enum MessageStatus {
+  Initial = "initial",
+  Sent = "sent",
+  Flagged = "flagged",
+}
 export interface Message {
   text: string;
   uid: string;
   id: string;
-  createdAt: number;
+  createdAt: Timestamp;
+  roomId: string;
+  status: MessageStatus;
 }
