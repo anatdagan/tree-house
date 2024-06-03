@@ -1,0 +1,160 @@
+import { generateModel, sendMessageStream, getChatWithAi } from "./apiAI";
+import { POSSIBLE_ROLES } from "firebase/vertexai-preview";
+import type { Message } from "../features/chat/types/Messages";
+
+export enum Sentiment {
+  FRIENDLY = "friendly",
+  DEPRESSED = "depressed",
+  IRRITATED = "irritated",
+  ANGRY = "angry",
+  BORED = "bored",
+  SEXUAL = "sexual",
+  AGGRESSIVE = "aggressive",
+  OFFENSIVE = "offensive",
+  HATE_SPEECH = "hate_speech",
+  INAPPROPRIATE = "inappropriate",
+  ILLEGAL_RESPONSE = "illegal_response",
+  NEUTRAL = "neutral",
+  DEFAULT = "default",
+}
+
+const SENTIMENT_ANALYSIS_CONFIG = {
+  maxOutputTokens: 100,
+  temperature: 0,
+  topP: 0.2,
+  topK: 1,
+};
+const SENTIMENT_ALYSIS_CHAT_PARAMS = {
+  history: [
+    {
+      role: POSSIBLE_ROLES[0],
+      parts: [{ text: "a: Hi everybody! Nice day isn't it?" }],
+    },
+    {
+      role: POSSIBLE_ROLES[1],
+      parts: [{ text: "tone:friendly;score:4" }],
+    },
+    {
+      role: POSSIBLE_ROLES[0],
+      parts: [{ text: "b: no, not really" }],
+    },
+    {
+      role: POSSIBLE_ROLES[1],
+      parts: [{ text: "tone:depressed;score:1" }],
+    },
+    {
+      role: POSSIBLE_ROLES[0],
+      parts: [{ text: "a: why?" }],
+    },
+    {
+      role: POSSIBLE_ROLES[1],
+      parts: [{ text: "tone:neutral;score:3" }],
+    },
+    {
+      role: POSSIBLE_ROLES[0],
+      parts: [{ text: "b: My parents really get on my nerves!" }],
+    },
+    {
+      role: POSSIBLE_ROLES[1],
+      parts: [{ text: "tone:angry;score:4" }],
+    },
+    {
+      role: POSSIBLE_ROLES[0],
+      parts: [{ text: "c: Look! A bird!" }],
+    },
+    {
+      role: POSSIBLE_ROLES[1],
+      parts: [{ text: "tone:non of the above;score:1" }],
+    },
+  ],
+  systemInstruction: {
+    role: POSSIBLE_ROLES[2],
+    parts: [
+      { text: `You are a chat moderator for a children's chat app.` },
+      {
+        text: `Your task is to analyze the tone of the messages posted by the children.`,
+      },
+      { text: `To complete the task, you need to follow these steps:` },
+      {
+        text: `1. Analyze the tone of the message according to the list of predefined tones of speeach.`,
+      },
+      { text: `2. Evaluate how sure you are about the tone from 1 to 5.` },
+      { text: `3. Respond with the tone and the score.` },
+      {
+        text: `The tone can be only one of the following: friendly, depressed, irritated, bored, sexual, angry, aggressive, offensive, hate speech, neutral, non of the above.`,
+      },
+      {
+        text: `The message begins with the name of the speaker followed by ":".`,
+      },
+      {
+        text: `Please use for every message the 5 massages that preceed it in order to understand the context of the message in the conversation.`,
+      },
+      {
+        text: `The output must be in the following format: "tone:(a tone from the list above);score:(the score)"`,
+      },
+      {
+        text: `you need to analyze the tone of the message in the context of the conversation and respond in the format: "tone:(the detected emotion from the predefined list);score:(a number between 1 and 5)`,
+      },
+      {
+        text: `Do not use other tones than the predefined ones. It is OK if you are not sure about the tone, in this case you can use the "non of the above" tone or return a low score.`,
+      },
+    ],
+  },
+};
+const chat = initializeSentimentAnalysis();
+
+function formatSentiment(str: string): Sentiment {
+  switch (str.toLowerCase()) {
+    case "friendly":
+      return Sentiment.FRIENDLY;
+    case "depressed":
+      return Sentiment.DEPRESSED;
+    case "irritated":
+      return Sentiment.IRRITATED;
+    case "angry":
+      return Sentiment.ANGRY;
+    case "bored":
+      return Sentiment.BORED;
+    case "sexual":
+      return Sentiment.SEXUAL;
+    case "aggressive":
+      return Sentiment.AGGRESSIVE;
+    case "offensive":
+      return Sentiment.OFFENSIVE;
+    case "hatespeech":
+      return Sentiment.HATE_SPEECH;
+    case "inappropriate":
+      return Sentiment.INAPPROPRIATE;
+    case "neutral":
+      return Sentiment.NEUTRAL;
+    case "non of the above":
+      return Sentiment.DEFAULT;
+    default:
+      return Sentiment.ILLEGAL_RESPONSE;
+  }
+}
+function initializeSentimentAnalysis() {
+  const model = generateModel(SENTIMENT_ANALYSIS_CONFIG);
+  return getChatWithAi(model, SENTIMENT_ALYSIS_CHAT_PARAMS);
+}
+
+export async function getMessageSentiment(message: Message) {
+  let tone = { tone: Sentiment.DEFAULT, score: 100 };
+  const { text, uid } = message;
+  try {
+    const apiResponse = await sendMessageStream(`${uid}:${text}`, chat);
+    const toneParts = apiResponse.match(/tone:(.*);score:(.*)/);
+    tone =
+      toneParts && toneParts.length === 3
+        ? {
+            tone: formatSentiment(toneParts[1]),
+            score: Number(toneParts[2]),
+          }
+        : { tone: Sentiment.ILLEGAL_RESPONSE, score: 100 };
+
+    return tone;
+  } catch (error) {
+    console.log("Error in sentiment analysis: ", error);
+    return { tone: Sentiment.ILLEGAL_RESPONSE, score: 100 };
+  }
+}

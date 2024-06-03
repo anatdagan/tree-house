@@ -2,12 +2,14 @@ import { DocumentReference } from "firebase/firestore";
 import { addDocToCollection } from "./db";
 import { Message, MessageStatus } from "../features/chat/types/Messages.d";
 import { addMessage } from "./apiMessages";
+import { Sentiment, getMessageSentiment } from "./apiSentimentAnalysis";
 
 type ModerationCheck = (message: Message) => Promise<FlagReason | null>;
 
 enum FlagReason {
   Offensive = "offensive",
   Inappropriate = "inappropriate",
+  Illegal = "illegal",
 }
 const checks: ModerationCheck[] = [];
 
@@ -29,16 +31,24 @@ export async function flagMessage(
   });
 }
 
-async function findSleepyViolations(message: Message) {
-  return await new Promise<FlagReason | null>((resolve) => {
-    if (message.text.includes("💤")) {
-      resolve(FlagReason.Inappropriate);
-    } else {
-      resolve(null);
-    }
-  });
+async function findSentimentViolations(message: Message) {
+  const sentiment = await getMessageSentiment(message);
+  console.log("Sentiment analysis result: ", sentiment);
+  switch (sentiment.tone) {
+    case Sentiment.AGGRESSIVE:
+    case Sentiment.OFFENSIVE:
+    case Sentiment.INAPPROPRIATE:
+    case Sentiment.HATE_SPEECH:
+      return FlagReason.Offensive;
+    case Sentiment.SEXUAL:
+      return FlagReason.Inappropriate;
+    case Sentiment.ILLEGAL_RESPONSE:
+      return FlagReason.Illegal;
+    default:
+      return null;
+  }
 }
-addModerationCheck(findSleepyViolations);
+addModerationCheck(findSentimentViolations);
 export async function findViolations(message: Message) {
   try {
     const validations = checks.map(
