@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { getFunctions } from "firebase/functions";
+import { getVertexAI } from "firebase/vertexai-preview";
 
 declare global {
   interface Window {
@@ -36,4 +37,8 @@ const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider("6Le59O4pAAAAAPeidgX7BoVuMTGAo10W37DGy9Iu"),
   isTokenAutoRefreshEnabled: true,
 });
-export { auth, app, functions, appCheck };
+
+// Initialize the Vertex AI service
+const vertexAI = getVertexAI(app);
+
+export { auth, app, functions, appCheck, vertexAI };

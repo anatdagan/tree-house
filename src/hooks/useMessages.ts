@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import type { Message } from "../features/chat/types/Messages";
+import { MessageStatus, type Message } from "../features/chat/types/Messages.d";
 import {
   getFirestore,
   query,
@@ -31,16 +31,19 @@ const useMessages = (
     const q = query(
       collection(db, "messages"),
       where("roomId", "==", chatRoom.id),
-      where("status", "==", "sent"),
-      orderBy("createdAt", "desc"),
-      limit(50)
+      orderBy("createdAt", "asc"),
+      limit(10)
     );
     setMessages([]);
     const unsubscribe = onSnapshot(q, (snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
-          console.log("New message: ", change.doc.data());
-          setMessages((prev) => [change.doc.data() as Message, ...prev]);
+          const message = change.doc.data() as Message;
+          if (message.status !== MessageStatus.Sent) {
+            message.text = "This message was removed";
+          }
+          console.log("New message: ", message);
+          setMessages((prev) => [message, ...prev]);
         }
       });
     });
