@@ -15,20 +15,16 @@ import Login from "./features/authentication/Login.tsx";
 import LoadingIndicator from "./ui/LoadingIndicator.tsx";
 import ErrorMessage from "./ui/ErrorMessage.tsx";
 import type { Message } from "./features/chat/types/Messages.ts";
-import {
-  getDocs,
-  addDoc,
-  collection,
-  query,
-  where,
-  updateDoc,
-} from "firebase/firestore";
+import { getDocs, addDoc, collection, query, where } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
 import { ChatRoom } from "./features/chatroom/types/Rooms";
 import ChatroomHeader from "./features/chatroom/ChatroomHeader.tsx";
 import { findViolations } from "./services/apiModeration.ts";
 import InboxIcon from "./features/Inbox/InboxIcon.tsx";
 import { startPrivateChat } from "./services/apiChatRooms.ts";
+import { initParentNotifications } from "./services/apiParentNotifications.ts";
+import { getKidInfo } from "./services/apiKids.ts";
+import { updateDocData } from "./services/db.ts";
 const GENERAL_CHATROOM_ID = "general";
 const db = getFirestore();
 
@@ -94,20 +90,15 @@ function App() {
       try {
         if (user !== null) {
           setChatRoom(await getChatRoom(GENERAL_CHATROOM_ID));
-          const db = getFirestore();
-          const q = query(
-            collection(db, "kids"),
-            where("email", "==", user?.email)
-          );
-          const snapshot = await getDocs(q);
+          const kidInfo = await getKidInfo(user.email);
 
-          if (snapshot.empty) {
+          if (!kidInfo) {
             setError("You are not authorized to use this app");
             setUser(null);
             auth.signOut();
             return;
           }
-          const uid = snapshot.docs[0].data().uid;
+          const uid = kidInfo.uid;
           if (uid && uid !== user.uid) {
             setError("You are not authorized to use this app");
             setUser(null);
@@ -115,9 +106,10 @@ function App() {
             return;
           }
           if (!uid) {
-            await updateDoc(snapshot.docs[0].ref, { uid: user.uid });
+            await updateDocData("kids", kidInfo.email, { uid: user.uid });
           }
           setUser(user);
+          initParentNotifications(kidInfo);
         } else {
           setUser(null);
           console.log("User is not logged in");

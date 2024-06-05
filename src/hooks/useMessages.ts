@@ -31,7 +31,7 @@ const useMessages = (
     const q = query(
       collection(db, "messages"),
       where("roomId", "==", chatRoom.id),
-      orderBy("createdAt", "asc"),
+      orderBy("createdAt", "desc"),
       limit(10)
     );
     setMessages([]);
@@ -43,7 +43,11 @@ const useMessages = (
             message.text = "This message was removed";
           }
           console.log("New message: ", message);
-          setMessages((prev) => [message, ...prev]);
+          setMessages((prev) =>
+            [message, ...prev].sort((a, b) =>
+              a.createdAt.nanoseconds > b.createdAt.nanoseconds ? 1 : -1
+            )
+          );
         }
       });
     });

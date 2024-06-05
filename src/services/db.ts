@@ -12,6 +12,7 @@ import {
   DocumentReference,
   Query,
   DocumentChangeType,
+  setDoc,
 } from "firebase/firestore";
 
 const db = getFirestore();
@@ -84,11 +85,11 @@ export async function getDocSnapshot(collectionName: string, docId: string) {
   return await getDoc(docRef);
 }
 
-export async function getDocData<T>(docRef: DocumentReference) {
-  try {
-    const doc = await getDoc(docRef);
-    return doc.data() as T;
-  } catch (error) {
-    throw new Error(`Error getting document: ${error} ${docRef.path}`);
-  }
+export async function updateDocData(
+  collectionName: string,
+  docId: string,
+  data: DocumentData
+) {
+  const docRef = doc(db, collectionName, docId);
+  await setDoc(docRef, data);
 }

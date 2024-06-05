@@ -2,7 +2,7 @@ import { DocumentReference } from "firebase/firestore";
 import { addDocToCollection } from "./db";
 import { Message, MessageStatus } from "../features/chat/types/Messages.d";
 import { addMessage } from "./apiMessages";
-import { Sentiment, getMessageSentiment } from "./apiSentimentAnalysis";
+import { Sentiment, sentimentManager } from "./apiSentimentAnalysis";
 
 type ModerationCheck = (message: Message) => Promise<FlagReason | null>;
 
@@ -32,7 +32,7 @@ export async function flagMessage(
 }
 
 async function findSentimentViolations(message: Message) {
-  const sentiment = await getMessageSentiment(message);
+  const sentiment = await sentimentManager.analyzeMessage(message);
   console.log("Sentiment analysis result: ", sentiment);
   switch (sentiment.tone) {
     case Sentiment.AGGRESSIVE:
