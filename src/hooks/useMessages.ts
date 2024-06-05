@@ -45,7 +45,7 @@ const useMessages = (
           console.log("New message: ", message);
           setMessages((prev) =>
             [message, ...prev].sort((a, b) =>
-              a.createdAt.nanoseconds > b.createdAt.nanoseconds ? 1 : -1
+              a.createdAt.toMillis() > b.createdAt.toMillis() ? 1 : -1
             )
           );
         }
