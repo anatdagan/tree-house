@@ -12,6 +12,13 @@ class EventEmitter<T> {
     this.events[event].push(listener);
   }
 
+  off(event: string, listener: EventCallback<T>) {
+    const listeners = this.events[event];
+    if (listeners) {
+      this.events[event] = listeners.filter((l) => l !== listener);
+    }
+  }
+
   emit(event: string, data: T) {
     const listeners = this.events[event];
     if (listeners) {

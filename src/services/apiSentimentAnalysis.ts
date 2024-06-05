@@ -1,6 +1,7 @@
 import { generateModel, sendMessageStream, getChatWithAi } from "./apiAI";
-import { POSSIBLE_ROLES } from "firebase/vertexai-preview";
+import { ChatSession, POSSIBLE_ROLES } from "firebase/vertexai-preview";
 import type { Message } from "../features/chat/types/Messages";
+import EventEmitter from "./apiEvents";
 
 export enum Sentiment {
   FRIENDLY = "friendly",
@@ -18,6 +19,14 @@ export enum Sentiment {
   DEFAULT = "default",
 }
 
+export interface MessageSentiment {
+  tone: Sentiment;
+  score: number;
+}
+interface MessageWithScore {
+  message: Message;
+  score: number;
+}
 const SENTIMENT_ANALYSIS_CONFIG = {
   maxOutputTokens: 100,
   temperature: 0,
@@ -101,7 +110,6 @@ const SENTIMENT_ALYSIS_CHAT_PARAMS = {
     ],
   },
 };
-const chat = initializeSentimentAnalysis();
 
 function formatSentiment(str: string): Sentiment {
   switch (str.toLowerCase()) {
@@ -133,28 +141,92 @@ function formatSentiment(str: string): Sentiment {
       return Sentiment.ILLEGAL_RESPONSE;
   }
 }
-function initializeSentimentAnalysis() {
-  const model = generateModel(SENTIMENT_ANALYSIS_CONFIG);
-  return getChatWithAi(model, SENTIMENT_ALYSIS_CHAT_PARAMS);
-}
 
-export async function getMessageSentiment(message: Message) {
-  let tone = { tone: Sentiment.DEFAULT, score: 100 };
-  const { text, uid } = message;
-  try {
-    const apiResponse = await sendMessageStream(`${uid}:${text}`, chat);
-    const toneParts = apiResponse.match(/tone:(.*);score:(.*)/);
-    tone =
-      toneParts && toneParts.length === 3
-        ? {
-            tone: formatSentiment(toneParts[1]),
-            score: Number(toneParts[2]),
-          }
-        : { tone: Sentiment.ILLEGAL_RESPONSE, score: 100 };
-
-    return tone;
-  } catch (error) {
-    console.log("Error in sentiment analysis: ", error);
-    return { tone: Sentiment.ILLEGAL_RESPONSE, score: 100 };
+class SentimentAggreagator {
+  name: Sentiment;
+  score: number;
+  lastMessages: MessageWithScore[];
+  constructor(sentiment: Sentiment) {
+    this.name = sentiment || Sentiment.DEFAULT;
+    this.score = 0;
+    this.lastMessages = [];
+  }
+  addMessageWithScore(message: Message, score: number) {
+    this.addScore(score);
+    this.lastMessages.push({ message, score });
+  }
+  addScore(score: number) {
+    this.score += score;
+  }
+  resetScore() {
+    this.score = 0;
+  }
+  getScore() {
+    return this.score;
   }
 }
+
+class SentimentManager {
+  sentiments: { [key: string]: SentimentAggreagator };
+  chat: ChatSession;
+  eventEmitter: EventEmitter<MessageSentiment>;
+  messageCounter: number;
+  constructor() {
+    this.sentiments = {};
+    this.eventEmitter = new EventEmitter();
+    const model = generateModel(SENTIMENT_ANALYSIS_CONFIG);
+    this.chat = getChatWithAi(model, SENTIMENT_ALYSIS_CHAT_PARAMS);
+    this.messageCounter = 0;
+  }
+  addSentiment(sentiment: Sentiment) {
+    if (!this.sentiments[sentiment]) {
+      this.sentiments[sentiment] = new SentimentAggreagator(sentiment);
+    }
+  }
+  getSentiment(sentiment: Sentiment) {
+    return this.sentiments[sentiment];
+  }
+  getSentimentScore(sentiment: Sentiment) {
+    const sentimentAggregator = this.sentiments[sentiment];
+    if (!sentimentAggregator) {
+      return 0;
+    }
+    const score = sentimentAggregator.getScore() / this.messageCounter;
+    return score;
+  }
+  resetSentimentScore(sentiment: Sentiment) {
+    this.sentiments[sentiment].resetScore();
+  }
+  async analyzeMessage(message: Message) {
+    let sentiment = { tone: Sentiment.DEFAULT, score: 100 };
+    const { text, uid } = message;
+    try {
+      const apiResponse = await sendMessageStream(`${uid}:${text}`, this.chat);
+      const toneParts = apiResponse.match(/tone:(.*);score:(.*)/);
+      let tone: Sentiment;
+      if (toneParts && toneParts.length === 3) {
+        tone = formatSentiment(toneParts[1]);
+        sentiment = {
+          tone,
+          score: Number(toneParts[2]),
+        };
+      } else {
+        sentiment = { tone: Sentiment.ILLEGAL_RESPONSE, score: 100 };
+      }
+      if (this.sentiments[sentiment.tone] === undefined) {
+        this.addSentiment(sentiment.tone);
+      }
+      this.sentiments[sentiment.tone].addMessageWithScore(
+        message,
+        sentiment.score
+      );
+      this.messageCounter++;
+      return sentiment;
+    } catch (error) {
+      console.log("Error in sentiment analysis: ", error);
+      return { tone: Sentiment.ILLEGAL_RESPONSE, score: 100 };
+    }
+  }
+}
+
+export const sentimentManager = new SentimentManager();
