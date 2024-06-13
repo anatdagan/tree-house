@@ -1,11 +1,12 @@
-import User from "../features/authentication/types/Users";
-import { ChatRoom } from "../features/chatroom/types/Rooms";
+import User from "../features/authentication/types/Users.d";
+import { ChatRoom, RoomType } from "../features/chatroom/types/Rooms.d";
 import { addDocToCollection, getDocDataFromCollection } from "./db";
 import { sendMessageToInbox } from "./apiInbox";
 import {
   InboxMessageType,
   InboxMessageStatus,
 } from "../features/Inbox/inbox.d";
+import { Kid } from "./apiKids";
 
 export async function getChatroom(id: string) {
   return (await getDocDataFromCollection<string>(
@@ -16,6 +17,10 @@ export async function getChatroom(id: string) {
 }
 
 export async function createChatroom(chatRoomData: ChatRoom) {
+  const chatRoom = await getChatroom(chatRoomData.id);
+  if (chatRoom) {
+    return chatRoom;
+  }
   await addDocToCollection("chatrooms", chatRoomData);
   return chatRoomData;
 }
@@ -30,6 +35,7 @@ export async function startPrivateChat(user1: User, user2: User) {
       description: `Private chat Between  ${user1.displayName} and ${user2.displayName}`,
       createdAt: new Date(),
       createdBy: user1.uid,
+      type: RoomType.PRIVATE,
     };
     privateChatRoom = await createChatroom(chatRoomData);
   }
@@ -46,4 +52,18 @@ export async function startPrivateChat(user1: User, user2: User) {
   );
 
   return privateChatRoom;
+}
+
+export async function createWelcomeRoom(kidInfo: Kid, uid: string) {
+  const chatroomId = `welcome-${uid}`;
+  const chatroomData = {
+    id: chatroomId,
+    type: RoomType.WELCOME,
+    name: `Welcome ${kidInfo.displayName} to Treehouse Chat 🌳`,
+    description: `An orientation chat for ${kidInfo.displayName}`,
+    createdAt: new Date(),
+    createdBy: "system",
+  };
+  if (!(await getChatroom(chatroomId))) await createChatroom(chatroomData);
+  return chatroomData;
 }

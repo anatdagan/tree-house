@@ -23,7 +23,7 @@ function notifyParnetOnDepressedSentiment(kid: Kid) {
   }
   const notification: ParentNotification = {
     subject: "Depressed sentiment detected",
-    body: `Your kid, ${kid.name}, has been detected with a depressed sentiment.`,
+    body: `Your kid, ${kid.displayName}, has been detected with a depressed sentiment.`,
     createdAt: new Date(),
     status: "unread",
   };

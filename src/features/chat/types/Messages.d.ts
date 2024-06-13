@@ -12,4 +12,5 @@ export interface Message {
   createdAt: Timestamp;
   roomId: string;
   status: MessageStatus;
+  avatar?: string;
 }

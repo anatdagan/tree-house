@@ -1,12 +1,13 @@
+import React from "react";
 import { getChatroom } from "../../services/apiChatRooms";
-import { ChatRoom } from "../chatroom/types/Rooms";
+import { ChatAction, ChatActionTypes } from "../../reducers/chatReducer";
 import type { InboxMessageData } from "./inbox.d";
 import { InboxMessageType } from "./inbox.d";
 interface InboxMessageProps {
   message: InboxMessageData;
-  setChatRoom: (roomId: ChatRoom) => void;
+  dispatch: React.Dispatch<ChatAction>;
 }
-const InboxMessage = ({ message, setChatRoom }: InboxMessageProps) => {
+const InboxMessage = ({ message, dispatch }: InboxMessageProps) => {
   async function onMessageClick() {
     console.log(`Message clicked: ${message.subject}`);
     const chatRoom = message.roomId ? await getChatroom(message.roomId) : null;
@@ -16,7 +17,10 @@ const InboxMessage = ({ message, setChatRoom }: InboxMessageProps) => {
           console.error(`Chatroom not found: ${message.roomId}`);
           return;
         }
-        setChatRoom(chatRoom);
+        dispatch({
+          type: ChatActionTypes.SWITCH_ROOM,
+          payload: { room: chatRoom },
+        });
         break;
       default:
         console.log(`Unknown message type: ${message.type}`);
