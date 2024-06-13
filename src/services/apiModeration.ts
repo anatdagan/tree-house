@@ -3,13 +3,18 @@ import { addDocToCollection } from "./db";
 import { Message, MessageStatus } from "../features/chat/types/Messages.d";
 import { addMessage } from "./apiMessages";
 import { Sentiment, sentimentManager } from "./apiSentimentAnalysis";
-
+import {
+  containsPersonalInformation,
+  initPersonalInfoIdentifier,
+} from "./apiIdentifiableInformation";
+import { getRandomCounselor } from "./chatbots/apiCounselors";
 type ModerationCheck = (message: Message) => Promise<FlagReason | null>;
 
 enum FlagReason {
   Offensive = "offensive",
   Inappropriate = "inappropriate",
   Illegal = "illegal",
+  PersonalInformation = "personal_information",
 }
 const checks: ModerationCheck[] = [];
 
@@ -48,7 +53,19 @@ async function findSentimentViolations(message: Message) {
       return null;
   }
 }
+async function findIdentifiableInformation(message: Message) {
+  console.log("Checking for personal information in message: ", message);
+  const chat = await initPersonalInfoIdentifier();
+  if (await containsPersonalInformation(message, chat)) {
+    const counselor = getRandomCounselor();
+    counselor?.startChat();
+    await counselor?.respond(message.text, message.roomId);
+    return FlagReason.PersonalInformation;
+  }
+  return null;
+}
 addModerationCheck(findSentimentViolations);
+addModerationCheck(findIdentifiableInformation);
 export async function findViolations(message: Message) {
   try {
     const validations = checks.map(
