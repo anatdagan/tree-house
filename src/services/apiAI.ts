@@ -4,8 +4,10 @@ import {
   GenerativeModel,
   getGenerativeModel,
   ChatSession,
+  POSSIBLE_ROLES,
 } from "firebase/vertexai-preview";
 import { vertexAI } from "../../firebase";
+import { SystemInstructionsParts as SystemInstructionsSections } from "./types/ai";
 
 export async function getResponseFromAi(
   prompt: string,
@@ -46,4 +48,34 @@ export async function sendMessageStream(msg: string, chat: ChatSession) {
     text += chunkText;
   }
   return text;
+}
+
+class SystemInstructionsGenerator {
+  private instructions: { text: string }[] = [];
+  constructor({ ...instructionParts }: SystemInstructionsSections) {
+    this.addInstruction(instructionParts.persona);
+    this.addInstruction(instructionParts.objective);
+    instructionParts.instructions?.forEach((instruction) => {
+      this.addInstruction(instruction);
+    });
+    instructionParts.constraints?.forEach((constraint) => {
+      this.addInstruction(constraint);
+    });
+    this.addInstruction(instructionParts.format);
+    this.addInstruction(instructionParts.summary);
+  }
+  addInstruction(instruction: string | undefined) {
+    if (!instruction) {
+      return;
+    }
+    this.instructions.push({ text: instruction });
+  }
+  getInstructions() {
+    return { role: POSSIBLE_ROLES[2], parts: this.instructions };
+  }
+}
+export function generateSystemInstructions(
+  instructionParts: SystemInstructionsSections
+) {
+  return new SystemInstructionsGenerator(instructionParts).getInstructions();
 }

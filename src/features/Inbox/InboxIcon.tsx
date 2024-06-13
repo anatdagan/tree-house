@@ -1,15 +1,15 @@
 import Modal from "../../ui/Modal/Modal";
-import { useState } from "react";
+import React, { useState } from "react";
 import Inbox from "./Inbox";
-import { ChatRoom } from "../chatroom/types/Rooms";
 import { InboxMessageData } from "./inbox.d";
 import { getInboxMessages } from "../../services/apiInbox";
+import { ChatAction } from "../../reducers/chatReducer";
 
 interface Props {
   email: string;
-  setChatRoom: (chatRoom: ChatRoom) => void;
+  dispatch: React.Dispatch<ChatAction>;
 }
-const InboxIcon = ({ email, setChatRoom }: Props) => {
+const InboxIcon = ({ email, dispatch }: Props) => {
   const [inboxOpen, setInboxOpen] = useState(false);
   const [inboxMessages, setInboxMessages] = useState<InboxMessageData[]>([]);
 
@@ -36,12 +36,13 @@ const InboxIcon = ({ email, setChatRoom }: Props) => {
         <rect x="4" y="4" width="16" height="16" rx="2" />
         <path d="M4 13h3l3 3h4l3 -3h3" />
       </svg>
+      {/* use context api*/}
       {inboxOpen && (
         <Modal>
           <Inbox
             toggleInbox={toggleInbox}
             inboxMessages={inboxMessages}
-            setChatRoom={setChatRoom}
+            dispatch={dispatch}
           />
         </Modal>
       )}

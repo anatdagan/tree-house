@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer, useRef } from "react";
 import "./App.css";
 import { onAuthStateChanged } from "firebase/auth";
-
 import { auth } from "../firebase.ts";
 import Chat from "./features/chat/Chat.tsx";
 import ChatHeader from "./features/chat/ChatHeader.tsx";
@@ -15,16 +14,22 @@ import Login from "./features/authentication/Login.tsx";
 import LoadingIndicator from "./ui/LoadingIndicator.tsx";
 import ErrorMessage from "./ui/ErrorMessage.tsx";
 import type { Message } from "./features/chat/types/Messages.ts";
-import { getDocs, addDoc, collection, query, where } from "firebase/firestore";
+import { getDocs, collection, query, where } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
 import { ChatRoom } from "./features/chatroom/types/Rooms";
 import ChatroomHeader from "./features/chatroom/ChatroomHeader.tsx";
 import { findViolations } from "./services/apiModeration.ts";
 import InboxIcon from "./features/Inbox/InboxIcon.tsx";
-import { startPrivateChat } from "./services/apiChatRooms.ts";
+import {
+  startPrivateChat,
+  createWelcomeRoom,
+} from "./services/apiChatRooms.ts";
 import { initParentNotifications } from "./services/apiParentNotifications.ts";
-import { getKidInfo } from "./services/apiKids.ts";
-import { updateDocData } from "./services/db.ts";
+import { Kid, getKidInfo } from "./services/apiKids.ts";
+import { addMessage } from "./services/apiMessages.ts";
+import { initCounselors } from "./services/chatbots/apiCounselors.ts";
+import { chatReducer, ChatActionTypes } from "./reducers/chatReducer.ts";
+import useMessages from "./hooks/useMessages.ts";
 const GENERAL_CHATROOM_ID = "general";
 const db = getFirestore();
 
@@ -38,16 +43,26 @@ const getChatRoom = async (id: string) => {
 };
 
 function App() {
+  // todo: useReducer + context
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [user, setUser] = useState<User | null>(null);
-  const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
+  const [kidInfo, setKidInfo] = useState<Kid | null>(null);
 
+  const initialState = {
+    messages: [],
+    selectedChatRoom: null,
+  };
+  const [{ selectedChatRoom, messages }, dispatch] = useReducer(
+    chatReducer,
+    initialState
+  );
+  useMessages(dispatch, selectedChatRoom);
   const catchErrors = (error: unknown) => {
     setError(error instanceof Error ? error.message : "An error occurred");
     setIsLoading(false);
   };
-  console.log("ChatRoom", chatRoom);
+  console.log("ChatRoom", selectedChatRoom);
   const onNewMessage = async (newMessage: Message) => {
     if (!user) {
       console.log("You must be logged in to send a message");
@@ -58,8 +73,7 @@ function App() {
       return;
     }
     console.log("Sending message: ", newMessage);
-    const docRef = await addDoc(collection(db, "messages"), newMessage);
-    console.log("Document written with ID: ", docRef.id);
+    await addMessage(newMessage);
   };
   const queryByUid = async (collectionName: string, uid: string) => {
     const q = query(collection(db, collectionName), where("uid", "==", uid));
@@ -80,16 +94,27 @@ function App() {
     }
     console.log("Selected kid", selectedKid);
     const privateChatRoom = await startPrivateChat(user, selectedKid);
-    setChatRoom(privateChatRoom as ChatRoom);
+    dispatch({
+      type: ChatActionTypes.SWITCH_ROOM,
+      payload: { room: privateChatRoom as ChatRoom },
+    });
   }
-
+  const generalRoom = useRef<ChatRoom | null>(null);
   useEffect(() => {
     setIsLoading(true);
     setError("");
     onAuthStateChanged(auth, async (user) => {
       try {
+        console.log("generalRoom", generalRoom.current);
         if (user !== null) {
-          setChatRoom(await getChatRoom(GENERAL_CHATROOM_ID));
+          generalRoom.current = await getChatRoom(GENERAL_CHATROOM_ID);
+          let currentRoom = generalRoom.current;
+          dispatch({
+            type: ChatActionTypes.SWITCH_ROOM,
+            payload: {
+              room: currentRoom,
+            },
+          });
           const kidInfo = await getKidInfo(user.email);
 
           if (!kidInfo) {
@@ -105,11 +130,19 @@ function App() {
             auth.signOut();
             return;
           }
-          if (!uid) {
-            await updateDocData("kids", kidInfo.email, { uid: user.uid });
-          }
           setUser(user);
+          setKidInfo(kidInfo);
           initParentNotifications(kidInfo);
+          if (kidInfo.status === "new") {
+            currentRoom = await createWelcomeRoom(kidInfo, user.uid);
+            dispatch({
+              type: ChatActionTypes.SWITCH_ROOM,
+              payload: { room: currentRoom },
+            });
+          }
+          if (currentRoom) {
+            await initCounselors(kidInfo, currentRoom, dispatch);
+          }
         } else {
           setUser(null);
           console.log("User is not logged in");
@@ -130,25 +163,23 @@ function App() {
     <div className="container">
       {user ? (
         <Chat>
-          <ChatHeader>
-            <ChatUser displayName={user.displayName || "Anonymous"} />
-            {user.email && (
-              <InboxIcon email={user.email} setChatRoom={setChatRoom} />
-            )}
+          <ChatHeader dispatch={dispatch} generalRoom={generalRoom}>
+            <ChatUser displayName={kidInfo?.displayName || "Anonymous"} />
+            {user.email && <InboxIcon email={user.email} dispatch={dispatch} />}
             <Logout />
           </ChatHeader>
-          {chatRoom && <ChatroomHeader room={chatRoom} />}
+          {selectedChatRoom && <ChatroomHeader room={selectedChatRoom} />}
           <main>
             <ChatMessages
               uid={user.uid}
               onAvatarClick={onAvatarClick}
-              chatRoom={chatRoom}
+              messages={messages}
             />
             <ChatFooter>
               <ChatNewMessage
-                uid={user.uid}
+                sender={kidInfo}
                 onNewMessage={onNewMessage}
-                roomId={chatRoom?.id}
+                roomId={selectedChatRoom?.id}
               />
             </ChatFooter>
           </main>

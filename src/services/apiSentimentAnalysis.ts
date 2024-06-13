@@ -2,7 +2,6 @@ import { generateModel, sendMessageStream, getChatWithAi } from "./apiAI";
 import { ChatSession, POSSIBLE_ROLES } from "firebase/vertexai-preview";
 import type { Message } from "../features/chat/types/Messages";
 import EventEmitter from "./apiEvents";
-
 export enum Sentiment {
   FRIENDLY = "friendly",
   DEPRESSED = "depressed",
@@ -33,7 +32,8 @@ const SENTIMENT_ANALYSIS_CONFIG = {
   topP: 0.2,
   topK: 1,
 };
-const SENTIMENT_ALYSIS_CHAT_PARAMS = {
+// TODO: find a way to pass other users' messages to the sentiment analysis chat for context
+const SENTIMENT_ANALYSIS_CHAT_PARAMS = {
   history: [
     {
       role: POSSIBLE_ROLES[0],
@@ -175,7 +175,7 @@ class SentimentManager {
     this.sentiments = {};
     this.eventEmitter = new EventEmitter();
     const model = generateModel(SENTIMENT_ANALYSIS_CONFIG);
-    this.chat = getChatWithAi(model, SENTIMENT_ALYSIS_CHAT_PARAMS);
+    this.chat = getChatWithAi(model, SENTIMENT_ANALYSIS_CHAT_PARAMS);
     this.messageCounter = 0;
   }
   addSentiment(sentiment: Sentiment) {

@@ -1,14 +1,14 @@
-import { ChatRoom } from "../chatroom/types/Rooms";
 import classes from "./inbox.module.css";
 import { InboxMessageData } from "./inbox.d";
 import InboxMessage from "./InboxMessage";
+import { ChatAction } from "../../reducers/chatReducer";
 
 interface InboxProps {
   toggleInbox: () => void;
   inboxMessages: InboxMessageData[];
-  setChatRoom: (chatRoom: ChatRoom) => void;
+  dispatch: React.Dispatch<ChatAction>;
 }
-const Inbox = ({ toggleInbox, setChatRoom, inboxMessages }: InboxProps) => {
+const Inbox = ({ toggleInbox, dispatch, inboxMessages }: InboxProps) => {
   console.log("Inbox messages: ", inboxMessages);
   return (
     <div className={classes.inbox} onClick={toggleInbox}>
@@ -17,7 +17,7 @@ const Inbox = ({ toggleInbox, setChatRoom, inboxMessages }: InboxProps) => {
         inboxMessages.map((message) => (
           <InboxMessage
             message={message}
-            setChatRoom={setChatRoom}
+            dispatch={dispatch}
             key={message.id}
           />
         ))}

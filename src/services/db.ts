@@ -1,3 +1,4 @@
+// TODO: "@react-query-firebase/firestore";
 import {
   DocumentData,
   query,
@@ -7,12 +8,15 @@ import {
   addDoc,
   onSnapshot,
   where,
+  deleteDoc,
   doc,
   getDoc,
   DocumentReference,
   Query,
   DocumentChangeType,
   setDoc,
+  limit,
+  orderBy,
 } from "firebase/firestore";
 
 const db = getFirestore();
@@ -33,13 +37,13 @@ export async function getDocDataFromCollection<T>(
 export async function getDocsFromCollection<T>(
   collectionName: string,
   key?: string,
-  value?: T
+  value?: T,
+  limit?: number,
+  orderBy?: string
 ): Promise<DocumentData> {
-  const q = key
-    ? query(collection(db, collectionName), where(key, "==", value))
-    : query(collection(db, collectionName));
-
-  const snapshot = await getDocs(q);
+  const snapshot = await getDocs(
+    createQuery(collectionName, key, value, limit, orderBy)
+  );
   if (snapshot.empty) {
     Promise.resolve(null);
   }
@@ -72,17 +76,30 @@ export async function listenToDocChanges<T>(
 export function createQuery<T>(
   collectionName: string,
   key?: string,
-  value?: T
+  value?: T,
+  count?: number,
+  order?: string
 ): Query {
+  const queryConstraints = [];
   if (key && value) {
-    return query(collection(db, collectionName), where(key, "==", value));
+    queryConstraints.push(where(key, "==", value));
   }
-  return query(collection(db, collectionName));
+  if (count) {
+    queryConstraints.push(limit(count));
+  }
+  if (order) {
+    queryConstraints.push(orderBy(order));
+  }
+  return query(collection(db, collectionName), ...queryConstraints);
 }
 
-export async function getDocSnapshot(collectionName: string, docId: string) {
+export async function getDocById(collectionName: string, docId: string) {
   const docRef = doc(db, collectionName, docId);
-  return await getDoc(docRef);
+  const snapshot = await getDoc(docRef);
+  if (snapshot.exists()) {
+    return snapshot.data();
+  }
+  return null;
 }
 
 export async function updateDocData(
@@ -92,4 +109,17 @@ export async function updateDocData(
 ) {
   const docRef = doc(db, collectionName, docId);
   await setDoc(docRef, data);
+}
+
+export async function deleteDocsFromCollection(
+  collectionName: string,
+  key: string,
+  value: string
+) {
+  console.log("Deleting docs from collection", collectionName);
+  const docs = await await getDocs(createQuery(collectionName, key, value));
+  docs.forEach(async (d) => {
+    console.log("Deleting doc", d.id);
+    await deleteDoc(doc(db, collectionName, d.id));
+  });
 }
