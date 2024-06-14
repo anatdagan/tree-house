@@ -243,44 +243,5 @@ async function startWelcomeChatWithKid(room: ChatRoom) {
   await displayWelcomeMessages(room);
   minnie.startChat();
   jimmy.startChat();
-  // addCounselorMessage(
-  //   minnie,
-  //   `Hi ${kid.displayName}, I'm Minnie, I'm a counselor at Tree House. This is Jimmy - he's also a counselor.`
-  // );
-  // addCounselorMessage(
-  //   jimmy,
-  //   `Hi ${kid.displayName}, I'm Jimmy, Nice to mee you :)`
-  // );
-  // addCounselorMessage(
-  //   minnie,
-  //   `This is a short orientation session before we move you into the main room where you can meet new friends.`
-  // );
-  // addCounselorMessage(
-  //   jimmy,
-  //   `We are here to help you have fun, learn social skills and be safe.`
-  // );
-  // addCounselorMessage(
-  //   minnie,
-  //   `We will be here to help you if you have any questions.`
-  // );
-  // addCounselorMessage(
-  //   jimmy,
-  //   `If you want to ask us something, just write a message in the chat.`
-  // );
-  // addCounselorMessage(
-  //   minnie,
-  //   `You can also invite us to chats by mentioning our names with @ in the beginning`
-  // );
-  // addCounselorMessage(
-  //   jimmy,
-  //   `You can write something like: "Hi @Minnie, we want to ask you something."`
-  // );
-  // addCounselorMessage(
-  //   minnie,
-  //   `Now you can ask us whatever you want to know, and we will answer the best we can.`
-  // );
-  // addCounselorMessage(
-  //   jimmy,
-  //   `When you are ready to go to the main room, click on the 'Home' icon next to our avatars.`
-  // );
 }
+// TODO: when the counselors are mentioned, they should stay in the room until the kids say that they can leave. They should ask after 5min if they can leave.

@@ -2,6 +2,7 @@ import { generateModel, sendMessageStream, getChatWithAi } from "./apiAI";
 import { ChatSession, POSSIBLE_ROLES } from "firebase/vertexai-preview";
 import type { Message } from "../features/chat/types/Messages";
 import EventEmitter from "./apiEvents";
+import { Callback } from "../types/common";
 export enum Sentiment {
   FRIENDLY = "friendly",
   DEPRESSED = "depressed",
@@ -22,10 +23,7 @@ export interface MessageSentiment {
   tone: Sentiment;
   score: number;
 }
-interface MessageWithScore {
-  message: Message;
-  score: number;
-}
+
 const SENTIMENT_ANALYSIS_CONFIG = {
   maxOutputTokens: 100,
   temperature: 0,
@@ -145,15 +143,9 @@ function formatSentiment(str: string): Sentiment {
 class SentimentAggreagator {
   name: Sentiment;
   score: number;
-  lastMessages: MessageWithScore[];
   constructor(sentiment: Sentiment) {
     this.name = sentiment || Sentiment.DEFAULT;
     this.score = 0;
-    this.lastMessages = [];
-  }
-  addMessageWithScore(message: Message, score: number) {
-    this.addScore(score);
-    this.lastMessages.push({ message, score });
   }
   addScore(score: number) {
     this.score += score;
@@ -191,11 +183,31 @@ class SentimentManager {
     if (!sentimentAggregator) {
       return 0;
     }
-    const score = sentimentAggregator.getScore() / this.messageCounter;
-    return score;
+    return sentimentAggregator.getScore();
   }
   resetSentimentScore(sentiment: Sentiment) {
     this.sentiments[sentiment].resetScore();
+  }
+  private static repeat(interval: number, callback: Callback<void>) {
+    setInterval(() => {
+      callback();
+    }, interval);
+  }
+
+  getAverageScoreOverTime(
+    interval: number,
+    sentiment: Sentiment,
+    callback: Callback<number>
+  ) {
+    let startCount = 0;
+    let startScore = 0;
+    SentimentManager.repeat(interval, () => {
+      const score = this.getSentimentScore(sentiment) - startScore;
+      const count = this.messageCounter - startCount;
+      callback(score / count);
+      startScore = this.getSentimentScore(sentiment);
+      startCount = this.messageCounter;
+    });
   }
   async analyzeMessage(message: Message) {
     let sentiment = { tone: Sentiment.DEFAULT, score: 100 };
@@ -216,10 +228,7 @@ class SentimentManager {
       if (this.sentiments[sentiment.tone] === undefined) {
         this.addSentiment(sentiment.tone);
       }
-      this.sentiments[sentiment.tone].addMessageWithScore(
-        message,
-        sentiment.score
-      );
+      this.sentiments[sentiment.tone].addScore(sentiment.score);
       this.messageCounter++;
       return sentiment;
     } catch (error) {

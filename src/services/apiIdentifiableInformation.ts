@@ -44,16 +44,29 @@ const PERSONAL_INFORMATION_CHAT_PARAMS = {
     { role: POSSIBLE_ROLES[1], parts: [{ text: "true" }] },
     { role: POSSIBLE_ROLES[0], parts: [{ text: "My mom's name is Jane Doe" }] },
     { role: POSSIBLE_ROLES[1], parts: [{ text: "true" }] },
+    {
+      role: POSSIBLE_ROLES[0],
+      parts: [{ text: "It is sad in Tel-Aviv in the last year" }],
+    },
+    { role: POSSIBLE_ROLES[1], parts: [{ text: "false" }] },
+    {
+      role: POSSIBLE_ROLES[0],
+      parts: [{ text: "I am happy that you are here for me, Jimmy" }],
+    },
+    { role: POSSIBLE_ROLES[1], parts: [{ text: "false" }] },
   ],
   systemInstruction: {
     role: POSSIBLE_ROLES[2],
     parts: [
-      { text: "Identify personal information in the following messages" },
+      { text: "You are a supervisor of a chat platform for kids." },
+      {
+        text: "Identify personal information that the child is disclosing about themselves and that might be used in a harmful way if participants with bad intentions infiltrate the chatroom.",
+      },
       {
         text: `The output must be in the following format: "true" or "false"`,
       },
       {
-        text: "where true means the message contains personal information and false means it does not.",
+        text: "where true means the message contains personal information that might be unsafe and false means it does not.",
       },
     ],
   },
@@ -66,5 +79,5 @@ export async function containsPersonalInformation(
   message: Message,
   chat: ChatSession
 ): Promise<boolean> {
-  return Boolean(await sendMessageStream(`${message.text}`, chat));
+  return (await sendMessageStream(`${message.text}`, chat)) === "true";
 }

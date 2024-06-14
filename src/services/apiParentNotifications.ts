@@ -10,17 +10,20 @@ interface ParentNotification {
 }
 const DEPRESSION_CHECK_INTERVAL = 1000 * 60; // 1 minute
 export async function initParentNotifications(kid: Kid) {
-  setInterval(() => {
-    notifyParnetOnDepressedSentiment(kid);
-  }, DEPRESSION_CHECK_INTERVAL);
+  sentimentManager.getAverageScoreOverTime(
+    DEPRESSION_CHECK_INTERVAL,
+    Sentiment.DEPRESSED,
+    (score) => notifyParentOnDepressedSentiment(kid, score)
+  );
 }
 
-function notifyParnetOnDepressedSentiment(kid: Kid) {
+function notifyParentOnDepressedSentiment(kid: Kid, score: number) {
   // Check kid's sentiment
   // If sentiment is depressed, send notification to parent
-  if (sentimentManager.getSentimentScore(Sentiment.DEPRESSED) < 0.5) {
+  if (score < 0.5) {
     return;
   }
+  console.log(score, "Depressed sentiment detected");
   const notification: ParentNotification = {
     subject: "Depressed sentiment detected",
     body: `Your kid, ${kid.displayName}, has been detected with a depressed sentiment.`,
