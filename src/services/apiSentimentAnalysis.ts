@@ -178,7 +178,7 @@ class SentimentManager {
   getSentiment(sentiment: Sentiment) {
     return this.sentiments[sentiment];
   }
-  getSentimentScore(sentiment: Sentiment) {
+  getSentimentScore(sentiment: Sentiment): number {
     const sentimentAggregator = this.sentiments[sentiment];
     if (!sentimentAggregator) {
       return 0;
@@ -188,11 +188,6 @@ class SentimentManager {
   resetSentimentScore(sentiment: Sentiment) {
     this.sentiments[sentiment].resetScore();
   }
-  private static repeat(interval: number, callback: Callback<void>) {
-    setInterval(() => {
-      callback();
-    }, interval);
-  }
 
   getAverageScoreOverTime(
     interval: number,
@@ -201,13 +196,13 @@ class SentimentManager {
   ) {
     let startCount = 0;
     let startScore = 0;
-    SentimentManager.repeat(interval, () => {
+    setInterval(() => {
       const score = this.getSentimentScore(sentiment) - startScore;
       const count = this.messageCounter - startCount;
-      callback(score / count);
+      count && callback(score / count);
       startScore = this.getSentimentScore(sentiment);
       startCount = this.messageCounter;
-    });
+    }, interval);
   }
   async analyzeMessage(message: Message) {
     let sentiment = { tone: Sentiment.DEFAULT, score: 100 };
