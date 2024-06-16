@@ -1,5 +1,5 @@
 import { addDocToCollection } from "./db";
-import { Kid } from "./apiKids";
+import { Kid, getKidParent } from "./apiKids";
 import { Sentiment, sentimentManager } from "./apiSentimentAnalysis";
 
 interface ParentNotification {
@@ -11,6 +11,7 @@ interface ParentNotification {
 }
 enum NotificationType {
   DEPRESSED_SENTIMENT = "DEPRESSED_SENTIMENT",
+  MEETING_REQUEST = "MEETING_REQUEST",
 }
 const DEPRESSION_CHECK_INTERVAL = 1000 * 60; // 1 minute
 const MAX_SESSION_NOTIFICATIONS = 1;
@@ -39,6 +40,35 @@ function notifyParentOnDepressedSentiment(kid: Kid, score: number) {
     status: "unread",
   };
   sendParentNotification(kid.parentId, notification);
+}
+export async function notifyParentOnMeetingRequest(
+  yourKid: Kid,
+  friend: Kid | null
+) {
+  const yourKidName = yourKid.displayName;
+  let messageBody;
+  if (friend) {
+    const friendName = friend.displayName;
+    const friendParent = await getKidParent(friend);
+    if (!friendParent) {
+      return;
+    }
+    messageBody = `${yourKidName} has requested to meet with ${friendName}.
+     You can contact ${friendName}'s parent to schedule a meeting.
+     The parent's email is ${friendParent.email}.`;
+  } else {
+    messageBody = `${yourKidName} has requested to meet with a friend.
+     We are unable to find the friend's information, you can contact customer service and we will try to find the friend's information manually.`;
+  }
+
+  const notification: ParentNotification = {
+    subject: "Meeting request",
+    body: messageBody,
+    createdAt: new Date(),
+    type: NotificationType.MEETING_REQUEST,
+    status: "unread",
+  };
+  sendParentNotification(yourKid.parentId, notification);
 }
 async function sendParentNotification(
   parentId: string,

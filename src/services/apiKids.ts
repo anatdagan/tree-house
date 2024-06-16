@@ -1,4 +1,8 @@
-import { getDocDataFromCollection, updateDocData } from "./db";
+import {
+  getDocById as getDocDataById,
+  getDocDataFromCollection,
+  updateDocData,
+} from "./db";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
 
 export enum KidStatus {
@@ -46,4 +50,17 @@ export function getAvatar(avatar?: string, email?: string) {
 export async function updateKidInfo(kid: Kid, newData: Partial<Kid>) {
   console.log("Updating kid info", kid);
   return await updateDocData("kids", kid.email, { ...kid, ...newData });
+}
+
+export async function getKidParent(kid: Kid) {
+  return await getDocDataById("parents", kid.parentId);
+}
+
+// todo: add fuzzy spelling search
+export async function getKidByDisplayName(displayName: string) {
+  return (await getDocDataFromCollection(
+    "kids",
+    "displayName",
+    displayName
+  )) as Kid;
 }
