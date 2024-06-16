@@ -2,21 +2,30 @@ import { useState } from "react";
 import classes from "./chat.module.css";
 import { Message, MessageStatus } from "./types/Messages.d";
 import { Timestamp } from "firebase/firestore";
-import { Kid } from "../../services/apiKids";
+import { findViolations } from "../../services/apiModeration";
+import { addMessage } from "../../services/apiMessages";
+import useChat from "../../hooks/useChat";
 
-interface Props {
-  sender: Kid | null;
-  onNewMessage: (message: Message) => void;
-  roomId?: string;
-}
-const ChatNewMessage = ({ sender, onNewMessage, roomId }: Props) => {
+const onNewMessage = async (newMessage: Message) => {
+  if (await findViolations(newMessage)) {
+    console.log("Message is not allowed");
+    return;
+  }
+  console.log("Sending message: ", newMessage);
+  await addMessage(newMessage);
+};
+
+const ChatNewMessage = () => {
   const [newMessage, setNewMessage] = useState("");
-  if (!sender) {
+  const { kidInfo, selectedChatRoom } = useChat();
+  if (!kidInfo) {
     return null;
   }
+  const { uid, avatar } = kidInfo;
+
   const sendMessage = async () => {
     console.log("Sending message: ", newMessage);
-    const { uid, avatar } = sender;
+
     onNewMessage({
       id: crypto.randomUUID(),
       text: newMessage,
@@ -24,7 +33,7 @@ const ChatNewMessage = ({ sender, onNewMessage, roomId }: Props) => {
       uid: uid,
       avatar: avatar,
       status: MessageStatus.Sent,
-      roomId: roomId || "general",
+      roomId: selectedChatRoom?.id || "general",
     });
 
     setNewMessage("");

@@ -1,15 +1,13 @@
 import Modal from "../../ui/Modal/Modal";
-import React, { useState } from "react";
+import { useState } from "react";
 import Inbox from "./Inbox";
 import { InboxMessageData } from "./inbox.d";
 import { getInboxMessages } from "../../services/apiInbox";
-import { ChatAction } from "../../reducers/chatReducer";
 
 interface Props {
   email: string;
-  dispatch: React.Dispatch<ChatAction>;
 }
-const InboxIcon = ({ email, dispatch }: Props) => {
+const InboxIcon = ({ email }: Props) => {
   const [inboxOpen, setInboxOpen] = useState(false);
   const [inboxMessages, setInboxMessages] = useState<InboxMessageData[]>([]);
 
@@ -39,11 +37,7 @@ const InboxIcon = ({ email, dispatch }: Props) => {
       {/* use context api*/}
       {inboxOpen && (
         <Modal>
-          <Inbox
-            toggleInbox={toggleInbox}
-            inboxMessages={inboxMessages}
-            dispatch={dispatch}
-          />
+          <Inbox toggleInbox={toggleInbox} inboxMessages={inboxMessages} />
         </Modal>
       )}
     </>

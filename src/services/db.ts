@@ -3,7 +3,6 @@ import {
   DocumentData,
   query,
   collection,
-  getFirestore,
   getDocs,
   addDoc,
   onSnapshot,
@@ -18,8 +17,7 @@ import {
   limit,
   orderBy,
 } from "firebase/firestore";
-
-const db = getFirestore();
+import { db } from "../../firebase";
 
 export async function getDocDataFromCollection<T>(
   collectionName: string,

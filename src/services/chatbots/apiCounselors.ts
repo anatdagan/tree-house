@@ -16,14 +16,15 @@ import {
 } from "../apiAI";
 import { Kid, getAvatar, updateKidInfo, KidStatus } from "../apiKids";
 import { deleteDocsFromCollection } from "../db";
-import { MessageStatus } from "../../features/chat/types/Messages.d";
+import { Message, MessageStatus } from "../../features/chat/types/Messages.d";
 import { Timestamp } from "firebase/firestore";
-import { ChatAction, ChatActionTypes } from "../../reducers/chatReducer";
 import { ChatRoom, RoomType } from "../../features/chatroom/types/Rooms.d";
 import { addMessage } from "../apiMessages";
+import { Sentiment, sentimentManager } from "../apiSentimentAnalysis";
 
 const context = `
-The Tree House chat is a safe chat for kids. If a kid sends a message that might be inappropriate, the message is removed. If an appropriate message is deleted by mistake, the sender can try to rephrase what they wanted to say. When a kid wants to start a private conversation with another kid, they can click on the other kid's avatar and then a private chat room is opened. If a kid would like to meet another kid IRL, they should tell you, and you can arrange it with both kids' parents.`;
+The Tree House chat is a safe chat for kids. If a kid sends a message that might be inappropriate, the message is removed. If an appropriate message is deleted by mistake, the sender can try to rephrase what they wanted to say. When a kid wants to start a private conversation with another kid, they can click on the other kid's avatar and then a private chat room is opened. If a kid would like to meet another kid IRL, they should tell you, and you can arrange it with both kids' parents.
+`;
 const objective = `
 Your task is to look after the kids and make sure that they are having fun, learning social skills and being safe.
 `;
@@ -31,6 +32,7 @@ const summary = `You serve as a grown up role model for these kids, and you show
 const instructions = [
   `There could be more than one kid in the chat, so every message will start with the kid's name.`,
   `If a kid asks you a question, answer as accurately as possible. The kids might ask you questions about what is and is not possible in the app and how to do things, but you don't know all of the answers. If you don't know, admit it and suggest that they ask their parents.`,
+  `The only app features that you know about are detailed here. Do not mention any other features that are not detailed here.`,
   `If kids want to meet other kids outside the app, tell them that you will contact the parents of both of the kids so the parents could arrange the meeting`,
   `Be kind and attentive to the kids`,
   `Speak to the kids in eye level so they could feel comfortable`,
@@ -51,12 +53,13 @@ class Counselor implements ChatBot {
   history: Content[];
   initialHistory: string[];
   chat: ChatSession | null;
+  private nextResponseOverride: string | null = null;
   constructor(
     id: string,
     data: ChatBotData,
     counselorHistory: Content[] = [],
     private kidInfo: Kid,
-    private dispatch: React.Dispatch<ChatAction>
+    public dispatchMessage: (message: Message) => void
   ) {
     console.log("Creating counselor", id, data, counselorHistory);
     this.id = id;
@@ -75,6 +78,7 @@ class Counselor implements ChatBot {
       topK: data.topK,
       maxOutputTokens: 100,
     };
+    // to do: add the number of the kids in the room to the context
     this.systemInstructions = {
       persona: this.getPersona(data),
       objective,
@@ -107,7 +111,18 @@ class Counselor implements ChatBot {
     if (!this.chat) {
       throw new Error("Chat not started");
     }
-    this.addMessage(
+    if (this.nextResponseOverride) {
+      await this.addMessage(
+        message,
+        this.nextResponseOverride,
+        roomId,
+        this.kidInfo
+      );
+      activeCounselor = null;
+      this.nextResponseOverride = null;
+      return;
+    }
+    await this.addMessage(
       message,
       await sendMessageStream(
         `${this.kidInfo.displayName}: ${message}`,
@@ -123,21 +138,19 @@ class Counselor implements ChatBot {
     }
     console.log("Displaying welcome message", index);
     const messageText = this.initialHistory[index];
-    this.dispatch({
-      type: ChatActionTypes.ADD_MESSAGE,
-      payload: {
-        message: {
-          uid: this.id,
-          text: messageText,
-          id: crypto.randomUUID(),
-          roomId,
-          status: MessageStatus.Sent,
-          avatar: await getAvatar(this.id, this.avatar),
-          createdAt: Timestamp.fromMillis(new Date().getTime() + index),
-        },
-      },
+    this.dispatchMessage({
+      uid: this.id,
+      text: messageText,
+      id: crypto.randomUUID(),
+      roomId,
+      status: MessageStatus.Sent,
+      avatar: await getAvatar(this.avatar, this.id),
+      createdAt: Timestamp.fromMillis(new Date().getTime() + index),
     });
     return messageText;
+  }
+  async breakConversation() {
+    this.nextResponseOverride = `I have to leave now. If you need me later, just write @${this.id} and i'll come back.`;
   }
   async addMessage(kidText: string, botText: string, roomId: string, kid: Kid) {
     // TODO: make this more generic
@@ -153,7 +166,7 @@ class Counselor implements ChatBot {
       id: crypto.randomUUID(),
       roomId,
       status: MessageStatus.Sent,
-      avatar: await getAvatar(this.id, this.avatar),
+      avatar: await getAvatar(this.avatar, this.id),
       createdAt: Timestamp.now(),
     });
   }
@@ -164,12 +177,13 @@ class Counselor implements ChatBot {
 }
 
 const counselors = new Map<string, Counselor>();
-
+let activeCounselor: Counselor | null = null;
 async function initCounselor(
   id: string,
   kidInfo: Kid,
-  dispatch: React.Dispatch<ChatAction>
+  addMessage: (message: Message) => void
 ) {
+  console.log("Initializing counselor", id);
   const data = await getChatbot(id);
   if (!data) {
     throw new Error(`Chatbot with id ${id} not found`);
@@ -189,30 +203,65 @@ async function initCounselor(
     );
   }
   console.log("Chatbot history", history);
-  return new Counselor(id, data, history, kidInfo, dispatch);
+  return new Counselor(id, data, history, kidInfo, addMessage);
 }
 export async function initCounselors(
   kidInfo: Kid,
-  selectedChatRoom: ChatRoom,
-  dispatch: React.Dispatch<ChatAction>
+  selectedChatRoom: ChatRoom | null,
+  dispatchMessage: (message: Message) => void
 ) {
   // TODO: duplicate jimmie as jimmy in firestore
 
-  counselors.set("jimmy", await initCounselor("jimmy", kidInfo, dispatch));
-  counselors.set("minnie", await initCounselor("minnie", kidInfo, dispatch));
-  if (selectedChatRoom.type === RoomType.WELCOME) {
+  counselors.set(
+    "jimmy",
+    await initCounselor("jimmy", kidInfo, dispatchMessage)
+  );
+  counselors.set(
+    "minnie",
+    await initCounselor("minnie", kidInfo, dispatchMessage)
+  );
+  if (selectedChatRoom?.type === RoomType.WELCOME) {
     await startWelcomeChatWithKid(selectedChatRoom);
     await updateKidInfo(kidInfo, { status: KidStatus.ACTIVE });
     console.log("Welcome chat started");
   }
+  listenToBoredom(selectedChatRoom);
+}
+function listenToBoredom(selectedChatRoom: ChatRoom | null) {
+  const BOREDOM_INTERVAL = 1000 * 6; // 5 minutes
+  const ENTERTAINMENT_DURATION = 1000 * 60 * 5; // 5 minutes
+  console.log("Listening to boredom");
+  sentimentManager.getAverageScoreOverTime(
+    BOREDOM_INTERVAL,
+    Sentiment.BORED,
+    (score) => {
+      console.log("Average boredom score", score);
+      if (score > 0.5) {
+        console.log("Boredom detected");
+        activeCounselor = getRandomCounselor();
+        if (!activeCounselor || !selectedChatRoom) {
+          return;
+        }
+        activeCounselor.onKidMessage("I am bored", selectedChatRoom.id);
+        setTimeout(async () => {
+          await activeCounselor?.breakConversation();
+          console.log("Boredom over");
+        }, ENTERTAINMENT_DURATION);
+      }
+    }
+  );
 }
 export function getCounselor(id: string) {
   return counselors.get(id);
 }
+export function getActiveCounselor() {
+  return activeCounselor;
+}
+
 export function getRandomCounselor() {
   const keys = Array.from(counselors.keys());
   const randomIndex = Math.floor(Math.random() * keys.length);
-  return counselors.get(keys[randomIndex]);
+  return counselors.get(keys[randomIndex]) || null;
 }
 async function displayWelcomeMessages(room: ChatRoom) {
   const minnie = counselors.get("minnie");
@@ -244,4 +293,5 @@ async function startWelcomeChatWithKid(room: ChatRoom) {
   minnie.startChat();
   jimmy.startChat();
 }
+
 // TODO: when the counselors are mentioned, they should stay in the room until the kids say that they can leave. They should ask after 5min if they can leave.

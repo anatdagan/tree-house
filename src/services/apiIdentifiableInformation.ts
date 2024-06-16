@@ -54,6 +54,11 @@ const PERSONAL_INFORMATION_CHAT_PARAMS = {
       parts: [{ text: "I am happy that you are here for me, Jimmy" }],
     },
     { role: POSSIBLE_ROLES[1], parts: [{ text: "false" }] },
+    {
+      role: POSSIBLE_ROLES[0],
+      parts: [{ text: "I like to draw" }],
+    },
+    { role: POSSIBLE_ROLES[1], parts: [{ text: "false" }] },
   ],
   systemInstruction: {
     role: POSSIBLE_ROLES[2],
@@ -61,6 +66,18 @@ const PERSONAL_INFORMATION_CHAT_PARAMS = {
       { text: "You are a supervisor of a chat platform for kids." },
       {
         text: "Identify personal information that the child is disclosing about themselves and that might be used in a harmful way if participants with bad intentions infiltrate the chatroom.",
+      },
+      {
+        text: "Information about likes and dislikes is not considered personal information.",
+      },
+      {
+        text: "Information about the child's location is considered personal information.",
+      },
+      {
+        text: "Information about the child's contact details is considered personal information.",
+      },
+      {
+        text: "Information about the full names of the child's family members is considered personal information.",
       },
       {
         text: `The output must be in the following format: "true" or "false"`,

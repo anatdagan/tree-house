@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { MessageStatus, type Message } from "../features/chat/types/Messages.d";
 import {
   getFirestore,
@@ -10,34 +10,30 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import type { ChatRoom } from "../features/chatroom/types/Rooms";
-import { ChatActionTypes, ChatAction } from "../reducers/chatReducer.ts";
-
-const useMessages = (
-  dispatch: React.Dispatch<ChatAction>,
-  chatRoom: ChatRoom | null
-) => {
+import { useChat } from "./useChat.ts";
+const useMessages = () => {
   const db = getFirestore();
   const auth = getAuth();
-  console.log(chatRoom);
-
+  const { selectedChatRoom, deleteAllMessages, addMessage } = useChat();
+  const refAddMessage = useRef(addMessage);
+  const refDeleteAllMessages = useRef(deleteAllMessages);
   useEffect(() => {
     if (!auth.currentUser) {
       return;
     }
-    if (!chatRoom) {
+    if (!selectedChatRoom) {
       return;
     }
 
-    console.log("Fetching messages", chatRoom.id);
+    console.log("Fetching messages", selectedChatRoom.id);
 
     const q = query(
       collection(db, "messages"),
-      where("roomId", "==", chatRoom.id),
+      where("roomId", "==", selectedChatRoom.id),
       orderBy("createdAt", "desc"),
       limit(10)
     );
-    dispatch({ type: ChatActionTypes.DELETE_ALL_MESSAGES });
+    refDeleteAllMessages.current();
     const unsubscribe = onSnapshot(q, (snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
@@ -46,12 +42,12 @@ const useMessages = (
             message.text = "This message was removed";
           }
           console.log("New message: ", message);
-          dispatch({ type: ChatActionTypes.ADD_MESSAGE, payload: { message } });
+          refAddMessage.current(message);
         }
       });
     });
     return unsubscribe;
-  }, [db, auth.currentUser, chatRoom, dispatch]);
+  }, [db, auth.currentUser, selectedChatRoom]);
 };
 
 export default useMessages;

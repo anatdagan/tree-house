@@ -73,6 +73,22 @@ const SENTIMENT_ANALYSIS_CHAT_PARAMS = {
       role: POSSIBLE_ROLES[1],
       parts: [{ text: "tone:non of the above;score:1" }],
     },
+    {
+      role: POSSIBLE_ROLES[0],
+      parts: [{ text: "d: there is no one to talk to here" }],
+    },
+    {
+      role: POSSIBLE_ROLES[1],
+      parts: [{ text: "tone:bored;score:2" }],
+    },
+    {
+      role: POSSIBLE_ROLES[0],
+      parts: [{ text: "d: and nothing to do" }],
+    },
+    {
+      role: POSSIBLE_ROLES[1],
+      parts: [{ text: "tone:bored;score:3" }],
+    },
   ],
   systemInstruction: {
     role: POSSIBLE_ROLES[2],
@@ -143,6 +159,8 @@ function formatSentiment(str: string): Sentiment {
 class SentimentAggreagator {
   name: Sentiment;
   score: number;
+  lastScore: number = 0;
+  lastCount: number = 0;
   constructor(sentiment: Sentiment) {
     this.name = sentiment || Sentiment.DEFAULT;
     this.score = 0;
@@ -183,7 +201,22 @@ class SentimentManager {
     if (!sentimentAggregator) {
       return 0;
     }
-    return sentimentAggregator.getScore();
+    return sentimentAggregator.getScore() - sentimentAggregator.lastScore;
+  }
+  getSentimentCount(sentiment: Sentiment): number {
+    const sentimentAggregator = this.sentiments[sentiment];
+    if (!sentimentAggregator) {
+      return 0;
+    }
+    return this.messageCounter - sentimentAggregator.lastCount;
+  }
+  updateLast(sentiment: Sentiment) {
+    const sentimentAggregator = this.sentiments[sentiment];
+    if (!sentimentAggregator) {
+      return;
+    }
+    sentimentAggregator.lastScore = sentimentAggregator.getScore();
+    sentimentAggregator.lastCount = this.messageCounter;
   }
   resetSentimentScore(sentiment: Sentiment) {
     this.sentiments[sentiment].resetScore();
@@ -194,14 +227,17 @@ class SentimentManager {
     sentiment: Sentiment,
     callback: Callback<number>
   ) {
-    let startCount = 0;
-    let startScore = 0;
+    console.log("Starting average score over time");
     setInterval(() => {
-      const score = this.getSentimentScore(sentiment) - startScore;
-      const count = this.messageCounter - startCount;
+      const score = this.getSentimentScore(sentiment);
+      const count = this.getSentimentCount(sentiment);
+      if (count === 0) {
+        return;
+      }
+      console.log("Average score over time: ", score / count);
+
       count && callback(score / count);
-      startScore = this.getSentimentScore(sentiment);
-      startCount = this.messageCounter;
+      this.updateLast(sentiment);
     }, interval);
   }
   async analyzeMessage(message: Message) {

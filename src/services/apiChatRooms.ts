@@ -1,4 +1,3 @@
-import User from "../features/authentication/types/Users.d";
 import { ChatRoom, RoomType } from "../features/chatroom/types/Rooms.d";
 import { addDocToCollection, getDocDataFromCollection } from "./db";
 import { sendMessageToInbox } from "./apiInbox";
@@ -8,6 +7,7 @@ import {
 } from "../features/Inbox/inbox.d";
 import { Kid } from "./apiKids";
 
+let defaultChatRoom: ChatRoom | null = null;
 export async function getChatroom(id: string) {
   return (await getDocDataFromCollection<string>(
     "chatrooms",
@@ -25,7 +25,7 @@ export async function createChatroom(chatRoomData: ChatRoom) {
   return chatRoomData;
 }
 
-export async function startPrivateChat(user1: User, user2: User) {
+export async function startPrivateChat(user1: Kid, user2: Kid) {
   const privateChatId = `private-${[user1.uid, user2.uid].sort().join("-")}`;
   let privateChatRoom = await getChatroom(privateChatId);
   if (!privateChatRoom) {
@@ -67,3 +67,13 @@ export async function createWelcomeRoom(kidInfo: Kid, uid: string) {
   if (!(await getChatroom(chatroomId))) await createChatroom(chatroomData);
   return chatroomData;
 }
+export const getChatRoom = async (id: string) => {
+  return (await getDocDataFromCollection("chatrooms", "id", id)) as ChatRoom;
+};
+export const getDefaultChatRoom = async () => {
+  if (defaultChatRoom) {
+    return defaultChatRoom;
+  }
+  defaultChatRoom = await getChatRoom("general");
+  return defaultChatRoom;
+};

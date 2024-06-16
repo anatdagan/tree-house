@@ -4,6 +4,7 @@ import { getAuth } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { getFunctions } from "firebase/functions";
 import { getVertexAI } from "firebase/vertexai-preview";
+import { getFirestore } from "firebase/firestore";
 
 declare global {
   interface Window {
@@ -40,5 +41,5 @@ const appCheck = initializeAppCheck(app, {
 
 // Initialize the Vertex AI service
 const vertexAI = getVertexAI(app);
-
-export { auth, app, functions, appCheck, vertexAI };
+const db = getFirestore();
+export { auth, app, functions, db, appCheck, vertexAI };
