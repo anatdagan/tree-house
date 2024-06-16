@@ -26,12 +26,12 @@ export async function getKidInfo(email?: string | null) {
     email
   )) as Kid;
   if (!kidInfo) return null;
-  kidInfo.avatar = await getAvatar(email, kidInfo?.avatar);
+  kidInfo.avatar = await getAvatar(kidInfo?.avatar, email);
   return kidInfo;
 }
 
-export function getAvatar(uid: string, avatar?: string) {
-  const folder = avatar ? uid : "default";
+export function getAvatar(avatar?: string, email?: string) {
+  const folder = email ? email : "default";
   const storage = getStorage();
   return getDownloadURL(
     ref(

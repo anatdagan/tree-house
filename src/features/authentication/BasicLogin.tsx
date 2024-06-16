@@ -1,10 +1,9 @@
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import classes from "./auth.module.css";
+import useChat from "../../hooks/useChat";
 
-interface BasicLoginProps {
-  catchErrors: (error: unknown) => void;
-}
-const BasicLogin = ({ catchErrors }: BasicLoginProps) => {
+const BasicLogin = () => {
+  const { catchErrors } = useChat();
   const login = (email: string, password: string) => {
     const auth = getAuth();
     signInWithEmailAndPassword(auth, email, password).catch(catchErrors);

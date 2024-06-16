@@ -2,11 +2,10 @@ import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../../../firebase";
 import BasicLogin from "./BasicLogin";
 import classes from "./auth.module.css";
+import useChat from "../../hooks/useChat";
 
-interface LoginProps {
-  catchErrors: (error: unknown) => void;
-}
-const Login = ({ catchErrors }: LoginProps) => {
+const Login = () => {
+  const { catchErrors } = useChat();
   const handleGoogleSignIn = async () => {
     try {
       await signInWithPopup(auth, new GoogleAuthProvider());
@@ -20,7 +19,7 @@ const Login = ({ catchErrors }: LoginProps) => {
         Login with Google
       </button>
       <div className={classes.or}>Or</div>
-      <BasicLogin catchErrors={catchErrors} />
+      <BasicLogin />
     </div>
   );
 };

@@ -1,21 +1,23 @@
-import { ReactNode } from "react";
 import classes from "./chat.module.css";
 import HomeIcon from "./HomeIcon";
-import { ChatAction } from "../../reducers/chatReducer";
-import { ChatRoom } from "../chatroom/types/Rooms";
-interface Props {
-  dispatch: React.Dispatch<ChatAction>;
-  generalRoom: React.MutableRefObject<ChatRoom | null>;
-  children?: ReactNode;
-}
+import ChatUser from "./ChatUser";
+import Logout from "../authentication/Logout";
+import InboxIcon from "../Inbox/InboxIcon";
+import ChatroomHeader from "../chatroom/ChatroomHeader";
+import useChat from "../../hooks/useChat";
 
-const ChatHeader = ({ dispatch, generalRoom, children }: Props) => {
+const ChatHeader = () => {
+  const { user, selectedChatRoom } = useChat();
   return (
     <header className={classes["header-chat"]}>
-      <HomeIcon dispatch={dispatch} generalRoom={generalRoom.current} />
+      <HomeIcon />
 
       <h1>Treehouse Chat</h1>
-      {children}
+      <ChatUser />
+      {user?.email && <InboxIcon email={user.email} />}
+      <Logout />
+
+      {selectedChatRoom && <ChatroomHeader room={selectedChatRoom} />}
     </header>
   );
 };

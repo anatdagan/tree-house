@@ -1,8 +1,8 @@
 import { addDocToCollection, getDocsFromCollection } from "./db";
 import { InboxMessageData } from "../features/Inbox/inbox.d";
-import User from "../features/authentication/types/Users";
+import { Kid } from "./apiKids";
 
-export async function sendMessageToInbox(message: InboxMessageData, to: User) {
+export async function sendMessageToInbox(message: InboxMessageData, to: Kid) {
   return await addDocToCollection(`kids/${to.email}/inbox`, message);
 }
 

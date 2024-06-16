@@ -1,19 +1,12 @@
-import { ChatAction, ChatActionTypes } from "../../reducers/chatReducer";
-import { ChatRoom } from "../chatroom/types/Rooms";
+import useChat from "../../hooks/useChat";
 
-interface HomeIconProps {
-  dispatch: React.Dispatch<ChatAction>;
-  generalRoom: ChatRoom | null;
-}
-const HomeIcon = ({ dispatch, generalRoom }: HomeIconProps) => {
+const HomeIcon = () => {
+  const { switchRoom, defaultRoom } = useChat();
   return (
     <div
       className="home-icon"
       onClick={() => {
-        dispatch({
-          type: ChatActionTypes.SWITCH_ROOM,
-          payload: { room: generalRoom },
-        });
+        switchRoom(defaultRoom);
       }}
     >
       <img src="images/home-icon.png" alt="Home" />
