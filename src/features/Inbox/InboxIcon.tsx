@@ -3,6 +3,7 @@ import { useState } from "react";
 import Inbox from "./Inbox";
 import { InboxMessageData } from "./inbox.d";
 import { getInboxMessages } from "../../services/apiInbox";
+import { Timeout } from "lib.dom.d.ts";
 
 interface Props {
   email: string;
@@ -15,6 +16,19 @@ const InboxIcon = ({ email }: Props) => {
     setInboxMessages((await getInboxMessages(email)) as InboxMessageData[]);
     setInboxOpen(!inboxOpen);
   };
+  let blurTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const handleBlur = () => {
+    blurTimer = setTimeout(() => {
+      setInboxOpen(false);
+    });
+  };
+  const handleFocus = () => {
+    if (blurTimer) {
+      clearTimeout(blurTimer);
+    }
+  };
+
   return (
     <>
       <svg

@@ -6,7 +6,7 @@ interface Props {
 }
 
 const ChatFooter = ({ children }: Props) => {
-  return <div className={classes["footer-chat"]}>{children}</div>;
+  return <footer className={classes["footer-chat"]}>{children}</footer>;
 };
 
 export default ChatFooter;

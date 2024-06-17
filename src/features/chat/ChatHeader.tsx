@@ -10,14 +10,16 @@ const ChatHeader = () => {
   const { user, selectedChatRoom } = useChat();
   return (
     <header className={classes["header-chat"]}>
+      <a href="#messages" className="visibleOnFocus">
+        Skip header
+      </a>
       <HomeIcon />
 
       <h1>Treehouse Chat</h1>
       <ChatUser />
       {user?.email && <InboxIcon email={user.email} />}
-      <Logout />
-
       {selectedChatRoom && <ChatroomHeader room={selectedChatRoom} />}
+      <Logout />
     </header>
   );
 };

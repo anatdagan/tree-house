@@ -35,7 +35,7 @@ export async function getKidInfo(email?: string | null) {
 }
 
 export function getAvatar(avatar?: string, email?: string) {
-  const folder = email ? email : "default";
+  const folder = email && avatar ? email : "default";
   const storage = getStorage();
   return getDownloadURL(
     ref(

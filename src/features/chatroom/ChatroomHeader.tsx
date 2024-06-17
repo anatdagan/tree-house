@@ -3,11 +3,7 @@ interface ChatroomHeaderProps {
   room: ChatRoom;
 }
 const ChatroomHeader = ({ room }: ChatroomHeaderProps) => {
-  return (
-    <div className="chatroom-header">
-      <h1>{room.name}</h1>
-    </div>
-  );
+  return <h1>{room.name}</h1>;
 };
 
 export default ChatroomHeader;
