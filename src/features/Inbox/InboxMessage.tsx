@@ -22,11 +22,7 @@ const InboxMessage = ({ message }: InboxMessageProps) => {
         console.log(`Unknown message type: ${message.type}`);
     }
   }
-  return (
-    <div>
-      <h3 onClick={onMessageClick}>{message.subject}</h3>
-    </div>
-  );
+  return <h3 onClick={onMessageClick}>{message.subject}</h3>;
 };
 
 export default InboxMessage;

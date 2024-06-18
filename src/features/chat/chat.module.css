@@ -5,6 +5,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   padding: 0 35px;
 }
 
@@ -64,31 +65,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 35px;
-}
-
-.chat .footer-chat .icon {
-  margin-left: 30px;
-  color: #c0c0c0;
-  font-size: 14pt;
 }
 
 .chat .footer-chat .send {
   color: #fff;
   background-color: #4f6ebd;
-  position: absolute;
   right: 50px;
   padding: 12px 12px 12px 12px;
   border-radius: 50px;
   font-size: 14pt;
-}
-
-.chat .footer-chat .name {
-  margin: 0 0 0 20px;
-  text-transform: uppercase;
-  font-family: "Montserrat", sans-serif;
-  font-size: 13pt;
-  color: #515151;
 }
 
 .chat .footer-chat .right {
@@ -96,8 +81,7 @@
 }
 
 .write-message {
-  border: none !important;
-  width: 60%;
+  border: 1px solid lightblue !important;
   height: 50px;
   margin-left: 20px;
   padding: 10px;
@@ -120,11 +104,15 @@
   color: #c0c0c0;
   font-size: 13pt;
 }
-
+.chatMessageForm {
+  display: flex;
+  justify-items: space-between;
+  padding-bottom: 4rem;
+}
 .time {
-  font-size: 10px;
-  color: lightgrey;
+  font-size: 1rem;
+  color: darkblue;
   margin-bottom: 10px;
-  width: 4rem;
-  margin-right: 85px;
+  width: 1rem;
+  margin-right: 2rem;
 }

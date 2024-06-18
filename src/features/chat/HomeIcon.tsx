@@ -4,13 +4,13 @@ const HomeIcon = () => {
   const { switchRoom, defaultRoom } = useChat();
   return (
     <>
-      <img
-        src="images/home-icon.png"
-        alt="Home"
-        onClick={() => {
-          switchRoom(defaultRoom);
-        }}
-      />
+      <a href="#home">
+        <img
+          src="images/home-icon.png"
+          alt="Home"
+          onClick={() => switchRoom(defaultRoom)}
+        />
+      </a>
     </>
   );
 };
