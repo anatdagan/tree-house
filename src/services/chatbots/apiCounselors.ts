@@ -14,13 +14,20 @@ import {
   getChatWithAi,
   generateSystemInstructions,
 } from "../apiAI";
-import { Kid, getAvatar, updateKidInfo, KidStatus } from "../apiKids";
+import {
+  Kid,
+  getAvatar,
+  updateKidInfo,
+  KidStatus,
+  getKidByDisplayName,
+} from "../apiKids";
 import { deleteDocsFromCollection } from "../db";
 import { Message, MessageStatus } from "../../features/chat/types/Messages.d";
 import { Timestamp } from "firebase/firestore";
 import { ChatRoom, RoomType } from "../../features/chatroom/types/Rooms.d";
 import { addMessage } from "../apiMessages";
 import { Sentiment, sentimentManager } from "../apiSentimentAnalysis";
+import { notifyParentOnMeetingRequest } from "../apiParentNotifications";
 
 const context = `
 The Tree House chat is a safe chat for kids. If a kid sends a message that might be inappropriate, the message is removed. If an appropriate message is deleted by mistake, the sender can try to rephrase what they wanted to say. When a kid wants to start a private conversation with another kid, they can click on the other kid's avatar and then a private chat room is opened. If a kid would like to meet another kid IRL, they should tell you, and you can arrange it with both kids' parents.
@@ -29,11 +36,13 @@ const objective = `
 Your task is to look after the kids and make sure that they are having fun, learning social skills and being safe.
 `;
 const summary = `You serve as a grown up role model for these kids, and you show them how they can have fun and make new friends safely.`;
+const contactParentsMessage = `I will contact your parents and send them the details of (the friend's name)'s parents, so they could arrange the meeting`;
 const instructions = [
   `There could be more than one kid in the chat, so every message will start with the kid's name.`,
   `If a kid asks you a question, answer as accurately as possible. The kids might ask you questions about what is and is not possible in the app and how to do things, but you don't know all of the answers. If you don't know, admit it and suggest that they ask their parents.`,
   `The only app features that you know about are detailed here. Do not mention any other features that are not detailed here.`,
   `If kids want to meet other kids outside the app, tell them that you will contact the parents of both of the kids so the parents could arrange the meeting`,
+  `When you tell then that you will contact the parents, you should use this format "${contactParentsMessage}". The words should be exactly as written here, other than the words in the parenthesis, that should be replaced with the friend's name.`,
   `Be kind and attentive to the kids`,
   `Speak to the kids in eye level so they could feel comfortable`,
   `Encourage the kids to make new friends`,
@@ -122,15 +131,20 @@ class Counselor implements ChatBot {
       this.nextResponseOverride = null;
       return;
     }
-    await this.addMessage(
-      message,
-      await sendMessageStream(
-        `${this.kidInfo.displayName}: ${message}`,
-        this.chat
-      ),
-      roomId,
-      this.kidInfo
+    const response = await sendMessageStream(
+      `${this.kidInfo.displayName}: ${message}`,
+      this.chat
     );
+    const re = new RegExp(
+      contactParentsMessage.replace(`(the friend's name)`, `(.+)`)
+    );
+    console.log(re);
+    const match = response.match(re);
+    console.log("Match", match);
+    const friendInfo = match ? await getKidByDisplayName(match[1]) : null;
+
+    await notifyParentOnMeetingRequest(this.kidInfo, friendInfo);
+    await this.addMessage(message, response, roomId, this.kidInfo);
   }
   async displayWelcomeMessage(index: number, roomId: string) {
     if (index >= this.initialHistory.length) {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import classes from "./chat.module.css";
 import { Message, MessageStatus } from "./types/Messages.d";
 import { Timestamp } from "firebase/firestore";
@@ -23,9 +23,9 @@ const ChatNewMessage = () => {
   }
   const { uid, avatar } = kidInfo;
 
-  const sendMessage = async () => {
+  const sendMessage = (e: FormEvent) => {
     console.log("Sending message: ", newMessage);
-
+    e.preventDefault();
     onNewMessage({
       id: crypto.randomUUID(),
       text: newMessage,
@@ -40,17 +40,19 @@ const ChatNewMessage = () => {
   };
 
   return (
-    <>
+    <form onSubmit={sendMessage} className={classes.chatNewMessageForm}>
+      <label htmlFor="write-message">Write a message</label>
       <input
         type="text"
         className={classes["write-message"]}
+        id="write-message"
         value={newMessage}
         onChange={(e) => setNewMessage(e.target.value)}
       />
-      <button onClick={sendMessage} className="btn">
+      <button type="submit" className="btn">
         Send
       </button>
-    </>
+    </form>
   );
 };
 export default ChatNewMessage;

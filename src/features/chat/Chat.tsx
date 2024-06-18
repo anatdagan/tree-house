@@ -11,10 +11,14 @@ const Chat = ({ children }: Props) => {
   const { isLoading, user } = useChat();
   if (isLoading) return <LoadingIndicator />;
   return (
-    <div className="container">
-      {user ? <div className={classes.chat}>{children}</div> : <Login />}
+    <>
+      {user ? (
+        <article className={classes.chat}>{children}</article>
+      ) : (
+        <Login />
+      )}
       <ErrorMessage />
-    </div>
+    </>
   );
 };
 export default Chat;

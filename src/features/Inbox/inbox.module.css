@@ -1,7 +1,10 @@
 .inbox {
+  position: absolute;
+  top: 50px;
   width: 80%;
   height: 80%;
   padding: 1.5rem;
   margin: auto;
+  border: 1px solid #ccc;
   background-color: aliceblue;
 }

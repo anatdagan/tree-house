@@ -32,20 +32,23 @@ const ChatMessages = () => {
   }
 
   return (
-    <main>
-      <div className={classes["messages-chat"]}>
+    <main className={classes["messages-chat"]} id="messages">
+      <h2>Chat Messages</h2>
+      <ul>
         {messages.map((message: Message) => (
-          <div
+          <li
             key={message.id}
             className={`${classes.message} ${
               message.uid === uid ? classes.current : classes.other
             } {message.to === uid ? classes.private : ""}`}
           >
-            <span className={classes.time}>
+            <time className={classes.time}>
               {extractTime(message.createdAt)}
-            </span>
-            <div
-              className={classes.photo}
+            </time>
+
+            <img
+              src={message?.avatar}
+              alt={message?.avatar}
               onClick={() =>
                 onAvatarClick(message.uid, kidInfo, switchRoom).catch(
                   (error) => {
@@ -53,13 +56,11 @@ const ChatMessages = () => {
                   }
                 )
               }
-            >
-              <img src={message?.avatar} />
-            </div>
+            />
             <p className={classes.text}>{message.text}</p>
-          </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </main>
   );
 };
