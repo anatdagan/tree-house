@@ -14,7 +14,7 @@ const Login = () => {
     }
   };
   return (
-    <div className={classes["login-page"]}>
+    <div className={classes["login-page"]} data-testid="login">
       <button onClick={handleGoogleSignIn} className="btn">
         Login with Google
       </button>

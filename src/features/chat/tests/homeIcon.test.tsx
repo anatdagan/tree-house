@@ -1,9 +1,8 @@
 import { vi, describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
-import Login from "../Login";
 import { customRender } from "../../../../tests/utils";
 import { RoomType } from "../../chatroom/types/Rooms.d";
-
+import HomeIcon from "../HomeIcon";
 vi.mock("firebase/auth", () => {
   return {
     signInWithPopup: vi.fn(),
@@ -12,46 +11,6 @@ vi.mock("firebase/auth", () => {
     onAuthStateChanged: vi.fn(),
   };
 });
-vi.mock("../../services/db", () => {
-  return {
-    getKidInfo: vi.fn(),
-    getChatRoom: vi.fn(),
-    getMessages: vi.fn(),
-    addMessage: vi.fn(),
-    switchRoom: vi.fn(),
-    deleteAllMessages: vi.fn(),
-  };
-});
-vi.mock("../../../../firebase", () => {
-  return {
-    auth: vi.fn(),
-    firestore: vi.fn(),
-  };
-});
-vi.mock("../../../services/chatbots/apiCounselors", () => {
-  return {
-    sendMessage: vi.fn(),
-  };
-});
-vi.mock("../../../services/apiModeration", () => {
-  return {
-    moderateMessage: vi.fn(),
-  };
-});
-vi.mock("../../../services/apiParentNotifications", () => {
-  return {
-    moderateMessage: vi.fn(),
-  };
-});
-vi.mock("firebase/auth", () => {
-  return {
-    signInWithPopup: vi.fn(),
-    GoogleAuthProvider: vi.fn(),
-    getAuth: vi.fn(),
-    onAuthStateChanged: vi.fn(),
-  };
-});
-
 vi.mock("firebase/firestore", () => {
   return {
     Timestamp: vi.fn(),
@@ -88,8 +47,8 @@ vi.mock("../../hooks/useChat", () => {
     defaultRoom: null,
   });
 });
-describe("Login", () => {
-  it("should render the login form", () => {
+describe("Home Icon", () => {
+  it("should render the home icon", () => {
     const state = {
       messages: [],
       selectedChatRoom: null,
@@ -101,11 +60,11 @@ describe("Login", () => {
     };
 
     customRender(
-      <Login />,
+      <HomeIcon />,
 
-      state
+      { providerProps: { state } }
     );
-    expect(screen.getByText("Login")).toBeInTheDocument();
+    expect(screen.getByAltText("Home")).toBeInTheDocument();
     screen.debug();
   });
 });

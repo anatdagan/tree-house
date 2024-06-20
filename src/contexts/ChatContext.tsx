@@ -4,6 +4,7 @@ import {
   ChatState,
   chatReducer,
 } from "../reducers/chatReducer";
+import { actionCreators } from "../actions/actionCreators";
 
 import { Message } from "../features/chat/types/Messages";
 import User from "../features/authentication/types/Users.d";
@@ -18,7 +19,7 @@ import { initParentNotifications } from "../services/apiParentNotifications";
 import { initCounselors } from "../services/chatbots/apiCounselors";
 import { ChatRoom } from "../features/chatroom/types/Rooms";
 
-interface ChatContextProps extends ChatState {
+export interface ChatContextProps extends ChatState {
   addMessage: (message: Message) => void;
   switchRoom: (room: ChatRoom | null) => void;
   catchErrors: (error: unknown) => void;
@@ -33,22 +34,15 @@ const initialState = {
   error: "",
   defaultRoom: null,
 };
+interface ChatProviderProps {
+  children?: ReactNode;
+  value?: ChatContextProps;
+}
 const ChatContext = createContext<undefined | ChatContextProps>(undefined);
-const ChatProvider = ({ children }: { children: ReactNode }) => {
+const ChatProvider = ({ children, value }: ChatProviderProps) => {
   const [state, dispatch] = useReducer(chatReducer, initialState);
   const { selectedChatRoom } = state;
-  const catchErrors = (error: unknown) => {
-    dispatch({
-      type: ChatActionTypes.SET_ERROR,
-      payload: { error },
-    });
-  };
-  function deleteAllMessages() {
-    dispatch({ type: ChatActionTypes.DELETE_ALL_MESSAGES });
-  }
-  const addMessage = (message: Message) => {
-    dispatch({ type: ChatActionTypes.ADD_MESSAGE, payload: { message } });
-  };
+
   function handleMissingKid(auth: Auth) {
     dispatch({ type: ChatActionTypes.KID_NOT_FOUND });
     auth.signOut();
@@ -63,21 +57,14 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
       payload: { user, kidInfo, defaultRoom },
     });
   }
-
-  const switchRoom = (room: ChatRoom | null) => {
-    if (!room) {
-      catchErrors("Room not found");
-    }
-    dispatch({
-      type: ChatActionTypes.SWITCH_ROOM,
-      payload: { room },
-    });
-  };
+  function loadChat() {
+    dispatch({ type: ChatActionTypes.LOAD });
+  }
 
   const startUserSession = useRef(
     async (user: User, selectedChatRoom: ChatRoom | null) => {
+      const { addMessage, switchRoom } = actionCreators;
       const kidInfo = await getKidInfo(user.email);
-
       if (!kidInfo) {
         return handleMissingKid(auth);
       }
@@ -100,8 +87,11 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     dispatch({ type: ChatActionTypes.INIT });
+
     onAuthStateChanged(auth, async (user) => {
+      const { catchErrors } = actionCreators;
       try {
+        loadChat();
         if (user !== null) {
           startUserSession.current(user, selectedChatRoom);
         } else {
@@ -111,19 +101,12 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
         catchErrors(error);
       }
     });
+
     return () => {};
   }, [startUserSession, selectedChatRoom]);
 
   return (
-    <ChatContext.Provider
-      value={{
-        ...state,
-        addMessage,
-        catchErrors,
-        switchRoom,
-        deleteAllMessages,
-      }}
-    >
+    <ChatContext.Provider value={value || { ...actionCreators, ...state }}>
       {children}
     </ChatContext.Provider>
   );

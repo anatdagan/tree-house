@@ -15,7 +15,7 @@ const Chat = ({ children }: Props) => {
       {user ? (
         <article className={classes.chat}>{children}</article>
       ) : (
-        <Login />
+        <Login data-testid="login" />
       )}
       <ErrorMessage />
     </>
