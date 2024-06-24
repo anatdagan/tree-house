@@ -60,13 +60,9 @@ describe("Chat", () => {
       defaultRoom: null,
     };
 
-    customRender(
-      <Chat />,
-
-      { providerProps: { state } }
-    );
+    customRender(<Chat />, state);
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
-    expect(screen.getByTestId("login")).toBeInTheDocument();
+    expect(screen.getByText("Login")).toBeInTheDocument();
     screen.debug();
   });
 });

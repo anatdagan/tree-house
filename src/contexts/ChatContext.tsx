@@ -64,23 +64,46 @@ const ChatProvider = ({ children, value }: ChatProviderProps) => {
   const startUserSession = useRef(
     async (user: User, selectedChatRoom: ChatRoom | null) => {
       const { addMessage, switchRoom } = actionCreators;
-      const kidInfo = await getKidInfo(user.email);
-      if (!kidInfo) {
+      let kidInfo;
+      try {
+        kidInfo = await getKidInfo(user.email);
+        if (!kidInfo) {
+          return handleMissingKid(auth);
+        }
+      } catch (error) {
+        console.log("Error getting kid info", error);
         return handleMissingKid(auth);
       }
       const uid = kidInfo.uid;
-      if (uid && uid !== user.uid) {
+      try {
+        if (uid && uid !== user.uid) {
+          return handleUnauthorized(auth);
+        }
+        handleSignIn(user, kidInfo, await getDefaultChatRoom());
+      } catch (error) {
+        console.error("Error getting default chat room", error);
         return handleUnauthorized(auth);
       }
-      handleSignIn(user, kidInfo, await getDefaultChatRoom());
-      initParentNotifications(kidInfo);
+      try {
+        initParentNotifications(kidInfo);
+      } catch (error) {
+        console.error("Error initializing parent notifications", error);
+      }
       let currentRoom = selectedChatRoom;
       if (kidInfo.status === "new") {
-        currentRoom = await createWelcomeRoom(kidInfo, user.uid);
-        switchRoom(currentRoom);
+        try {
+          currentRoom = await createWelcomeRoom(kidInfo, user.uid);
+          switchRoom(currentRoom);
+        } catch (error) {
+          console.error("Error creating welcome room", error);
+        }
       }
       if (currentRoom) {
-        await initCounselors(kidInfo, selectedChatRoom, addMessage);
+        try {
+          await initCounselors(kidInfo, selectedChatRoom, addMessage);
+        } catch (error) {
+          console.error("Error initializing counselors", error);
+        }
       }
     }
   );

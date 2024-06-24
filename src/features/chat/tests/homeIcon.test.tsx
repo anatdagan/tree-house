@@ -62,7 +62,7 @@ describe("Home Icon", () => {
     customRender(
       <HomeIcon />,
 
-      { providerProps: { state } }
+      state
     );
     expect(screen.getByAltText("Home")).toBeInTheDocument();
     screen.debug();

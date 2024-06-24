@@ -9,13 +9,4 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./tests/setup.js"],
   },
-  server: {
-    proxy: {
-      // Proxying websockets or socket.io
-      "/socket.io": {
-        target: "ws://localhost:4000",
-        ws: true,
-      },
-    },
-  },
 });
