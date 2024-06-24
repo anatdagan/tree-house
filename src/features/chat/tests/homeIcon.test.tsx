@@ -8,6 +8,7 @@ vi.mock("firebase/auth", () => {
     signInWithPopup: vi.fn(),
     GoogleAuthProvider: vi.fn(),
     getAuth: vi.fn(),
+    connectAuthEmulator: vi.fn(),
     onAuthStateChanged: vi.fn(),
   };
 });
@@ -15,6 +16,7 @@ vi.mock("firebase/firestore", () => {
   return {
     Timestamp: vi.fn(),
     getFirestore: vi.fn(),
+    connectFirestoreEmulator: vi.fn(),
   };
 });
 vi.mock("../../hooks/useChat", () => {

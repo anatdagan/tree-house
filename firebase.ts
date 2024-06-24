@@ -1,11 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import {
-  Auth,
-  browserLocalPersistence,
-  connectAuthEmulator,
-  getAuth,
-} from "firebase/auth";
+import { Auth, connectAuthEmulator, getAuth } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { getFunctions } from "firebase/functions";
 import { getVertexAI } from "firebase/vertexai-preview";
@@ -57,13 +52,11 @@ let auth: Auth;
 let storage: FirebaseStorage;
 if (import.meta.env.DEV) {
   auth = getAuth(app);
-  auth.app.options.databaseURL = "https://localhost:9099?ns=treehouse-chat-app";
-  auth.settings.appVerificationDisabledForTesting = true;
-  auth.setPersistence(browserLocalPersistence);
+  // auth.settings.appVerificationDisabledForTesting = true;
+  // auth.setPersistence(browserLocalPersistence);
   connectAuthEmulator(auth, "http://localhost:9099");
-  console.log(auth.emulatorConfig);
   db = getFirestore();
-  db.app.options.databaseURL = "https://localhost:8080?ns=treehouse-chat-app";
+  // db.app.options.databaseURL = "https://localhost:8080?ns=treehouse-chat-app";
   connectFirestoreEmulator(db, "localhost", 8080);
   storage = getStorage();
   storage.app.options.storageBucket = "localhost:9199";
