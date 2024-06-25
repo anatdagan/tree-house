@@ -66,9 +66,7 @@ if (import.meta.env.DEV) {
   db = getFirestore();
 
   appCheck = initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider(
-      "6Le59O4pAAAAAPeidgX7BoVuMTGAo10W37DGy9Iu"
-    ),
+    provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
     isTokenAutoRefreshEnabled: true,
   });
 }
