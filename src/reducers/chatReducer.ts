@@ -10,6 +10,7 @@ import {
 
 export enum ChatActionTypes {
   INIT = "chat/init",
+  LOAD = "chat/load",
   ADD_MESSAGE = "message/add",
   DELETE_MESSAGE = "message/delete",
   DELETE_ALL_MESSAGES = "message/delete_all",
@@ -33,6 +34,9 @@ export interface ChatState {
 
 interface INIT_ACTION {
   type: ChatActionTypes.INIT;
+}
+interface LOAD_ACTION {
+  type: ChatActionTypes.LOAD;
 }
 interface ADD_MESSAGE_ACTION {
   type: ChatActionTypes.ADD_MESSAGE;
@@ -74,6 +78,7 @@ interface LOG_OUT_ACTION {
 
 export type ChatAction =
   | INIT_ACTION
+  | LOAD_ACTION
   | ADD_MESSAGE_ACTION
   | DELETE_MESSAGE_ACTION
   | DELETE_ALL_MESSAGES_ACTION
@@ -110,8 +115,12 @@ export const chatReducer = (
     case ChatActionTypes.INIT:
       return {
         ...state,
-        isLoading: true,
         error: "",
+      };
+    case ChatActionTypes.LOAD:
+      return {
+        ...state,
+        isLoading: true,
       };
     case ChatActionTypes.ADD_MESSAGE: {
       const { selectedChatRoom } = state;

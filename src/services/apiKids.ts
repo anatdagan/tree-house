@@ -37,10 +37,11 @@ export async function getKidInfo(email?: string | null) {
 export function getAvatar(avatar?: string, email?: string) {
   const folder = email && avatar ? email : "default";
   const storage = getStorage();
+  if (avatar && avatar.startsWith("http")) return avatar;
   return getDownloadURL(
     ref(
       storage,
-      `gs://treehouse-chat-app.appspot.com/b/treehouse-chat-app.appspot.com/o/images/${folder}/${
+      `gs://treehouse-chat-app.appspot.com/o/images/${folder}/${
         avatar || "avatar.png"
       }`
     )

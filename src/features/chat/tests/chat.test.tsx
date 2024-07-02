@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
-import Login from "../Login";
 import { customRender } from "../../../../tests/utils";
+import Chat from "../Chat";
 
-describe("Login", () => {
-  it("should render the login form", () => {
+describe("Chat", () => {
+  it("it should include the login component if the user is not logged in", () => {
     const state = {
       messages: [],
       selectedChatRoom: null,
@@ -15,11 +15,8 @@ describe("Login", () => {
       defaultRoom: null,
     };
 
-    customRender(
-      <Login />,
-
-      state
-    );
+    customRender(<Chat />, state);
+    expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
     expect(screen.getByText("Login")).toBeInTheDocument();
     screen.debug();
   });

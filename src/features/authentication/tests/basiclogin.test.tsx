@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
-import Login from "../Login";
+import BasicLogin from "../BasicLogin";
 import { customRender } from "../../../../tests/utils";
 
-describe("Login", () => {
-  it("should render the login form", () => {
+describe("Basic Login", () => {
+  it("should render the basic login form", () => {
     const state = {
       messages: [],
       selectedChatRoom: null,
@@ -15,12 +15,10 @@ describe("Login", () => {
       defaultRoom: null,
     };
 
-    customRender(
-      <Login />,
+    customRender(<BasicLogin />, state);
 
-      state
-    );
-    expect(screen.getByText("Login")).toBeInTheDocument();
+    expect(screen.getByRole("textbox")).toBeInTheDocument();
+    expect(screen.getByRole("button")).toBeInTheDocument();
     screen.debug();
   });
 });

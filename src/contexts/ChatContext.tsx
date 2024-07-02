@@ -18,7 +18,7 @@ import { initParentNotifications } from "../services/apiParentNotifications";
 import { initCounselors } from "../services/chatbots/apiCounselors";
 import { ChatRoom } from "../features/chatroom/types/Rooms";
 
-interface ChatContextProps extends ChatState {
+export interface ChatContextProps extends ChatState {
   addMessage: (message: Message) => void;
   switchRoom: (room: ChatRoom | null) => void;
   catchErrors: (error: unknown) => void;
@@ -33,8 +33,12 @@ const initialState = {
   error: "",
   defaultRoom: null,
 };
+interface ChatProviderProps {
+  children?: ReactNode;
+  value?: ChatContextProps;
+}
 const ChatContext = createContext<undefined | ChatContextProps>(undefined);
-const ChatProvider = ({ children }: { children: ReactNode }) => {
+const ChatProvider = ({ children, value }: ChatProviderProps) => {
   const [state, dispatch] = useReducer(chatReducer, initialState);
   const { selectedChatRoom } = state;
   const catchErrors = (error: unknown) => {
@@ -49,6 +53,10 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
   const addMessage = (message: Message) => {
     dispatch({ type: ChatActionTypes.ADD_MESSAGE, payload: { message } });
   };
+  const switchRoom = (room: ChatRoom | null) => {
+    dispatch({ type: ChatActionTypes.SWITCH_ROOM, payload: { room } });
+  };
+
   function handleMissingKid(auth: Auth) {
     dispatch({ type: ChatActionTypes.KID_NOT_FOUND });
     auth.signOut();
@@ -63,45 +71,62 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
       payload: { user, kidInfo, defaultRoom },
     });
   }
-
-  const switchRoom = (room: ChatRoom | null) => {
-    if (!room) {
-      catchErrors("Room not found");
-    }
-    dispatch({
-      type: ChatActionTypes.SWITCH_ROOM,
-      payload: { room },
-    });
-  };
+  function loadChat() {
+    dispatch({ type: ChatActionTypes.LOAD });
+  }
 
   const startUserSession = useRef(
     async (user: User, selectedChatRoom: ChatRoom | null) => {
-      const kidInfo = await getKidInfo(user.email);
-
-      if (!kidInfo) {
+      let kidInfo;
+      try {
+        kidInfo = await getKidInfo(user.email);
+        if (!kidInfo) {
+          return handleMissingKid(auth);
+        }
+      } catch (error) {
+        console.log("Error getting kid info", error);
         return handleMissingKid(auth);
       }
       const uid = kidInfo.uid;
-      if (uid && uid !== user.uid) {
+      try {
+        if (uid && uid !== user.uid) {
+          return handleUnauthorized(auth);
+        }
+        handleSignIn(user, kidInfo, await getDefaultChatRoom());
+      } catch (error) {
+        console.error("Error getting default chat room", error);
         return handleUnauthorized(auth);
       }
-      handleSignIn(user, kidInfo, await getDefaultChatRoom());
-      initParentNotifications(kidInfo);
+      try {
+        initParentNotifications(kidInfo);
+      } catch (error) {
+        console.error("Error initializing parent notifications", error);
+      }
       let currentRoom = selectedChatRoom;
       if (kidInfo.status === "new") {
-        currentRoom = await createWelcomeRoom(kidInfo, user.uid);
-        switchRoom(currentRoom);
+        try {
+          currentRoom = await createWelcomeRoom(kidInfo, user.uid);
+          switchRoom(currentRoom);
+        } catch (error) {
+          console.error("Error creating welcome room", error);
+        }
       }
       if (currentRoom) {
-        await initCounselors(kidInfo, selectedChatRoom, addMessage);
+        try {
+          await initCounselors(kidInfo, currentRoom, addMessage);
+        } catch (error) {
+          console.error("Error initializing counselors", error);
+        }
       }
     }
   );
 
   useEffect(() => {
     dispatch({ type: ChatActionTypes.INIT });
+
     onAuthStateChanged(auth, async (user) => {
       try {
+        loadChat();
         if (user !== null) {
           startUserSession.current(user, selectedChatRoom);
         } else {
@@ -111,18 +136,18 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
         catchErrors(error);
       }
     });
+
     return () => {};
   }, [startUserSession, selectedChatRoom]);
 
   return (
     <ChatContext.Provider
-      value={{
-        ...state,
-        addMessage,
-        catchErrors,
-        switchRoom,
-        deleteAllMessages,
-      }}
+      value={
+        value || {
+          ...{ catchErrors, deleteAllMessages, switchRoom, addMessage },
+          ...state,
+        }
+      }
     >
       {children}
     </ChatContext.Provider>

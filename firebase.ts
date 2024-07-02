@@ -1,10 +1,19 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { Auth, connectAuthEmulator, getAuth } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { getFunctions } from "firebase/functions";
 import { getVertexAI } from "firebase/vertexai-preview";
-import { getFirestore } from "firebase/firestore";
+import {
+  Firestore,
+  connectFirestoreEmulator,
+  getFirestore,
+} from "firebase/firestore";
+import {
+  FirebaseStorage,
+  connectStorageEmulator,
+  getStorage,
+} from "firebase/storage";
 
 declare global {
   interface Window {
@@ -17,29 +26,50 @@ declare global {
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyBxg5kA1rsJl0Ri_XH8h5TJAcpRlkQZnO0",
-  authDomain: "treehouse-chat-app.firebaseapp.com",
-  projectId: "treehouse-chat-app",
-  storageBucket: "treehouse-chat-app.appspot.com",
-  messagingSenderId: "1023200743461",
-  appId: "1:1023200743461:web:7146c066723e694cabefcc",
-  measurementId: "G-XJ6F1KNG72",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+
 const functions = getFunctions(app);
 if (import.meta.env.DEV) {
   self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
 }
 
-const appCheck = initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider("6Le59O4pAAAAAPeidgX7BoVuMTGAo10W37DGy9Iu"),
-  isTokenAutoRefreshEnabled: true,
-});
+let appCheck;
 
 // Initialize the Vertex AI service
 const vertexAI = getVertexAI(app);
-const db = getFirestore();
+let db: Firestore;
+let auth: Auth;
+let storage: FirebaseStorage;
+if (import.meta.env.DEV) {
+  auth = getAuth(app);
+  // auth.settings.appVerificationDisabledForTesting = true;
+  // auth.setPersistence(browserLocalPersistence);
+  connectAuthEmulator(auth, "http://localhost:9099");
+  db = getFirestore();
+  // db.app.options.databaseURL = "https://localhost:8080?ns=treehouse-chat-app";
+  connectFirestoreEmulator(db, "localhost", 8080);
+  storage = getStorage();
+  storage.app.options.storageBucket = "localhost:9199";
+  connectStorageEmulator(storage, "localhost", 9199);
+} else {
+  auth = getAuth(app);
+  db = getFirestore();
+
+  appCheck = initializeAppCheck(app, {
+    // provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
+    provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
+    isTokenAutoRefreshEnabled: true,
+  });
+}
+// todo: restore appcheck for vertex ai
 export { auth, app, functions, db, appCheck, vertexAI };

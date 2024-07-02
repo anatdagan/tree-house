@@ -1,0 +1,26 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {  
+    match /kids/{document=**} {
+      allow read,create, update,write: if true;
+    }
+    match /parents/{document=**} {
+      allow read,create, update,write: if true;
+    }
+
+    match /messages/{document=**} {
+      allow read,create, update,write: if true;
+
+    }
+    match /chatrooms/{document=**} {
+      allow read,create, update,write: if true;
+    }
+    match /chatbots/{document=**} {
+      allow read,create, update,write: if true;
+
+    }
+    match /flagged_messages/{document=**} {
+      allow read,create, update,write: if true;
+    }  }
+}

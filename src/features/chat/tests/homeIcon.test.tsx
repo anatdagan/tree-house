@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
-import Login from "../Login";
 import { customRender } from "../../../../tests/utils";
+import HomeIcon from "../HomeIcon";
 
-describe("Login", () => {
-  it("should render the login form", () => {
+describe("Home Icon", () => {
+  it("should render the home icon", () => {
     const state = {
       messages: [],
       selectedChatRoom: null,
@@ -16,11 +16,11 @@ describe("Login", () => {
     };
 
     customRender(
-      <Login />,
+      <HomeIcon />,
 
       state
     );
-    expect(screen.getByText("Login")).toBeInTheDocument();
+    expect(screen.getByAltText("Home")).toBeInTheDocument();
     screen.debug();
   });
 });
