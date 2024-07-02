@@ -67,11 +67,9 @@ if (import.meta.env.DEV) {
 
   appCheck = initializeAppCheck(app, {
     // provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
-    provider: new ReCaptchaV3Provider(
-      "6LcAAe8pAAAAAHbCscmXuMfGKezuKXIqEM09Fq4y"
-    ),
+    provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
     isTokenAutoRefreshEnabled: true,
   });
 }
-
+// todo: restore appcheck for vertex ai
 export { auth, app, functions, db, appCheck, vertexAI };

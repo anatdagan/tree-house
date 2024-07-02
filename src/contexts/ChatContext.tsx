@@ -4,7 +4,6 @@ import {
   ChatState,
   chatReducer,
 } from "../reducers/chatReducer";
-import { actionCreators } from "../actions/actionCreators";
 
 import { Message } from "../features/chat/types/Messages";
 import User from "../features/authentication/types/Users.d";
@@ -42,6 +41,21 @@ const ChatContext = createContext<undefined | ChatContextProps>(undefined);
 const ChatProvider = ({ children, value }: ChatProviderProps) => {
   const [state, dispatch] = useReducer(chatReducer, initialState);
   const { selectedChatRoom } = state;
+  const catchErrors = (error: unknown) => {
+    dispatch({
+      type: ChatActionTypes.SET_ERROR,
+      payload: { error },
+    });
+  };
+  function deleteAllMessages() {
+    dispatch({ type: ChatActionTypes.DELETE_ALL_MESSAGES });
+  }
+  const addMessage = (message: Message) => {
+    dispatch({ type: ChatActionTypes.ADD_MESSAGE, payload: { message } });
+  };
+  const switchRoom = (room: ChatRoom | null) => {
+    dispatch({ type: ChatActionTypes.SWITCH_ROOM, payload: { room } });
+  };
 
   function handleMissingKid(auth: Auth) {
     dispatch({ type: ChatActionTypes.KID_NOT_FOUND });
@@ -63,7 +77,6 @@ const ChatProvider = ({ children, value }: ChatProviderProps) => {
 
   const startUserSession = useRef(
     async (user: User, selectedChatRoom: ChatRoom | null) => {
-      const { addMessage, switchRoom } = actionCreators;
       let kidInfo;
       try {
         kidInfo = await getKidInfo(user.email);
@@ -100,7 +113,7 @@ const ChatProvider = ({ children, value }: ChatProviderProps) => {
       }
       if (currentRoom) {
         try {
-          await initCounselors(kidInfo, selectedChatRoom, addMessage);
+          await initCounselors(kidInfo, currentRoom, addMessage);
         } catch (error) {
           console.error("Error initializing counselors", error);
         }
@@ -112,7 +125,6 @@ const ChatProvider = ({ children, value }: ChatProviderProps) => {
     dispatch({ type: ChatActionTypes.INIT });
 
     onAuthStateChanged(auth, async (user) => {
-      const { catchErrors } = actionCreators;
       try {
         loadChat();
         if (user !== null) {
@@ -129,7 +141,14 @@ const ChatProvider = ({ children, value }: ChatProviderProps) => {
   }, [startUserSession, selectedChatRoom]);
 
   return (
-    <ChatContext.Provider value={value || { ...actionCreators, ...state }}>
+    <ChatContext.Provider
+      value={
+        value || {
+          ...{ catchErrors, deleteAllMessages, switchRoom, addMessage },
+          ...state,
+        }
+      }
+    >
       {children}
     </ChatContext.Provider>
   );
