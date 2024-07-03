@@ -34,14 +34,14 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
 const functions = getFunctions(app);
-if (import.meta.env.DEV) {
-  self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-}
+
+// if (import.meta.env.DEV) {
+self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+//}
 
 let appCheck;
 
@@ -52,11 +52,8 @@ let auth: Auth;
 let storage: FirebaseStorage;
 if (import.meta.env.DEV) {
   auth = getAuth(app);
-  // auth.settings.appVerificationDisabledForTesting = true;
-  // auth.setPersistence(browserLocalPersistence);
   connectAuthEmulator(auth, "http://localhost:9099");
   db = getFirestore();
-  // db.app.options.databaseURL = "https://localhost:8080?ns=treehouse-chat-app";
   connectFirestoreEmulator(db, "localhost", 8080);
   storage = getStorage();
   storage.app.options.storageBucket = "localhost:9199";

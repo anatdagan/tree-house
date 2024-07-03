@@ -49,6 +49,8 @@ const ChatMessages = () => {
             <img
               src={message?.avatar}
               alt={message?.avatar}
+              height={45}
+              width={45}
               onClick={() =>
                 onAvatarClick(message.uid, kidInfo, switchRoom).catch(
                   (error) => {
