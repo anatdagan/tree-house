@@ -10,7 +10,7 @@ const ChatHeader = () => {
   const { user, selectedChatRoom } = useChat();
   return (
     <header className={classes["header-chat"]}>
-      <a href="#messages" className="visibleOnFocus">
+      <a href="#messages" className={classes.visibleOnFocus}>
         Skip header
       </a>
       <HomeIcon />

@@ -116,3 +116,11 @@
   width: 1rem;
   margin-right: 2rem;
 }
+.visibleOnFocus {
+  position: absolute;
+  transform: translateY(-1000%);
+  transition: transform 0.3s;
+}
+.visibleOnFocus:focus {
+  transform: translateY(0);
+}

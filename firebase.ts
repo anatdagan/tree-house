@@ -1,8 +1,11 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
 import { Auth, connectAuthEmulator, getAuth } from "firebase/auth";
-import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
-import { getFunctions } from "firebase/functions";
+import {
+  initializeAppCheck,
+  ReCaptchaEnterpriseProvider,
+} from "firebase/app-check";
 import { getVertexAI } from "firebase/vertexai-preview";
 import {
   Firestore,
@@ -36,8 +39,7 @@ const firebaseConfig = {
 };
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-const functions = getFunctions(app);
+const analytics = getAnalytics(app);
 
 if (import.meta.env.DEV) {
   self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
@@ -58,13 +60,21 @@ if (import.meta.env.DEV) {
   storage = getStorage();
   storage.app.options.storageBucket = "localhost:9199";
   connectStorageEmulator(storage, "localhost", 9199);
+  appCheck = initializeAppCheck(app, {
+    provider: new ReCaptchaEnterpriseProvider(
+      import.meta.env.VITE_RECAPTCHA_SITE_KEY
+    ),
+    isTokenAutoRefreshEnabled: true,
+  });
 } else {
   auth = getAuth(app);
   db = getFirestore();
 
   appCheck = initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
+    provider: new ReCaptchaEnterpriseProvider(
+      import.meta.env.VITE_RECAPTCHA_SITE_KEY
+    ),
     isTokenAutoRefreshEnabled: true,
   });
 }
-export { auth, app, functions, db, appCheck, vertexAI };
+export { auth, app, db, appCheck, vertexAI, analytics };
