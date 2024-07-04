@@ -39,9 +39,9 @@ const app = initializeApp(firebaseConfig);
 
 const functions = getFunctions(app);
 
-// if (import.meta.env.DEV) {
-self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-//}
+if (import.meta.env.DEV) {
+  self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+}
 
 let appCheck;
 
