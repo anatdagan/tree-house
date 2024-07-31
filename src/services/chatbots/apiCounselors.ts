@@ -1,5 +1,9 @@
-import type { ChatBot, ChatBotData } from "./types/chatbot";
-import { addChatbotHistory, getChatbot } from "./apiChatbots";
+import type { ChatBot, ChatBotData, HistoryExchange } from "./types/chatbot";
+import {
+  addChatbotHistory,
+  convertExchageToHistory,
+  getChatbot,
+} from "./apiChatbots";
 import {
   GenerationConfig,
   Content,
@@ -14,19 +18,14 @@ import {
   getChatWithAi,
   generateSystemInstructions,
 } from "../apiAI";
-import {
-  Kid,
-  getAvatar,
-  updateKidInfo,
-  KidStatus,
-  getKidByDisplayName,
-} from "../apiKids";
+import { Kid, getAvatar, getKidByDisplayName } from "../apiKids";
 import { deleteDocsFromCollection } from "../db";
-import { Message, MessageStatus } from "../../features/chat/types/Messages.d";
+import { Message, MessageStatus } from "../../components/chat/types/Messages.d";
 import { Timestamp } from "firebase/firestore";
-import { ChatRoom, RoomType } from "../../features/chatroom/types/Rooms.d";
+import { ChatRoom, RoomType } from "../../components/chatroom/types/Rooms.d";
 import { addMessage } from "../apiMessages";
 import { notifyParentOnMeetingRequest } from "../apiParentNotifications";
+import { updateRoomData } from "../apiChatRooms";
 
 const context = `
 The Tree House chat is a safe chat for kids. If a kid sends a message that might be inappropriate, the message is removed. If an appropriate message is deleted by mistake, the sender can try to rephrase what they wanted to say. When a kid wants to start a private conversation with another kid, they can click on the other kid's avatar and then a private chat room is opened. If a kid would like to meet another kid IRL, they should tell you, and you can arrange it with both kids' parents.
@@ -59,25 +58,24 @@ class Counselor implements ChatBot {
   generationConfig: GenerationConfig;
   systemInstructions: SystemInstructionsParts;
   history: Content[];
-  initialHistory: string[];
+  welcomeMessages: string[];
   chat: ChatSession | null;
   private nextResponseOverride: string | null = null;
   constructor(
     id: string,
     data: ChatBotData,
     counselorHistory: Content[] = [],
-    private kidInfo: Kid,
-    public dispatchMessage: (message: Message) => void
+    private kidInfo: Kid
   ) {
     console.log("Creating counselor", id, data, counselorHistory);
     this.id = id;
     this.name = data.name;
     this.age = data.age;
     this.avatar = data.avatar;
-    this.initialHistory = data.initialHistory.map((line) =>
-      line.replace("{{kidName}}", this.kidInfo.displayName)
-    );
-    this.history = counselorHistory;
+    (this.welcomeMessages = data.welcomeMessages.map((message) =>
+      message.replace("{{kidName}}", this.kidInfo.displayName)
+    )),
+      (this.history = counselorHistory);
 
     this.chat = null;
     this.generationConfig = {
@@ -146,12 +144,13 @@ class Counselor implements ChatBot {
     await this.addMessage(message, response, roomId, this.kidInfo);
   }
   async displayWelcomeMessage(index: number, roomId: string) {
-    if (index >= this.initialHistory.length) {
+    if (index >= this.welcomeMessages.length) {
       return;
     }
     console.log("Displaying welcome message", index);
-    const messageText = this.initialHistory[index];
-    this.dispatchMessage({
+    const messageText = this.welcomeMessages[index];
+
+    await addMessage({
       uid: this.id,
       text: messageText,
       id: crypto.randomUUID(),
@@ -165,14 +164,21 @@ class Counselor implements ChatBot {
   async breakConversation() {
     this.nextResponseOverride = `I have to leave now. If you need me later, just write @${this.id} and i'll come back.`;
   }
+  async addHistory(exchange: HistoryExchange) {
+    await addChatbotHistory(exchange);
+    this.history.push(
+      ...convertExchageToHistory(exchange, this.kidInfo?.displayName)
+    );
+  }
+
   async addMessage(kidText: string, botText: string, roomId: string, kid: Kid) {
-    // TODO: make this more generic
-    await addChatbotHistory({
+    this.addHistory({
       kidUid: kid.uid,
       kidText,
       botText,
       chatbotId: this.id,
     });
+
     addMessage({
       uid: this.id,
       text: botText,
@@ -191,11 +197,7 @@ class Counselor implements ChatBot {
 
 const counselors = new Map<string, Counselor>();
 let activeCounselor: Counselor | null = null;
-async function initCounselor(
-  id: string,
-  kidInfo: Kid,
-  addMessage: (message: Message) => void
-) {
+async function initCounselor(id: string, kidInfo: Kid) {
   console.log("Initializing counselor", id);
   const data = await getChatbot(id);
   if (!data) {
@@ -203,7 +205,7 @@ async function initCounselor(
   }
 
   const history = await getChatbotHistory(kidInfo, id);
-  if (history.length === 0) {
+  if (!history.length) {
     history.push(
       {
         role: POSSIBLE_ROLES[0],
@@ -211,37 +213,20 @@ async function initCounselor(
       },
       {
         role: POSSIBLE_ROLES[1],
-        parts: [{ text: data.initialHistory.join("\n") }],
+        parts: [{ text: data.welcomeMessages.join("\n") }],
       }
     );
   }
   console.log("Chatbot history", history);
-  return new Counselor(id, data, history, kidInfo, addMessage);
+  return new Counselor(id, data, history, kidInfo);
 }
-export async function initCounselors(
-  kidInfo: Kid,
-  selectedChatRoom: ChatRoom | null,
-  dispatchMessage: (message: Message) => void
-) {
-  // TODO: duplicate jimmie as jimmy in firestore
-
-  counselors.set(
-    "jimmy",
-    await initCounselor("jimmy", kidInfo, dispatchMessage)
-  );
-  counselors.set(
-    "minnie",
-    await initCounselor("minnie", kidInfo, dispatchMessage)
-  );
-  if (selectedChatRoom?.type === RoomType.WELCOME) {
-    await startWelcomeChatWithKid(selectedChatRoom);
-    await updateKidInfo(kidInfo, { status: KidStatus.ACTIVE });
-    console.log("Welcome chat started");
-  }
+export async function initCounselors(kidInfo: Kid) {
+  counselors.set("jimmy", await initCounselor("jimmy", kidInfo));
+  counselors.set("minnie", await initCounselor("minnie", kidInfo));
 }
 
 export function getCounselor(id: string) {
-  return counselors.get(id);
+  return counselors.get(id) || null;
 }
 export function getActiveCounselor() {
   return activeCounselor;
@@ -258,9 +243,11 @@ async function displayWelcomeMessages(room: ChatRoom) {
   if (!minnie || !jimmy) {
     throw new Error("Counselors not found");
   }
+
   let minnieMessage = await minnie.displayWelcomeMessage(0, room.id);
   let jimmyMessage = await jimmy.displayWelcomeMessage(0, room.id);
   let index = 1;
+  await updateRoomData(room, { welcomed: true });
   while (minnieMessage || jimmyMessage) {
     console.log("messages:", minnieMessage, jimmyMessage);
     minnieMessage = await minnie.displayWelcomeMessage(index, room.id);
@@ -268,7 +255,10 @@ async function displayWelcomeMessages(room: ChatRoom) {
     index++;
   }
 }
-async function startWelcomeChatWithKid(room: ChatRoom) {
+export async function startWelcomeChatWithKid(room: ChatRoom) {
+  if (room.welcomed) {
+    return;
+  }
   const minnie = counselors.get("minnie");
 
   console.log("minnie", minnie);
@@ -282,5 +272,39 @@ async function startWelcomeChatWithKid(room: ChatRoom) {
   minnie.startChat();
   jimmy.startChat();
 }
-
-// TODO: when the counselors are mentioned, they should stay in the room until the kids say that they can leave. They should ask after 5min if they can leave.
+export function appointCounselor(
+  message: Message,
+  selectedChatRoom: ChatRoom | null,
+  activeCounselorId?: string | null
+): Counselor | null {
+  if (!selectedChatRoom) {
+    return null;
+  }
+  if (selectedChatRoom.type === RoomType.WELCOME) {
+    return getRandomCounselor();
+  }
+  const mentionMatch = message.text.match(/@(\w+)/);
+  if (mentionMatch) {
+    return getCounselor(mentionMatch[1].toLowerCase());
+  }
+  if (activeCounselorId) {
+    return getCounselor(activeCounselorId);
+  }
+  return null;
+}
+/**
+ * Check if the active counselor has expired
+ * @param activatedAt
+ * @returns
+ */
+export function isActiveCounselorExpired(activatedAt: string | null) {
+  const ENTERTAINMENT_DURATION = 600000; // 10 minutes
+  console.log("Checking if counselor is expired", activatedAt);
+  if (!activatedAt) {
+    return false;
+  }
+  const activatedAtDate = new Date(activatedAt);
+  const now = new Date();
+  const diff = now.getTime() - activatedAtDate.getTime();
+  return diff > ENTERTAINMENT_DURATION;
+}

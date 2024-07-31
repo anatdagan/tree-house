@@ -58,6 +58,14 @@ export async function getKidParent(kid: Kid) {
   return await getDocDataById("parents", kid.parentId);
 }
 
+export async function getKidInfoByUid(uid?: string | null) {
+  if (!uid) {
+    return null;
+  }
+  console.log("Getting kid info", uid);
+  return await getDocDataFromCollection<Kid>("kids", "uid", uid);
+}
+
 // todo: add fuzzy spelling search
 export async function getKidByDisplayName(displayName: string) {
   return (await getDocDataFromCollection(

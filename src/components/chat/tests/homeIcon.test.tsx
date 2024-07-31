@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
-import { customRender } from "/tests/utils";
+import { customUserContextRender } from "/tests/utils";
 import HomeIcon from "../HomeIcon";
 
 describe("Home Icon", () => {
@@ -17,7 +17,7 @@ describe("Home Icon", () => {
       counselorActivatedAt: "",
     };
 
-    customRender(
+    customUserContextRender(
       <HomeIcon />,
 
       state

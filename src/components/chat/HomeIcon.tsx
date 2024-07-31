@@ -1,7 +1,7 @@
-import useChat from "../../hooks/useChat";
+import useUser from "@/hooks/useUser";
 
 const HomeIcon = () => {
-  const { switchRoom, defaultRoom } = useChat();
+  const { switchRoom, defaultRoom } = useUser();
   return (
     <>
       <a href="#home">

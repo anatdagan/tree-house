@@ -1,4 +1,4 @@
-import { Message } from "../features/chat/types/Messages";
+import { Message } from "../components/chat/types/Messages.d";
 import { generateModel, getChatWithAi, sendMessageStream } from "./apiAI";
 import { ChatSession, POSSIBLE_ROLES } from "firebase/vertexai-preview";
 

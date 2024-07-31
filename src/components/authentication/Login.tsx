@@ -2,10 +2,10 @@ import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../../../firebase";
 import BasicLogin from "./BasicLogin";
 import classes from "./auth.module.css";
-import useChat from "../../hooks/useChat";
+import useUser from "@/hooks/useUser";
 
 const Login = () => {
-  const { catchErrors } = useChat();
+  const { catchErrors } = useUser();
   const handleGoogleSignIn = async () => {
     try {
       await signInWithPopup(auth, new GoogleAuthProvider());

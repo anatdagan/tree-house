@@ -1,7 +1,7 @@
 import { expect, afterEach, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 import * as matchers from "@testing-library/jest-dom/matchers";
-import { RoomType } from "../src/features/chatroom/types/Rooms.d.ts";
+import { RoomType } from "../src/components/chatroom/types/Rooms.d";
 
 expect.extend(matchers);
 
@@ -10,7 +10,7 @@ vi.mock("firebase/auth", () => {
     signInWithPopup: vi.fn(),
     GoogleAuthProvider: vi.fn(),
     getAuth: vi.fn(),
-    onAuthStateChanged: vi.fn(),
+    onAuthStateChanged: vi.fn().mockReturnValue(vi.fn()),
     connectAuthEmulator: vi.fn(),
   };
 });
@@ -58,7 +58,7 @@ vi.mock("firebase/vertexai-preview", () => {
     predict: vi.fn(),
   };
 });
-vi.mock("../../hooks/useChat", () => {
+vi.mock("../../hooks/useUser", () => {
   return vi.fn().mockReturnValue({
     kidInfo: {
       uid: "123",

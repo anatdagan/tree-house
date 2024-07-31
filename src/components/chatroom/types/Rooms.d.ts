@@ -10,4 +10,5 @@ export interface ChatRoom {
   createdAt: Date;
   createdBy: string;
   type: RoomType;
+  welcomed?: boolean;
 }

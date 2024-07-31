@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
 import BasicLogin from "../BasicLogin";
-import { customRender } from "../../../../tests/utils";
+import { customUserContextRender } from "../../../../tests/utils";
 
 describe("Basic Login", () => {
   it("should render the basic login form", () => {
@@ -15,7 +15,7 @@ describe("Basic Login", () => {
       defaultRoom: null,
     };
 
-    customRender(<BasicLogin />, state);
+    customUserContextRender(<BasicLogin />, state);
 
     expect(screen.getByRole("textbox")).toBeInTheDocument();
     expect(screen.getByRole("button")).toBeInTheDocument();

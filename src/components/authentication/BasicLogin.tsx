@@ -1,9 +1,9 @@
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import classes from "./auth.module.css";
-import useChat from "../../hooks/useChat";
+import useUser from "@/hooks/useUser";
 
 const BasicLogin = () => {
-  const { catchErrors } = useChat();
+  const { catchErrors } = useUser();
   const login = (email: string, password: string) => {
     const auth = getAuth();
     signInWithEmailAndPassword(auth, email, password).catch(catchErrors);

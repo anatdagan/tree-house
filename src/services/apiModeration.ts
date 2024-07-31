@@ -1,6 +1,6 @@
 import { DocumentReference } from "firebase/firestore";
 import { addDocToCollection } from "./db";
-import { Message, MessageStatus } from "../features/chat/types/Messages.d";
+import { Message, MessageStatus } from "../components/chat/types/Messages.d";
 import { addMessage } from "./apiMessages";
 
 import {

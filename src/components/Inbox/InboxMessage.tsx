@@ -1,12 +1,12 @@
-import { getChatroom } from "../../services/apiChatRooms";
+import { getChatroom } from "@/services/apiChatRooms";
 import type { InboxMessageData } from "./inbox.d";
 import { InboxMessageType } from "./inbox.d";
-import useChat from "../../hooks/useChat";
+import useUser from "@/hooks/useUser";
 interface InboxMessageProps {
   message: InboxMessageData;
 }
 const InboxMessage = ({ message }: InboxMessageProps) => {
-  const { switchRoom } = useChat();
+  const { switchRoom } = useUser();
   async function onMessageClick() {
     console.log(`Message clicked: ${message.subject}`);
     const chatRoom = message.roomId ? await getChatroom(message.roomId) : null;

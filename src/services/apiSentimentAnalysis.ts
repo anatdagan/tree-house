@@ -5,7 +5,7 @@ import {
   convertTextsToHistory,
 } from "./apiAI";
 import { POSSIBLE_ROLES, StartChatParams } from "firebase/vertexai-preview";
-import type { Message } from "@/features/chat/types/Messages.d";
+import type { Message } from "@/components/chat/types/Messages.d";
 import { Callback } from "@/types/common.d";
 import { vertexAI } from "../../firebase";
 

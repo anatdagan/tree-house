@@ -3,9 +3,10 @@ import type { Message } from "./types/Messages";
 import { extractTime } from "../../utils/date";
 import { Kid, getKidInfo } from "../../services/apiKids";
 import { startPrivateChat } from "../../services/apiChatRooms";
-import useChat from "../../hooks/useChat";
+import useUser from "@/hooks/useUser";
 import { ChatRoom } from "../chatroom/types/Rooms";
 import useMessages from "../../hooks/useMessages";
+import useMessageContext from "@/hooks/useMessageContext";
 
 async function onAvatarClick(
   uid: string,
@@ -24,7 +25,8 @@ async function onAvatarClick(
 }
 
 const ChatMessages = () => {
-  const { kidInfo, catchErrors, switchRoom, user, messages } = useChat();
+  const { kidInfo, catchErrors, switchRoom, user } = useUser();
+  const { messages } = useMessageContext();
   useMessages();
   const uid = user?.uid;
   if (!kidInfo) {

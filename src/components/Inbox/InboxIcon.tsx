@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Inbox from "./Inbox";
-import { InboxMessageData } from "./inbox.d";
+import { InboxMessageData } from "./inbox";
 import { getInboxMessages } from "../../services/apiInbox";
 import Modal from "../../ui/Modal/Modal";
 

@@ -4,30 +4,54 @@ import { Message, MessageStatus } from "./types/Messages.d";
 import { Timestamp } from "firebase/firestore";
 import { findViolations } from "../../services/apiModeration";
 import { addMessage } from "../../services/apiMessages";
-import useChat from "../../hooks/useChat";
+import useUser from "@/hooks/useUser";
 import {
   analyzeMessage,
   getLastMessages,
 } from "@/services/apiSentimentAnalysis";
-
-const onNewMessage = async (newMessage: Message) => {
-  if (await findViolations(newMessage)) {
-    console.log("Message is not allowed");
-    return;
-  }
-  console.log("Sending message: ", newMessage);
-  await addMessage(newMessage);
-};
+import useMessageContext from "@/hooks/useMessageContext";
+import {
+  appointCounselor,
+  isActiveCounselorExpired,
+} from "@/services/chatbots/apiCounselors";
 
 const ChatNewMessage = () => {
   const [newMessage, setNewMessage] = useState("");
-  const { kidInfo, selectedChatRoom, messages } = useChat();
+  const {
+    kidInfo,
+    selectedChatRoom,
+    activeCounselorId,
+    counselorActivatedAt,
+    setActiveCounselorId,
+  } = useUser();
+  const { messages } = useMessageContext();
 
   if (!kidInfo) {
     return null;
   }
   const { uid, avatar } = kidInfo;
-
+  const onNewMessage = async (newMessage: Message) => {
+    if (!selectedChatRoom) {
+      console.log("No chat room selected");
+      return;
+    }
+    if (await findViolations(newMessage)) {
+      console.log("Message is not allowed");
+      return;
+    }
+    console.log("Sending message: ", newMessage);
+    await addMessage(newMessage);
+    const responder = appointCounselor(
+      newMessage,
+      selectedChatRoom,
+      activeCounselorId
+    );
+    if (isActiveCounselorExpired(counselorActivatedAt)) {
+      responder?.breakConversation();
+      setActiveCounselorId(null);
+    }
+    responder?.onKidMessage(newMessage.text, selectedChatRoom?.id);
+  };
   const sendMessage = async (e: FormEvent) => {
     const MESSAGE_CONEXT_DURATION = 600000; // 10 minutes
     console.log("Sending message: ", newMessage);

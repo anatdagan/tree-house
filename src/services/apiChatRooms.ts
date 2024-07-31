@@ -1,19 +1,19 @@
-import { ChatRoom, RoomType } from "../features/chatroom/types/Rooms.d";
-import { addDocToCollection, getDocDataFromCollection } from "./db";
+import { ChatRoom, RoomType } from "@/components/chatroom/types/Rooms.d";
+import {
+  addDocToCollection,
+  getDocDataFromCollection,
+  updateDocData,
+} from "./db";
 import { sendMessageToInbox } from "./apiInbox";
 import {
   InboxMessageType,
   InboxMessageStatus,
-} from "../features/Inbox/inbox.d";
+} from "@/components/Inbox/inbox.d";
 import { Kid } from "./apiKids";
 
 let defaultChatRoom: ChatRoom | null = null;
 export async function getChatroom(id: string) {
-  return (await getDocDataFromCollection<string>(
-    "chatrooms",
-    "id",
-    id
-  )) as ChatRoom;
+  return await getDocDataFromCollection<ChatRoom>("chatrooms", "id", id);
 }
 
 export async function createChatroom(chatRoomData: ChatRoom) {
@@ -77,3 +77,21 @@ export const getDefaultChatRoom = async () => {
   defaultChatRoom = await getChatRoom("general");
   return defaultChatRoom;
 };
+
+/**
+ * gets the entry room for the user
+ * @param kidInfo
+ * @param idToken
+ * @param dbInstance
+ * @param uid
+ * @returns
+ */
+export async function getEntryRoom(kidInfo: Kid, uid: string) {
+  if (kidInfo?.status === "new") {
+    return await createWelcomeRoom(kidInfo, uid);
+  }
+  return await getDefaultChatRoom();
+}
+export function updateRoomData(room: ChatRoom, data: Partial<ChatRoom>) {
+  return updateDocData("chatrooms", room.id, data);
+}

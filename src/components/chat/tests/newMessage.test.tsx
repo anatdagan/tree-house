@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
-import ChatNewMessage from "@/features/chat/ChatNewMessage";
+import ChatNewMessage from "@/components/chat/ChatNewMessage";
 import { customRender } from "/tests/utils";
 
 describe("ChatNewMessage", () => {

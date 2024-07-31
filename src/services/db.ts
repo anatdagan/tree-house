@@ -19,11 +19,11 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebase";
 
-export async function getDocDataFromCollection<T>(
+export async function getDocDataFromCollection<T extends DocumentData>(
   collectionName: string,
   key: string,
-  value: T
-): Promise<DocumentData | null> {
+  value: string | number
+): Promise<T | null> {
   const docsData = await getDocsFromCollection(collectionName, key, value);
   if (docsData.length === 0) {
     return Promise.resolve(null);

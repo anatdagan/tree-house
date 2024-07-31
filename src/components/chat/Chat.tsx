@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 import classes from "./chat.module.css";
-import useChat from "../../hooks/useChat";
-import LoadingIndicator from "../../ui/LoadingIndicator";
+import useUser from "@/hooks/useUser";
 import Login from "../authentication/Login";
 import ErrorMessage from "../../ui/ErrorMessage";
 import { ChatRoom } from "../chatroom/types/Rooms";
@@ -15,10 +14,8 @@ interface Props {
   children?: ReactNode;
 }
 const Chat = ({ children }: Props) => {
-  const { isLoading, user, selectedChatRoom, setActiveCounselorId } = useChat();
-  if (!selectedChatRoom) {
-    return null;
-  }
+  const { user, selectedChatRoom, setActiveCounselorId } = useUser();
+
   function listenToBoredom(selectedChatRoom: ChatRoom) {
     const BOREDOM_INTERVAL = 1000 * 60; // 1 minute
 
@@ -31,15 +28,16 @@ const Chat = ({ children }: Props) => {
         if (score > 0.5) {
           console.log("Boredom detected");
           const counselor = await getRandomCounselor();
-          setActiveCounselorId(counselor?.id);
+          setActiveCounselorId(counselor?.id || null);
           counselor?.respond("I am bored", selectedChatRoom?.id);
         }
       }
     );
   }
+  if (selectedChatRoom) {
+    listenToBoredom(selectedChatRoom);
+  }
 
-  listenToBoredom(selectedChatRoom);
-  if (isLoading) return <LoadingIndicator />;
   return (
     <>
       {user ? (

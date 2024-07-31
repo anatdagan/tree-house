@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
 import Chat from "../Chat";
-import { customRender } from "../../../../tests/utils";
-import { RoomType } from "@/features/chatroom/types/Rooms.d";
+import { customUserContextRender } from "../../../../tests/utils";
+import { RoomType } from "@/components/chatroom/types/Rooms.d";
 
 describe("Chat", () => {
   it("it should include the chat component if the user is logged in", () => {
@@ -39,7 +39,7 @@ describe("Chat", () => {
       activeCounselorId: "",
       counselorActivatedAt: "",
     };
-    customRender(<Chat />, state);
+    customUserContextRender(<Chat />, state);
     screen.debug();
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
     expect(screen.queryByText("Login")).not.toBeInTheDocument();

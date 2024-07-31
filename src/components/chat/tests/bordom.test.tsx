@@ -1,6 +1,6 @@
-import { customRender } from "/tests/utils";
+import { customUserContextRender } from "/tests/utils";
 import { describe, expect, it } from "vitest";
-import { RoomType } from "@/features/chatroom/types/Rooms.d";
+import { RoomType } from "@/components/chatroom/types/Rooms.d";
 import Chat from "../Chat";
 import { getSentimentChecks, Sentiment } from "@/services/apiSentimentAnalysis";
 
@@ -40,7 +40,7 @@ describe("Boredom", {}, () => {
         activeCounselorId: "",
         counselorActivatedAt: "",
       };
-      customRender(<Chat />, state);
+      customUserContextRender(<Chat />, state);
       expect(getSentimentChecks(Sentiment.BORED)?.callback).toBeDefined();
     });
   });

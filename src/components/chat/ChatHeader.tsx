@@ -4,10 +4,10 @@ import ChatUser from "./ChatUser";
 import Logout from "../authentication/Logout";
 import InboxIcon from "../Inbox/InboxIcon";
 import ChatroomHeader from "../chatroom/ChatroomHeader";
-import useChat from "../../hooks/useChat";
+import useUser from "../../hooks/useUser";
 
 const ChatHeader = () => {
-  const { user, selectedChatRoom } = useChat();
+  const { user, selectedChatRoom } = useUser();
   return (
     <header className={classes["header-chat"]}>
       <a href="#messages" className={classes.visibleOnFocus}>

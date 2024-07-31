@@ -1,5 +1,8 @@
 import { useEffect, useRef } from "react";
-import { MessageStatus, type Message } from "../features/chat/types/Messages.d";
+import {
+  MessageStatus,
+  type Message,
+} from "../components/chat/types/Messages.d";
 import {
   query,
   collection,
@@ -9,12 +12,14 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { useChat } from "./useChat.ts";
+import { useUser } from "@/hooks/useUser.ts";
 import { db } from "../../firebase.ts";
+import useMessageContext from "@/hooks/useMessageContext.ts";
 const useMessages = () => {
   const auth = getAuth();
-  const { selectedChatRoom, deleteAllMessages, addMessage } = useChat();
-  const refAddMessage = useRef(addMessage);
+  const { selectedChatRoom } = useUser();
+  const { deleteAllMessages, setMessage } = useMessageContext();
+  const refAddMessage = useRef(setMessage);
   const refDeleteAllMessages = useRef(deleteAllMessages);
   useEffect(() => {
     if (!auth.currentUser) {

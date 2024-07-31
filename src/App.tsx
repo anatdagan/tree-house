@@ -1,23 +1,20 @@
-import { ChatProvider } from "./contexts/ChatContext.tsx";
+import { UserProvider } from "./context/UserContext.tsx";
 import { lazy } from "react";
+import ChatMessagesContainer from "./components/chat/ChatMessagesContainer.tsx";
 
-const Chat = lazy(() => import("./features/chat/Chat.tsx"));
-const ChatHeader = lazy(() => import("./features/chat/ChatHeader.tsx"));
-const ChatMessages = lazy(() => import("./features/chat/ChatMessages.tsx"));
-const ChatFooter = lazy(() => import("./features/chat/ChatFooter.tsx"));
-const ChatNewMessage = lazy(() => import("./features/chat/ChatNewMessage.tsx"));
+const Chat = lazy(() => import("./components/chat/Chat.tsx"));
+const ChatHeader = lazy(() => import("./components/chat/ChatHeader.tsx"));
+const ChatFooter = lazy(() => import("./components/chat/ChatFooter.tsx"));
 
 function App() {
   return (
-    <ChatProvider>
+    <UserProvider>
       <Chat>
         <ChatHeader />
-        <ChatMessages />
-        <ChatFooter>
-          <ChatNewMessage />
-        </ChatFooter>
+        <ChatMessagesContainer />
+        <ChatFooter></ChatFooter>
       </Chat>
-    </ChatProvider>
+    </UserProvider>
   );
 }
 export default App;
