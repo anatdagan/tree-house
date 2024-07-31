@@ -23,11 +23,11 @@ const Chat = ({ children }: Props) => {
     registerSentimentCheck(
       Sentiment.BORED,
       BOREDOM_INTERVAL,
-      async (score: number) => {
+      (score: number) => {
         console.log("Average boredom score", score);
         if (score > 0.5) {
           console.log("Boredom detected");
-          const counselor = await getRandomCounselor();
+          const counselor = getRandomCounselor();
           setActiveCounselorId(counselor?.id || null);
           counselor?.respond("I am bored", selectedChatRoom?.id);
         }

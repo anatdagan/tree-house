@@ -1,5 +1,5 @@
 import classes from "./inbox.module.css";
-import { InboxMessageData } from "./inbox";
+import { InboxMessageData } from "./inbox.d";
 import InboxMessage from "./InboxMessage";
 import { useEffect } from "react";
 import React from "react";

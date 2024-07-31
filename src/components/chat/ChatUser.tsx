@@ -1,4 +1,4 @@
-import useUser from "../../hooks/useUser";
+import useUser from "@/hooks/useUser";
 import classes from "./chat.module.css";
 
 const ChatUser = () => {

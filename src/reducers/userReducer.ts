@@ -1,12 +1,7 @@
-import {
-  initCounselors,
-  startWelcomeChatWithKid,
-} from "@/services/chatbots/apiCounselors";
 import User from "../components/authentication/types/Users";
 
 import { ChatRoom, RoomType } from "../components/chatroom/types/Rooms.d";
 import { Kid, KidStatus, updateKidStatus } from "../services/apiKids";
-import { initParentNotifications } from "@/services/apiParentNotifications";
 
 export enum UserActionTypes {
   INIT = "chat/init",

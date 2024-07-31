@@ -9,6 +9,7 @@ import {
 } from "firebase/vertexai-preview";
 import { vertexAI } from "../../firebase";
 import { SystemInstructionsParts as SystemInstructionsSections } from "./types/ai";
+import { Sentiment } from "./apiSentimentAnalysis";
 
 export async function getResponseFromAi(
   prompt: string,
@@ -40,13 +41,19 @@ export function getChatWithAi(
 }
 
 export async function sendMessageStream(msg: string, chat: ChatSession) {
-  const result = await chat.sendMessageStream(msg);
-  let text = "";
-  for await (const chunk of result.stream) {
-    const chunkText = chunk.text();
-    text += chunkText;
+  try {
+    const result = await chat.sendMessageStream(msg);
+    let text = "";
+    for await (const chunk of result.stream) {
+      const chunkText = chunk.text();
+      console.log(chunkText);
+      text += chunkText;
+    }
+    return text.trim();
+  } catch (e) {
+    console.error("Error sending message to AI:", e);
+    return Sentiment.ILLEGAL_RESPONSE;
   }
-  return text;
 }
 
 class SystemInstructionsGenerator {

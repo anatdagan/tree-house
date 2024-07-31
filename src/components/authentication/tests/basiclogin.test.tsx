@@ -13,6 +13,8 @@ describe("Basic Login", () => {
       kidInfo: null,
       error: "",
       defaultRoom: null,
+      activeCounselorId: "",
+      counselorActivatedAt: "",
     };
 
     customUserContextRender(<BasicLogin />, state);

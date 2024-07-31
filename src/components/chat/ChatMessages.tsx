@@ -1,7 +1,7 @@
 import classes from "./chat.module.css";
 import type { Message } from "./types/Messages";
 import { extractTime } from "../../utils/date";
-import { Kid, getKidInfo } from "../../services/apiKids";
+import { Kid, getKidInfoByUid } from "../../services/apiKids";
 import { startPrivateChat } from "../../services/apiChatRooms";
 import useUser from "@/hooks/useUser";
 import { ChatRoom } from "../chatroom/types/Rooms";
@@ -14,7 +14,7 @@ async function onAvatarClick(
   switchRoom: (room: ChatRoom) => void
 ) {
   console.log("Avatar clicked", uid);
-  const selectedKid = await getKidInfo(uid);
+  const selectedKid = await getKidInfoByUid(uid);
   if (!selectedKid) {
     throw new Error("Kid not found");
     return;

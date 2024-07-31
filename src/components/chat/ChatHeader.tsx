@@ -4,7 +4,7 @@ import ChatUser from "./ChatUser";
 import Logout from "../authentication/Logout";
 import InboxIcon from "../Inbox/InboxIcon";
 import ChatroomHeader from "../chatroom/ChatroomHeader";
-import useUser from "../../hooks/useUser";
+import useUser from "@/hooks/useUser";
 
 const ChatHeader = () => {
   const { user, selectedChatRoom } = useUser();
