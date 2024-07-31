@@ -12,7 +12,6 @@ interface InboxProps {
 let blurTimer: ReturnType<typeof setTimeout> | null = null;
 
 const Inbox = ({ toggleInbox, inboxMessages }: InboxProps) => {
-  console.log("Inbox messages: ", inboxMessages);
   const ref = React.createRef<HTMLHeadingElement>();
   useEffect(() => {
     ref?.current?.focus();
@@ -23,7 +22,6 @@ const Inbox = ({ toggleInbox, inboxMessages }: InboxProps) => {
     }, 0);
   };
   const handleFocus = () => {
-    console.log("Inbox focused");
     if (blurTimer) {
       clearTimeout(blurTimer);
     }

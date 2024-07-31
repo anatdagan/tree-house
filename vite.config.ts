@@ -1,7 +1,7 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import terser from "@rollup/plugin-terser";
-
+import path from "path";
 const isProduction = process.env.NODE_ENV === "production";
 
 const profiling = isProduction && {
@@ -54,6 +54,8 @@ export default defineConfig({
   resolve: {
     alias: {
       ...profiling,
+      "@": path.resolve(__dirname, "./src"),
+      "/tests": path.resolve(__dirname, "./tests"),
     },
   },
 });

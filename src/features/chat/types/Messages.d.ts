@@ -13,4 +13,5 @@ export interface Message {
   roomId: string;
   status: MessageStatus;
   avatar?: string;
+  sentiment?: MessageSentiment;
 }

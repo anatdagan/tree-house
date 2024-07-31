@@ -2,6 +2,7 @@ import { expect, afterEach, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 import * as matchers from "@testing-library/jest-dom/matchers";
 import { RoomType } from "../src/features/chatroom/types/Rooms.d.ts";
+
 expect.extend(matchers);
 
 vi.mock("firebase/auth", () => {
@@ -42,6 +43,21 @@ vi.mock("firebase/firestore", () => {
     connectFirestoreEmulator: vi.fn(),
   };
 });
+vi.mock("firebase/analytics", () => {
+  return {
+    getAnalytics: vi.fn(),
+    logEvent: vi.fn(),
+  };
+});
+
+vi.mock("firebase/vertexai-preview", () => {
+  return {
+    POSSIBLE_ROLES: ["user", "model"],
+    getVertexAI: vi.fn(),
+    getPredictionService: vi.fn(),
+    predict: vi.fn(),
+  };
+});
 vi.mock("../../hooks/useChat", () => {
   return vi.fn().mockReturnValue({
     kidInfo: {
@@ -71,6 +87,27 @@ vi.mock("../../hooks/useChat", () => {
     user: null,
     defaultRoom: null,
   });
+});
+vi.mocked("firebase/app-check", () => {
+  return {
+    initializeAppCheck: vi.fn(),
+    onTokenChanged: vi.fn(),
+  };
+});
+vi.mock("../firebase.ts", () => {
+  return {
+    initializeApp: vi.fn(),
+    getAuth: vi.fn().mockReturnValue({
+      currentUser: {
+        uid: "123",
+        displayName: "Kid",
+        email: "kid@gmail.com",
+      },
+    }),
+    auth: {},
+    getFirestore: vi.fn(),
+    getAnalytics: vi.fn(),
+  };
 });
 afterEach(() => {
   vi.resetAllMocks();

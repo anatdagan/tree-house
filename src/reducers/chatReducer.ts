@@ -21,6 +21,7 @@ export enum ChatActionTypes {
   UNAUTHORIZED = "user/unauthorized",
   SIGN_IN = "user/sign_in",
   LOG_OUT = "user/logout",
+  ACTIVATE_COUNSELOR = "counselor/active",
 }
 export interface ChatState {
   messages: Message[];
@@ -30,6 +31,7 @@ export interface ChatState {
   kidInfo: Kid | null;
   error: string;
   defaultRoom: ChatRoom | null;
+  activeCounselorId: string;
 }
 
 interface INIT_ACTION {
@@ -57,7 +59,6 @@ interface SWITCH_ROOM_ACTION {
   type: ChatActionTypes.SWITCH_ROOM;
   payload: { room: ChatRoom | null };
 }
-
 interface SET_ERROR_ACTION {
   type: ChatActionTypes.SET_ERROR;
   payload: { error: unknown };
@@ -75,6 +76,13 @@ interface SIGN_IN_ACTION {
 interface LOG_OUT_ACTION {
   type: ChatActionTypes.LOG_OUT;
 }
+interface ACTIVATE_COUNSELOR_ACTION {
+  type: ChatActionTypes.ACTIVATE_COUNSELOR;
+  payload: {
+    activeCounselorId: string | undefined;
+    counselorActivatedAt: string;
+  };
+}
 
 export type ChatAction =
   | INIT_ACTION
@@ -88,6 +96,7 @@ export type ChatAction =
   | KID_NOT_FOUND_ACTION
   | UNAUTHORIZED_ACTION
   | SIGN_IN_ACTION
+  | ACTIVATE_COUNSELOR_ACTION
   | LOG_OUT_ACTION;
 
 function appointCounselor(message: Message, selectedChatRoom: ChatRoom | null) {
@@ -133,7 +142,6 @@ export const chatReducer = (
         const responder = activeCounselor
           ? getCounselor(activeCounselor)
           : appointCounselor(message, selectedChatRoom);
-        console.log("Appointed counselor", responder);
         responder?.onKidMessage(
           action.payload.message.text,
           selectedChatRoom?.id

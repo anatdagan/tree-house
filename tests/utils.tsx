@@ -14,6 +14,7 @@ export const customRender = async (
     switchRoom: vi.fn(),
     addMessage: vi.fn(),
     catchErrors: vi.fn(),
+    setActiveCounselorId: vi.fn(),
   };
 
   return render(<ChatProvider value={value}>{ui}</ChatProvider>);

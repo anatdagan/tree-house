@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
-import { customRender } from "../../../../tests/utils";
+import { customRender } from "/tests/utils";
 import HomeIcon from "../HomeIcon";
 
 describe("Home Icon", () => {
@@ -13,6 +13,8 @@ describe("Home Icon", () => {
       kidInfo: null,
       error: "",
       defaultRoom: null,
+      activeCounselorId: "",
+      counselorActivatedAt: "",
     };
 
     customRender(

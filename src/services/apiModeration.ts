@@ -2,12 +2,13 @@ import { DocumentReference } from "firebase/firestore";
 import { addDocToCollection } from "./db";
 import { Message, MessageStatus } from "../features/chat/types/Messages.d";
 import { addMessage } from "./apiMessages";
-import { Sentiment, sentimentManager } from "./apiSentimentAnalysis";
+
 import {
   containsPersonalInformation,
   initPersonalInfoIdentifier,
 } from "./apiIdentifiableInformation";
 import { getRandomCounselor } from "./chatbots/apiCounselors";
+import { Sentiment } from "./apiSentimentAnalysis";
 type ModerationCheck = (message: Message) => Promise<FlagReason | null>;
 
 enum FlagReason {
@@ -37,7 +38,7 @@ export async function flagMessage(
 }
 
 async function findSentimentViolations(message: Message) {
-  const sentiment = await sentimentManager.analyzeMessage(message);
+  const sentiment = message.sentiment;
   console.log("Sentiment analysis result: ", sentiment);
   switch (sentiment.tone) {
     case Sentiment.AGGRESSIVE:

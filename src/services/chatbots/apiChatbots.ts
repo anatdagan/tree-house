@@ -4,11 +4,10 @@ import { ChatBotData, HistoryExchange } from "./types/chatbot";
 import type { Kid } from "../apiKids";
 
 export async function getChatbot(id: string) {
-  console.log("Getting chatbot", id);
   return (await getDocById("chatbots", id)) as ChatBotData | null;
 }
 
-function convertExchageToHistory(
+export function convertExchageToHistory(
   exchange: HistoryExchange,
   kidName: string
 ): Content[] {
@@ -30,7 +29,6 @@ function convertExchageToHistory(
 }
 export async function getChatbotHistory(kidInfo: Kid, chatbotId: string) {
   // Get chatbot history from DB
-  console.log("Getting chatbot history");
   const exchanges = await getDocsFromCollection(
     `chatbots/${chatbotId}/history`,
     "uid",

@@ -5,6 +5,10 @@ import { Timestamp } from "firebase/firestore";
 import { findViolations } from "../../services/apiModeration";
 import { addMessage } from "../../services/apiMessages";
 import useChat from "../../hooks/useChat";
+import {
+  analyzeMessage,
+  getLastMessages,
+} from "@/services/apiSentimentAnalysis";
 
 const onNewMessage = async (newMessage: Message) => {
   if (await findViolations(newMessage)) {
@@ -17,16 +21,18 @@ const onNewMessage = async (newMessage: Message) => {
 
 const ChatNewMessage = () => {
   const [newMessage, setNewMessage] = useState("");
-  const { kidInfo, selectedChatRoom } = useChat();
+  const { kidInfo, selectedChatRoom, messages } = useChat();
+
   if (!kidInfo) {
     return null;
   }
   const { uid, avatar } = kidInfo;
 
-  const sendMessage = (e: FormEvent) => {
+  const sendMessage = async (e: FormEvent) => {
+    const MESSAGE_CONEXT_DURATION = 600000; // 10 minutes
     console.log("Sending message: ", newMessage);
     e.preventDefault();
-    onNewMessage({
+    const message: Message = {
       id: crypto.randomUUID(),
       text: newMessage,
       createdAt: Timestamp.now(),
@@ -34,7 +40,13 @@ const ChatNewMessage = () => {
       avatar: avatar,
       status: MessageStatus.Sent,
       roomId: selectedChatRoom?.id || "general",
-    });
+      sentiment: {},
+    };
+    (message.sentiment = await analyzeMessage(
+      getLastMessages(messages, MESSAGE_CONEXT_DURATION),
+      message
+    )),
+      onNewMessage(message);
 
     setNewMessage("");
   };

@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { MessageStatus, type Message } from "../features/chat/types/Messages.d";
 import {
-  getFirestore,
   query,
   collection,
   onSnapshot,
@@ -11,8 +10,8 @@ import {
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useChat } from "./useChat.ts";
+import { db } from "../../firebase.ts";
 const useMessages = () => {
-  const db = getFirestore();
   const auth = getAuth();
   const { selectedChatRoom, deleteAllMessages, addMessage } = useChat();
   const refAddMessage = useRef(addMessage);
@@ -47,7 +46,7 @@ const useMessages = () => {
       });
     });
     return unsubscribe;
-  }, [db, auth.currentUser, selectedChatRoom]);
+  }, [auth.currentUser, selectedChatRoom]);
 };
 
 export default useMessages;

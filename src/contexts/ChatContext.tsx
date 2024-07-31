@@ -11,7 +11,12 @@ import {
   createWelcomeRoom,
   getDefaultChatRoom,
 } from "../services/apiChatRooms";
-import { Kid, getKidInfo } from "../services/apiKids";
+import {
+  Kid,
+  KidStatus,
+  getKidInfo,
+  updateKidStatus,
+} from "../services/apiKids";
 import { auth } from "../../firebase";
 import { Auth, onAuthStateChanged } from "firebase/auth";
 import { initParentNotifications } from "../services/apiParentNotifications";
@@ -23,6 +28,7 @@ export interface ChatContextProps extends ChatState {
   switchRoom: (room: ChatRoom | null) => void;
   catchErrors: (error: unknown) => void;
   deleteAllMessages: () => void;
+  setActiveCounselorId: (id: string | undefined) => void;
 }
 const initialState = {
   messages: [],
@@ -32,6 +38,7 @@ const initialState = {
   kidInfo: null,
   error: "",
   defaultRoom: null,
+  activeCounselorId: "",
 };
 interface ChatProviderProps {
   children?: ReactNode;
@@ -65,7 +72,8 @@ const ChatProvider = ({ children, value }: ChatProviderProps) => {
     dispatch({ type: ChatActionTypes.UNAUTHORIZED });
     auth.signOut();
   }
-  function handleSignIn(user: User, kidInfo: Kid, defaultRoom: ChatRoom) {
+  async function handleSignIn(user: User, kidInfo: Kid, defaultRoom: ChatRoom) {
+    await updateKidStatus(kidInfo, KidStatus.ACTIVE);
     dispatch({
       type: ChatActionTypes.SIGN_IN,
       payload: { user, kidInfo, defaultRoom },
@@ -74,7 +82,15 @@ const ChatProvider = ({ children, value }: ChatProviderProps) => {
   function loadChat() {
     dispatch({ type: ChatActionTypes.LOAD });
   }
-
+  const setActiveCounselorId = (id: string | undefined) => {
+    dispatch({
+      type: ChatActionTypes.ACTIVATE_COUNSELOR,
+      payload: {
+        activeCounselorId: id,
+        counselorActivatedAt: new Date().toISOString(),
+      },
+    });
+  };
   const startUserSession = useRef(
     async (user: User, selectedChatRoom: ChatRoom | null) => {
       let kidInfo;
@@ -144,7 +160,13 @@ const ChatProvider = ({ children, value }: ChatProviderProps) => {
     <ChatContext.Provider
       value={
         value || {
-          ...{ catchErrors, deleteAllMessages, switchRoom, addMessage },
+          ...{
+            catchErrors,
+            deleteAllMessages,
+            switchRoom,
+            addMessage,
+            setActiveCounselorId,
+          },
           ...state,
         }
       }

@@ -26,7 +26,6 @@ import { Message, MessageStatus } from "../../features/chat/types/Messages.d";
 import { Timestamp } from "firebase/firestore";
 import { ChatRoom, RoomType } from "../../features/chatroom/types/Rooms.d";
 import { addMessage } from "../apiMessages";
-import { Sentiment, sentimentManager } from "../apiSentimentAnalysis";
 import { notifyParentOnMeetingRequest } from "../apiParentNotifications";
 
 const context = `
@@ -239,32 +238,8 @@ export async function initCounselors(
     await updateKidInfo(kidInfo, { status: KidStatus.ACTIVE });
     console.log("Welcome chat started");
   }
-  listenToBoredom(selectedChatRoom);
 }
-function listenToBoredom(selectedChatRoom: ChatRoom | null) {
-  const BOREDOM_INTERVAL = 1000 * 6; // 5 minutes
-  const ENTERTAINMENT_DURATION = 1000 * 60 * 5; // 5 minutes
-  console.log("Listening to boredom");
-  sentimentManager.getAverageScoreOverTime(
-    BOREDOM_INTERVAL,
-    Sentiment.BORED,
-    (score) => {
-      console.log("Average boredom score", score);
-      if (score > 0.5) {
-        console.log("Boredom detected");
-        activeCounselor = getRandomCounselor();
-        if (!activeCounselor || !selectedChatRoom) {
-          return;
-        }
-        activeCounselor.onKidMessage("I am bored", selectedChatRoom.id);
-        setTimeout(async () => {
-          await activeCounselor?.breakConversation();
-          console.log("Boredom over");
-        }, ENTERTAINMENT_DURATION);
-      }
-    }
-  );
-}
+
 export function getCounselor(id: string) {
   return counselors.get(id);
 }

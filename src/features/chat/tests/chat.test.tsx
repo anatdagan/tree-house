@@ -1,23 +1,48 @@
 import { describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
-import { customRender } from "../../../../tests/utils";
 import Chat from "../Chat";
+import { customRender } from "../../../../tests/utils";
+import { RoomType } from "@/features/chatroom/types/Rooms.d";
 
 describe("Chat", () => {
-  it("it should include the login component if the user is not logged in", () => {
+  it("it should include the chat component if the user is logged in", () => {
     const state = {
       messages: [],
-      selectedChatRoom: null,
+      selectedChatRoom: {
+        id: "123",
+        name: "Room",
+        type: RoomType.WELCOME,
+        createdAt: new Date(),
+        createdBy: "123",
+        description: "Kid room",
+      },
       isLoading: false,
-      user: null,
-      kidInfo: null,
+      user: {
+        uid: "123",
+        photoURL: "avatar.png",
+        displayName: "Kid",
+        email: "kid@gmail.com",
+        phoneNumber: "1234567890",
+        providerId: "google.com",
+        isAnonymous: false,
+      },
+      kidInfo: {
+        uid: "123",
+        avatar: "avatar.png",
+        displayName: "Kid",
+        email: "kid@gmail.com",
+        parentId: "456",
+        status: "active",
+      },
       error: "",
       defaultRoom: null,
+      activeCounselorId: "",
+      counselorActivatedAt: "",
     };
-
     customRender(<Chat />, state);
-    expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
-    expect(screen.getByText("Login")).toBeInTheDocument();
     screen.debug();
+    expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+    expect(screen.queryByText("Login")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("chat")).toBeInTheDocument();
   });
 });

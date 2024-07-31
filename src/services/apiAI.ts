@@ -5,6 +5,7 @@ import {
   getGenerativeModel,
   ChatSession,
   POSSIBLE_ROLES,
+  Content,
 } from "firebase/vertexai-preview";
 import { vertexAI } from "../../firebase";
 import { SystemInstructionsParts as SystemInstructionsSections } from "./types/ai";
@@ -26,7 +27,7 @@ export function generateModel(generationConfig: GenerationConfig) {
   // Initialize the generative model with a model that supports your use case
   // Gemini 1.5 models are versatile and can be used with all API capabilities
   return getGenerativeModel(vertexAI, {
-    model: "gemini-1.5-flash-preview-0514",
+    model: "gemini-1.5-flash",
     generationConfig,
   });
 }
@@ -40,11 +41,9 @@ export function getChatWithAi(
 
 export async function sendMessageStream(msg: string, chat: ChatSession) {
   const result = await chat.sendMessageStream(msg);
-  console.log("chat params:", chat.params);
   let text = "";
   for await (const chunk of result.stream) {
     const chunkText = chunk.text();
-    console.log(chunkText);
     text += chunkText;
   }
   return text;
@@ -78,4 +77,29 @@ export function generateSystemInstructions(
   instructionParts: SystemInstructionsSections
 ) {
   return new SystemInstructionsGenerator(instructionParts).getInstructions();
+}
+
+/**
+ * convert text to model history
+ * @param texts
+ * @returns
+ */
+export function convertTextsToHistory<
+  S extends string | null,
+  T extends string | null
+>(texts: [S, T]): Content[] {
+  const history = [];
+  if (texts[0]) {
+    history.push({
+      role: POSSIBLE_ROLES[0],
+      parts: [{ text: texts[0] }],
+    });
+  }
+  if (texts[1]) {
+    history.push({
+      role: POSSIBLE_ROLES[1],
+      parts: [{ text: texts[1] }],
+    });
+  }
+  return history;
 }

@@ -12,10 +12,8 @@ const InboxIcon = ({ email }: Props) => {
   const [inboxMessages, setInboxMessages] = useState<InboxMessageData[]>([]);
 
   const toggleInbox = async () => {
-    console.log("Toggling inbox");
     if (!inboxOpen) {
       setInboxMessages((await getInboxMessages(email)) as InboxMessageData[]);
-      console.log("Inbox opened");
     }
     setInboxOpen(!inboxOpen);
   };
