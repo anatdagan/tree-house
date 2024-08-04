@@ -36,7 +36,6 @@ const ChatMessages = () => {
 
   return (
     <main className={classes["messages-chat"]} id="messages">
-      <h2>Chat Messages</h2>
       <ul>
         {messages.map((message: Message) => (
           <li

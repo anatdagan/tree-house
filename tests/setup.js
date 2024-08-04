@@ -61,7 +61,7 @@ vi.mock("@/services/chatbots/apiCounselors", async (importOriginal) => {
     getRandomCounselor: vi.fn(),
   };
 });
-vi.mock("../src/services/chatbots/apiChatbots", () => {
+vi.mock("@/services/chatbots/apiChatbots", () => {
   return {
     getChatbotResponse: vi.fn(),
     getChatbot: vi.fn().mockResolvedValue({
@@ -84,9 +84,10 @@ vi.mock("@/services/apiIdentifiableInformation", async (importOriginal) => {
   };
 });
 
-vi.mock("firebase/firestore", () => {
+vi.mock("firebase/firestore", async (importOriginal) => {
+  const original = await importOriginal();
   return {
-    Timestamp: { now: vi.fn() },
+    ...original,
     getFirestore: vi.fn(),
     connectFirestoreEmulator: vi.fn(),
   };
@@ -114,36 +115,7 @@ vi.mock("firebase/vertexai-preview", () => {
     predict: vi.fn(),
   };
 });
-vi.mock("../../hooks/useUser", () => {
-  return vi.fn().mockReturnValue({
-    kidInfo: {
-      uid: "123",
-      avatar: "avatar.png",
-      displayName: "Kid",
-      email: "kid@gmail.com",
-      parentId: "456",
-      status: "active",
-    },
-    selectedChatRoom: {
-      id: "general",
-      name: "General",
-      description: "General chat room",
-      type: RoomType.PUBLIC,
-      createdAt: new Date(),
-      createdBy: "123",
-    },
-    messages: [],
-    isLoading: false,
-    error: "",
 
-    addMessage: vi.fn(),
-    switchRoom: vi.fn(),
-    catchErrors: vi.fn(),
-    deleteAllMessages: vi.fn(),
-    user: null,
-    defaultRoom: null,
-  });
-});
 vi.mocked("firebase/app-check", () => {
   return {
     initializeAppCheck: vi.fn(),
@@ -160,10 +132,19 @@ vi.mock("../firebase.ts", () => {
         email: "kid@gmail.com",
       },
     }),
-    auth: {},
+    auth: {
+      currentUser: {
+        uid: "123",
+        displayName: "Kid",
+        email: "kid@test.com",
+      },
+    },
     getFirestore: vi.fn(),
     getAnalytics: vi.fn(),
   };
+});
+vi.mock("@/hooks/useMessages", () => {
+  return { default: vi.fn() };
 });
 afterEach(() => {
   vi.resetAllMocks();

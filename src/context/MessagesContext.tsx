@@ -20,8 +20,8 @@ interface MessageProviderProps {
   children?: React.ReactNode;
   value?: MessageContextProps;
 }
-const MessageProvider = ({ children }: MessageProviderProps) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+const MessageProvider = ({ children, value }: MessageProviderProps) => {
+  const [messages, setMessages] = useState<Message[]>(value?.messages || []);
   const deleteAllMessages = () => {
     setMessages([]);
   };

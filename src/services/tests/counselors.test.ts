@@ -23,7 +23,7 @@ describe("Counselors", {}, () => {
         roomId: "123",
         uid: "123",
         id: "123",
-        createdAt: Timestamp.now(),
+        createdAt: Timestamp.fromDate(new Date("2022-01-01 12:04:00")),
         status: MessageStatus.Sent,
       };
       const chatRoom = getFakeChatRoom();
@@ -37,7 +37,7 @@ describe("Counselors", {}, () => {
         roomId: "123",
         uid: "123",
         id: "123",
-        createdAt: Timestamp.now(),
+        createdAt: Timestamp.fromDate(new Date("2022-01-01 12:04:00")),
         status: MessageStatus.Sent,
       };
       const chatRoom = getFakeChatRoom();
