@@ -14,33 +14,89 @@ vi.mock("firebase/auth", () => {
     connectAuthEmulator: vi.fn(),
   };
 });
-vi.mock("../../services/db", () => {
+vi.mock("@/services/db", () => {
   return {
-    getKidInfo: vi.fn(),
     getChatRoom: vi.fn(),
     getMessages: vi.fn(),
     addMessage: vi.fn(),
     switchRoom: vi.fn(),
     deleteAllMessages: vi.fn(),
+    getDocById: vi.fn(),
+    addDocToCollection: vi.fn(),
+    getDocDataFromCollection: vi.fn(),
+  };
+});
+vi.mock("@/services/apiMessages", () => {
+  return {
+    getMessages: vi.fn(),
+    addMessage: vi.fn().mockResolvedValue({
+      id: "123",
+      content: "Hello!",
+      createdAt: new Date(),
+      createdBy: "123",
+      roomId: "general",
+    }),
+    deleteAllMessages: vi.fn(),
+  };
+});
+vi.mock("@/services/apiModeration", async (importOriginal) => {
+  const original = await importOriginal();
+  return {
+    ...original,
+    flagMessage: vi.fn(),
+  };
+});
+vi.mock("@/services/chatbots/apiCounselors", async (importOriginal) => {
+  const original = await importOriginal();
+  return {
+    ...original,
+    getCounselor: vi.fn().mockResolvedValue({
+      id: "123",
+      name: "Counselor",
+      description: "Counselor description",
+      avatar: "avatar.png",
+      welcomeMessages: ["Hello!"],
+    }),
+    getCounselorHistory: vi.fn().mockResolvedValue([]),
+    getRandomCounselor: vi.fn(),
+  };
+});
+vi.mock("../src/services/chatbots/apiChatbots", () => {
+  return {
+    getChatbotResponse: vi.fn(),
+    getChatbot: vi.fn().mockResolvedValue({
+      id: "123",
+      name: "Chatbot",
+      description: "Chatbot description",
+      avatar: "avatar.png",
+      welcomeMessages: ["Hello!"],
+    }),
+    getChatbotHistory: vi.fn().mockResolvedValue([]),
   };
 });
 
-vi.mock("../../../services/apiModeration", () => {
+vi.mock("@/services/apiIdentifiableInformation", async (importOriginal) => {
+  const original = await importOriginal();
   return {
-    moderateMessage: vi.fn(),
-  };
-});
-vi.mock("../../../services/apiParentNotifications", () => {
-  return {
-    moderateMessage: vi.fn(),
+    ...original,
+    initPersonalInfoIdentifier: vi.fn(),
+    containsPersonalInformation: vi.fn(),
   };
 });
 
 vi.mock("firebase/firestore", () => {
   return {
-    Timestamp: vi.fn(),
+    Timestamp: { now: vi.fn() },
     getFirestore: vi.fn(),
     connectFirestoreEmulator: vi.fn(),
+  };
+});
+vi.mock("firebase/storage", () => {
+  return {
+    getStorage: vi.fn(),
+    ref: vi.fn(),
+    uploadString: vi.fn(),
+    getDownloadURL: vi.fn(),
   };
 });
 vi.mock("firebase/analytics", () => {

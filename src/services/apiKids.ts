@@ -1,3 +1,4 @@
+import { FirebaseApp } from "firebase/app";
 import {
   getDocById as getDocDataById,
   getDocDataFromCollection,
@@ -21,25 +22,13 @@ export interface Kid {
   uid: string;
 }
 
-export async function getKidInfo(email?: string | null) {
-  if (!email) throw new Error("getKidInfo error: Email is required");
-  const kidInfo = (await getDocDataFromCollection(
-    "kids",
-    "email",
-    email
-  )) as Kid;
-  if (!kidInfo) return null;
-  kidInfo.avatar = await getAvatar(kidInfo?.avatar, email);
-  return kidInfo;
-}
-
-export function getAvatar(avatar?: string, email?: string) {
+export function getAvatar(app: FirebaseApp, avatar?: string, email?: string) {
   const folder = email && avatar ? email : "default";
-  const storage = getStorage();
+
   if (avatar && avatar.startsWith("http")) return avatar;
   return getDownloadURL(
     ref(
-      storage,
+      getStorage(app),
       `gs://treehouse-chat-app.appspot.com/b/treehouse-chat-app.appspot.com/o/images/${folder}/${
         avatar || "avatar.png"
       }`
@@ -58,19 +47,32 @@ export async function getKidParent(kid: Kid) {
   return await getDocDataById("parents", kid.parentId);
 }
 
-export async function getKidInfoByUid(uid?: string | null) {
+export async function getKidInfoByUid(app: FirebaseApp, uid?: string | null) {
   if (!uid) {
     return null;
   }
   console.log("Getting kid info", uid);
-  return await getDocDataFromCollection<Kid>("kids", "uid", uid);
+  const kidInfo = await getDocDataFromCollection<Kid>("kids", "uid", uid);
+  if (!kidInfo) {
+    return null;
+  }
+  kidInfo.avatar = await getAvatar(app, kidInfo.avatar, kidInfo.email);
+  return kidInfo;
 }
 
 // todo: add fuzzy spelling search
-export async function getKidByDisplayName(displayName: string) {
-  return (await getDocDataFromCollection(
+export async function getKidByDisplayName(
+  app: FirebaseApp,
+  displayName: string
+) {
+  const kidInfo = (await getDocDataFromCollection(
     "kids",
     "displayName",
     displayName
   )) as Kid;
+  if (!kidInfo) {
+    return null;
+  }
+  kidInfo.avatar = await getAvatar(app, kidInfo.avatar, kidInfo.email);
+  return kidInfo;
 }

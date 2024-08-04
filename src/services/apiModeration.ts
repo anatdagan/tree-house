@@ -80,7 +80,7 @@ export async function findViolations(message: Message) {
     const flaggedMessage = { ...message, status: MessageStatus.Flagged };
     const messageRef = await addMessage(flaggedMessage);
     await flagMessage(messageRef, flagReasons);
-    return messageRef;
+    return flagReasons;
   } catch (error) {
     throw new Error(`Error moderating message  ${error}`);
   }

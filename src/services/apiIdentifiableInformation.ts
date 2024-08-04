@@ -129,10 +129,22 @@ const PERSONAL_INFORMATION_CHAT_PARAMS = {
     ],
   },
 };
+
+/**
+ * initialize the personal information identifier
+ * @returns chat session with the AI
+ */
 export async function initPersonalInfoIdentifier(): Promise<ChatSession> {
   const model = generateModel(PERSONAL_INFORMATION_CONFIG);
   return getChatWithAi(model, PERSONAL_INFORMATION_CHAT_PARAMS);
 }
+
+/**
+ * check if the message contains personal information
+ * @param message
+ * @param chat
+ * @returns  true if the message contains personal information, false otherwise
+ */
 export async function containsPersonalInformation(
   message: Message,
   chat: ChatSession

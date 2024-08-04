@@ -14,7 +14,7 @@ import {
 import User from "../components/authentication/types/Users";
 import { getDefaultChatRoom, getEntryRoom } from "../services/apiChatRooms";
 import { getKidInfoByUid, Kid } from "../services/apiKids";
-import { auth } from "../../firebase";
+import { app, auth } from "../../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { ChatRoom, RoomType } from "../components/chatroom/types/Rooms.d";
 import {
@@ -99,7 +99,7 @@ const UserProvider = ({ children, value }: ChatProviderProps) => {
       return;
     }
     const { uid } = user;
-    const newKidInfo = await getKidInfoByUid(uid);
+    const newKidInfo = await getKidInfoByUid(app, uid);
     if (!newKidInfo) {
       auth.signOut();
       dispatch({ type: UserActionTypes.KID_NOT_FOUND });

@@ -26,6 +26,7 @@ import { ChatRoom, RoomType } from "../../components/chatroom/types/Rooms.d";
 import { addMessage } from "../apiMessages";
 import { notifyParentOnMeetingRequest } from "../apiParentNotifications";
 import { updateRoomData } from "../apiChatRooms";
+import { app } from "../../../firebase";
 
 const context = `
 The Tree House chat is a safe chat for kids. If a kid sends a message that might be inappropriate, the message is removed. If an appropriate message is deleted by mistake, the sender can try to rephrase what they wanted to say. When a kid wants to start a private conversation with another kid, they can click on the other kid's avatar and then a private chat room is opened. If a kid would like to meet another kid IRL, they should tell you, and you can arrange it with both kids' parents.
@@ -135,7 +136,7 @@ class Counselor implements ChatBot {
     console.log(re);
     const match = response.match(re);
     console.log("Match", match);
-    const friendInfo = match ? await getKidByDisplayName(match[1]) : null;
+    const friendInfo = match ? await getKidByDisplayName(app, match[1]) : null;
 
     await notifyParentOnMeetingRequest(this.kidInfo, friendInfo);
     await this.addMessage(message, response, roomId, this.kidInfo);
@@ -153,7 +154,7 @@ class Counselor implements ChatBot {
       id: crypto.randomUUID(),
       roomId,
       status: MessageStatus.Sent,
-      avatar: await getAvatar(this.avatar, this.id),
+      avatar: await getAvatar(app, this.avatar, this.id),
       createdAt: Timestamp.fromMillis(new Date().getTime() + index),
     });
     return messageText;
@@ -182,7 +183,7 @@ class Counselor implements ChatBot {
       id: crypto.randomUUID(),
       roomId,
       status: MessageStatus.Sent,
-      avatar: await getAvatar(this.avatar, this.id),
+      avatar: await getAvatar(app, this.avatar, this.id),
       createdAt: Timestamp.now(),
     });
   }
@@ -277,13 +278,15 @@ export function appointCounselor(
   if (!selectedChatRoom) {
     return null;
   }
-  if (selectedChatRoom.type === RoomType.WELCOME) {
-    return getRandomCounselor();
-  }
+
   const mentionMatch = message.text.match(/@(\w+)/);
   if (mentionMatch) {
     return getCounselor(mentionMatch[1].toLowerCase());
   }
+  if (selectedChatRoom.type === RoomType.WELCOME) {
+    return getRandomCounselor();
+  }
+
   if (activeCounselorId) {
     return getCounselor(activeCounselorId);
   }
