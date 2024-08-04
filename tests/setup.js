@@ -1,7 +1,6 @@
 import { expect, afterEach, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 import * as matchers from "@testing-library/jest-dom/matchers";
-import { RoomType } from "../src/components/chatroom/types/Rooms.d";
 
 expect.extend(matchers);
 
