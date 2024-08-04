@@ -20,9 +20,9 @@ export async function getMessages(chatroomId?: string) {
   if (!chatroomId) {
     return [];
   }
-  return (await getDocDataFromCollection<string>(
+  return await getDocDataFromCollection<Message>(
     "messages",
     "roomId",
     chatroomId
-  )) as Message[];
+  );
 }

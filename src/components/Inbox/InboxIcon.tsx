@@ -1,8 +1,8 @@
 import { useState } from "react";
-import Inbox from "./Inbox";
-import { InboxMessageData } from "./inbox";
-import { getInboxMessages } from "../../services/apiInbox";
-import Modal from "../../ui/Modal/Modal";
+import { getInboxMessages } from "@/services/apiInbox";
+import Modal from "@/ui/Modal/Modal";
+import { InboxMessageData } from "@/components/Inbox/inbox.d";
+import Inbox from "@/components/Inbox/Inbox";
 
 interface Props {
   email: string;

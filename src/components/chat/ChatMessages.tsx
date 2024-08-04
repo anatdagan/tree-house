@@ -7,6 +7,7 @@ import useUser from "@/hooks/useUser";
 import { ChatRoom } from "../chatroom/types/Rooms";
 import useMessages from "../../hooks/useMessages";
 import useMessageContext from "@/hooks/useMessageContext";
+import { app } from "../../../firebase";
 
 async function onAvatarClick(
   uid: string,
@@ -14,7 +15,7 @@ async function onAvatarClick(
   switchRoom: (room: ChatRoom) => void
 ) {
   console.log("Avatar clicked", uid);
-  const selectedKid = await getKidInfoByUid(uid);
+  const selectedKid = await getKidInfoByUid(app, uid);
   if (!selectedKid) {
     throw new Error("Kid not found");
     return;
@@ -35,7 +36,6 @@ const ChatMessages = () => {
 
   return (
     <main className={classes["messages-chat"]} id="messages">
-      <h2>Chat Messages</h2>
       <ul>
         {messages.map((message: Message) => (
           <li

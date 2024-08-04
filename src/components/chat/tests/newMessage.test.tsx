@@ -24,7 +24,7 @@ describe("ChatNewMessage", () => {
       counselorActivatedAt: "",
     };
 
-    customRender(<ChatNewMessage />, state);
+    customRender(<ChatNewMessage />, state, []);
 
     expect(screen.getByLabelText("Write a message")).toBeInTheDocument();
     screen.debug();

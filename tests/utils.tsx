@@ -98,3 +98,20 @@ export const getFakeCounselors = () => {
   });
   return counselors;
 };
+export const getFakeState = () => ({
+  selectedChatRoom: null,
+  isLoading: false,
+  user: null,
+  kidInfo: {
+    uid: "123",
+    avatar: "avatar.png",
+    displayName: "Kid",
+    email: "kid@gmail.com",
+    parentId: "456",
+    status: "active",
+  },
+  error: "",
+  defaultRoom: null,
+  activeCounselorId: "",
+  counselorActivatedAt: "",
+});

@@ -8,5 +8,9 @@ const timestampToDate = (timestamp: Timestamp) => {
 };
 export const extractTime = (timestamp: Timestamp) => {
   const date = timestampToDate(timestamp);
-  return `${date.getHours()}:${date.getMinutes()}`;
+  return `${date.toLocaleTimeString("en-GB", {
+    // you can use undefined as first argument
+    hour: "2-digit",
+    minute: "2-digit",
+  })}`;
 };
