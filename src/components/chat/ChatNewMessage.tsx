@@ -46,11 +46,14 @@ const ChatNewMessage = () => {
       selectedChatRoom,
       activeCounselorId
     );
+    if (!responder) {
+      return;
+    }
     if (isActiveCounselorExpired(counselorActivatedAt)) {
-      responder?.breakConversation();
+      responder.breakConversation();
       setActiveCounselorId(null);
     }
-    responder?.onKidMessage(newMessage.text, selectedChatRoom?.id);
+    responder.onKidMessage(newMessage.text, selectedChatRoom?.id);
   };
   const sendMessage = async (e: FormEvent) => {
     const MESSAGE_CONEXT_DURATION = 600000; // 10 minutes

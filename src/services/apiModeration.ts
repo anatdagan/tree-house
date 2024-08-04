@@ -6,6 +6,7 @@ import { addMessage } from "./apiMessages";
 import {
   containsPersonalInformation,
   initPersonalInfoIdentifier,
+  WEB_SAFETY_EXPLANATION_REQUEST,
 } from "./apiIdentifiableInformation";
 import { getRandomCounselor } from "./chatbots/apiCounselors";
 import { Sentiment } from "./apiSentimentAnalysis";
@@ -60,7 +61,7 @@ async function findIdentifiableInformation(message: Message) {
   if (await containsPersonalInformation(message, chat)) {
     const counselor = getRandomCounselor();
     counselor?.startChat();
-    await counselor?.respond(message.text, message.roomId);
+    await counselor?.respond(WEB_SAFETY_EXPLANATION_REQUEST, message.roomId);
     return FlagReason.PersonalInformation;
   }
   return null;

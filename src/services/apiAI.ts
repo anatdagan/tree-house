@@ -10,6 +10,8 @@ import {
 import { vertexAI } from "../../firebase";
 import { SystemInstructionsParts as SystemInstructionsSections } from "./types/ai";
 import { Sentiment } from "./apiSentimentAnalysis";
+// const GEMINI_MODEL = "gemini-1.5-flash-preview-0514";
+const GEMINI_MODEL = "gemini-1.5-flash";
 
 export async function getResponseFromAi(
   prompt: string,
@@ -28,7 +30,7 @@ export function generateModel(generationConfig: GenerationConfig) {
   // Initialize the generative model with a model that supports your use case
   // Gemini 1.5 models are versatile and can be used with all API capabilities
   return getGenerativeModel(vertexAI, {
-    model: "gemini-1.5-flash",
+    model: GEMINI_MODEL || "gemini-1.5-flash",
     generationConfig,
   });
 }

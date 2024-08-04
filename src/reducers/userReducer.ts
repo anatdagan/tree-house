@@ -133,6 +133,12 @@ export const userReducer = (
         defaultRoom: action.payload.defaultRoom,
         error: "",
       };
+    case UserActionTypes.ACTIVATE_COUNSELOR:
+      return {
+        ...state,
+        activeCounselorId: action.payload.activeCounselorId,
+        counselorActivatedAt: action.payload.counselorActivatedAt,
+      };
     case UserActionTypes.LOG_OUT:
       return {
         ...state,

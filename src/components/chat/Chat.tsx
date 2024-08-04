@@ -29,7 +29,7 @@ const Chat = ({ children }: Props) => {
           console.log("Boredom detected");
           const counselor = getRandomCounselor();
           setActiveCounselorId(counselor?.id || null);
-          counselor?.respond("I am bored", selectedChatRoom?.id);
+          counselor?.onKidMessage("I am bored", selectedChatRoom?.id);
         }
       }
     );

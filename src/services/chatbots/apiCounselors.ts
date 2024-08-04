@@ -128,10 +128,7 @@ class Counselor implements ChatBot {
       this.nextResponseOverride = null;
       return;
     }
-    const response = await sendMessageStream(
-      `${this.kidInfo.displayName}: ${message}`,
-      this.chat
-    );
+    const response = await sendMessageStream(`${message}`, this.chat);
     const re = new RegExp(
       contactParentsMessage.replace(`(the friend's name)`, `(.+)`)
     );
@@ -298,7 +295,7 @@ export function appointCounselor(
  * @returns
  */
 export function isActiveCounselorExpired(activatedAt: string | null) {
-  const ENTERTAINMENT_DURATION = 600000; // 10 minutes
+  const ENTERTAINMENT_DURATION = 60000; // 1 minutes
   console.log("Checking if counselor is expired", activatedAt);
   if (!activatedAt) {
     return false;
