@@ -1,9 +1,12 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
 import { Auth, connectAuthEmulator, getAuth } from "firebase/auth";
-import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
-import { getFunctions } from "firebase/functions";
-import { getVertexAI } from "firebase/vertexai-preview";
+import {
+  initializeAppCheck,
+  ReCaptchaEnterpriseProvider,
+} from "firebase/app-check";
+import { getVertexAI, VertexAI } from "firebase/vertexai-preview";
 import {
   Firestore,
   connectFirestoreEmulator,
@@ -34,11 +37,10 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
-const functions = getFunctions(app);
 if (import.meta.env.DEV) {
   self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
 }
@@ -46,17 +48,25 @@ if (import.meta.env.DEV) {
 let appCheck;
 
 // Initialize the Vertex AI service
-const vertexAI = getVertexAI(app);
+
 let db: Firestore;
 let auth: Auth;
 let storage: FirebaseStorage;
+let vertexAI: VertexAI;
+
 if (import.meta.env.DEV) {
+  appCheck = initializeAppCheck(app, {
+    provider: new ReCaptchaEnterpriseProvider(
+      import.meta.env.VITE_RECAPTCHA_SITE_KEY
+    ),
+    isTokenAutoRefreshEnabled: true,
+  });
+  vertexAI = getVertexAI(app);
+
   auth = getAuth(app);
-  // auth.settings.appVerificationDisabledForTesting = true;
-  // auth.setPersistence(browserLocalPersistence);
+
   connectAuthEmulator(auth, "http://localhost:9099");
   db = getFirestore();
-  // db.app.options.databaseURL = "https://localhost:8080?ns=treehouse-chat-app";
   connectFirestoreEmulator(db, "localhost", 8080);
   storage = getStorage();
   storage.app.options.storageBucket = "localhost:9199";
@@ -66,8 +76,11 @@ if (import.meta.env.DEV) {
   db = getFirestore();
 
   appCheck = initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
+    provider: new ReCaptchaEnterpriseProvider(
+      import.meta.env.VITE_RECAPTCHA_SITE_KEY
+    ),
     isTokenAutoRefreshEnabled: true,
   });
+  vertexAI = getVertexAI(app);
 }
-export { auth, app, functions, db, appCheck, vertexAI };
+export { auth, app, db, appCheck, vertexAI, analytics };

@@ -1,4 +1,4 @@
-import type { Message } from "../features/chat/types/Messages";
+import type { Message } from "../components/chat/types/Messages.d";
 import { addDocToCollection, getDocDataFromCollection } from "./db";
 import EventEmitter from "./apiEvents";
 

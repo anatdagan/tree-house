@@ -1,6 +1,6 @@
 import { addDocToCollection } from "./db";
 import { Kid, getKidParent } from "./apiKids";
-import { Sentiment, sentimentManager } from "./apiSentimentAnalysis";
+import { registerSentimentCheck, Sentiment } from "./apiSentimentAnalysis";
 
 interface ParentNotification {
   subject: string;
@@ -18,10 +18,12 @@ const MAX_SESSION_NOTIFICATIONS = 1;
 const sessionNotifacations = new Map<NotificationType, ParentNotification[]>();
 
 export async function initParentNotifications(kid: Kid) {
-  sentimentManager.getAverageScoreOverTime(
-    DEPRESSION_CHECK_INTERVAL,
+  registerSentimentCheck(
     Sentiment.DEPRESSED,
-    (score) => notifyParentOnDepressedSentiment(kid, score)
+    DEPRESSION_CHECK_INTERVAL,
+    (score) => {
+      notifyParentOnDepressedSentiment(kid, score);
+    }
   );
 }
 
@@ -31,7 +33,6 @@ function notifyParentOnDepressedSentiment(kid: Kid, score: number) {
   if (isNaN(score) || score < 0.5) {
     return;
   }
-  console.log(score, "Depressed sentiment detected");
   const notification: ParentNotification = {
     subject: "Depressed sentiment detected",
     body: `Your kid, ${kid.displayName}, has been detected with a depressed sentiment.`,
@@ -78,7 +79,6 @@ async function sendParentNotification(
   if (notifications.length > MAX_SESSION_NOTIFICATIONS) {
     return;
   }
-  console.log("Sending parent notification: ", notification);
   sessionNotifacations.set(notification.type, [...notifications, notification]);
   addDocToCollection(`parents/${parentId}/inbox`, notification);
 }

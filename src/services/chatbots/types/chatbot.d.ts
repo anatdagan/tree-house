@@ -20,7 +20,7 @@ export interface ChatBotData {
   name: string;
   age: number;
   avatar: string;
-  initialHistory: string[];
+  welcomeMessages: WelcomeMessage[];
   temperature: number;
   topP: number;
   topK: number;

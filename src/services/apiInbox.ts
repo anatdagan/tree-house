@@ -1,5 +1,5 @@
 import { addDocToCollection, getDocsFromCollection } from "./db";
-import { InboxMessageData } from "../features/Inbox/inbox.d";
+import { InboxMessageData } from "../components/Inbox/inbox";
 import { Kid } from "./apiKids";
 
 export async function sendMessageToInbox(message: InboxMessageData, to: Kid) {

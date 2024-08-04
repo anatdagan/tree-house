@@ -19,11 +19,11 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebase";
 
-export async function getDocDataFromCollection<T>(
+export async function getDocDataFromCollection<T extends DocumentData>(
   collectionName: string,
   key: string,
-  value: T
-): Promise<DocumentData | null> {
+  value: string | number
+): Promise<T | null> {
   const docsData = await getDocsFromCollection(collectionName, key, value);
   if (docsData.length === 0) {
     return Promise.resolve(null);
@@ -60,10 +60,8 @@ export async function listenToDocChanges<T>(
   changeType: DocumentChangeType,
   callback: (data: T) => void
 ): Promise<void> {
-  console.log("Listening to doc changes");
   await onSnapshot(query, (snapshot) => {
     snapshot.docChanges().forEach((change) => {
-      console.log("Change type", change.type);
       if (change.type === changeType) {
         callback(change.doc.data() as T);
       }
@@ -114,10 +112,8 @@ export async function deleteDocsFromCollection(
   key: string,
   value: string
 ) {
-  console.log("Deleting docs from collection", collectionName);
   const docs = await await getDocs(createQuery(collectionName, key, value));
   docs.forEach(async (d) => {
-    console.log("Deleting doc", d.id);
     await deleteDoc(doc(db, collectionName, d.id));
   });
 }

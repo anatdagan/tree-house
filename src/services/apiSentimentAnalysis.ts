@@ -1,8 +1,15 @@
-import { generateModel, sendMessageStream, getChatWithAi } from "./apiAI";
-import { ChatSession, POSSIBLE_ROLES } from "firebase/vertexai-preview";
-import type { Message } from "../features/chat/types/Messages";
-import EventEmitter from "./apiEvents";
-import { Callback } from "../types/common";
+import {
+  generateModel,
+  sendMessageStream,
+  getChatWithAi,
+  convertTextsToHistory,
+} from "./apiAI";
+import { POSSIBLE_ROLES, StartChatParams } from "firebase/vertexai-preview";
+import type { Message } from "@/components/chat/types/Messages.d";
+import { Callback } from "@/types/common.d";
+import { vertexAI } from "../../firebase";
+
+export const SENTIMENT_HISYORY_LENGTH = 5;
 export enum Sentiment {
   FRIENDLY = "friendly",
   DEPRESSED = "depressed",
@@ -16,7 +23,7 @@ export enum Sentiment {
   INAPPROPRIATE = "inappropriate",
   ILLEGAL_RESPONSE = "illegal_response",
   NEUTRAL = "neutral",
-  DEFAULT = "default",
+  DEFAULT = "none of the above",
 }
 
 export interface MessageSentiment {
@@ -31,7 +38,7 @@ const SENTIMENT_ANALYSIS_CONFIG = {
   topK: 1,
 };
 // TODO: find a way to pass other users' messages to the sentiment analysis chat for context
-const SENTIMENT_ANALYSIS_CHAT_PARAMS = {
+const SENTIMENT_ANALYSIS_CHAT_PARAMS: StartChatParams = {
   history: [
     {
       role: POSSIBLE_ROLES[0],
@@ -89,6 +96,14 @@ const SENTIMENT_ANALYSIS_CHAT_PARAMS = {
       role: POSSIBLE_ROLES[1],
       parts: [{ text: "tone:bored;score:3" }],
     },
+    {
+      role: POSSIBLE_ROLES[0],
+      parts: [{ text: "e: I'm number one!" }],
+    },
+    {
+      role: POSSIBLE_ROLES[1],
+      parts: [{ text: "tone:none of the above;score:4" }],
+    },
   ],
   systemInstruction: {
     role: POSSIBLE_ROLES[2],
@@ -105,9 +120,6 @@ const SENTIMENT_ANALYSIS_CHAT_PARAMS = {
       { text: `3. Respond with the tone and the score.` },
       {
         text: `The tone can be only one of the following: friendly, depressed, irritated, bored, sexual, angry, aggressive, offensive, hate speech, neutral, non of the above.`,
-      },
-      {
-        text: `The message begins with the name of the speaker followed by ":".`,
       },
       {
         text: `Please use for every message the 5 massages that preceed it in order to understand the context of the message in the conversation.`,
@@ -156,117 +168,99 @@ function formatSentiment(str: string): Sentiment {
   }
 }
 
-class SentimentAggreagator {
-  name: Sentiment;
-  score: number;
-  lastScore: number = 0;
-  lastCount: number = 0;
-  constructor(sentiment: Sentiment) {
-    this.name = sentiment || Sentiment.DEFAULT;
-    this.score = 0;
+async function getSentimentAnalyzer(lastMessages: Message[]) {
+  const model = generateModel(SENTIMENT_ANALYSIS_CONFIG);
+  const userHistory = lastMessages?.map((message) => {
+    const messageSentiment = message.sentiment || null;
+    return convertTextsToHistory([
+      message.text,
+      `tone:${messageSentiment?.tone};score:${messageSentiment?.score}`,
+    ]);
+  });
+  if (userHistory) {
+    SENTIMENT_ANALYSIS_CHAT_PARAMS.history?.push(...userHistory.flat());
   }
-  addScore(score: number) {
-    this.score += score;
+  return getChatWithAi(model, SENTIMENT_ANALYSIS_CHAT_PARAMS);
+}
+const defaultSentiment = { tone: Sentiment.DEFAULT, score: 100 };
+const illegalResponse = { tone: Sentiment.ILLEGAL_RESPONSE, score: 100 };
+
+/**
+ * extract sentiment from a message
+ * @param genAI
+ * @param lastMessages
+ * @param message
+ * @returns
+ */
+export async function analyzeMessage(
+  lastMessages: Message[],
+  message: Message
+) {
+  if (!vertexAI) {
+    throw new Error("AI not initialized");
   }
-  resetScore() {
-    this.score = 0;
-  }
-  getScore() {
-    return this.score;
+  const { text } = message;
+
+  try {
+    const analyzer = await getSentimentAnalyzer(lastMessages);
+    const apiResponse = (await sendMessageStream(`${text}`, analyzer)) ?? "";
+    console.log("Sentiment analysis response: ", apiResponse);
+    if (apiResponse === "illegal_response") {
+      return illegalResponse;
+    }
+    const sentimentParts = apiResponse.match(/tone:(.*);score:(.*)/);
+    const tone = sentimentParts?.[1];
+    const score = sentimentParts?.[2];
+    return {
+      tone: tone ? formatSentiment(tone) : defaultSentiment.tone,
+      score: score ? parseFloat(score) : defaultSentiment.score,
+    };
+  } catch (error) {
+    console.log("Error in sentiment analysis: ", error);
+    return defaultSentiment;
   }
 }
-
-class SentimentManager {
-  sentiments: { [key: string]: SentimentAggreagator };
-  chat: ChatSession;
-  eventEmitter: EventEmitter<MessageSentiment>;
-  messageCounter: number;
-  constructor() {
-    this.sentiments = {};
-    this.eventEmitter = new EventEmitter();
-    const model = generateModel(SENTIMENT_ANALYSIS_CONFIG);
-    this.chat = getChatWithAi(model, SENTIMENT_ANALYSIS_CHAT_PARAMS);
-    this.messageCounter = 0;
-  }
-  addSentiment(sentiment: Sentiment) {
-    if (!this.sentiments[sentiment]) {
-      this.sentiments[sentiment] = new SentimentAggreagator(sentiment);
-    }
-  }
-  getSentiment(sentiment: Sentiment) {
-    return this.sentiments[sentiment];
-  }
-  getSentimentScore(sentiment: Sentiment): number {
-    const sentimentAggregator = this.sentiments[sentiment];
-    if (!sentimentAggregator) {
-      return 0;
-    }
-    return sentimentAggregator.getScore() - sentimentAggregator.lastScore;
-  }
-  getSentimentCount(sentiment: Sentiment): number {
-    const sentimentAggregator = this.sentiments[sentiment];
-    if (!sentimentAggregator) {
-      return 0;
-    }
-    return this.messageCounter - sentimentAggregator.lastCount;
-  }
-  updateLast(sentiment: Sentiment) {
-    const sentimentAggregator = this.sentiments[sentiment];
-    if (!sentimentAggregator) {
-      return;
-    }
-    sentimentAggregator.lastScore = sentimentAggregator.getScore();
-    sentimentAggregator.lastCount = this.messageCounter;
-  }
-  resetSentimentScore(sentiment: Sentiment) {
-    this.sentiments[sentiment].resetScore();
-  }
-
-  getAverageScoreOverTime(
-    interval: number,
-    sentiment: Sentiment,
-    callback: Callback<number>
-  ) {
-    console.log("Starting average score over time");
-    setInterval(() => {
-      const score = this.getSentimentScore(sentiment);
-      const count = this.getSentimentCount(sentiment);
-      if (count === 0) {
-        return;
-      }
-      console.log("Average score over time: ", score / count);
-
-      count && callback(score / count);
-      this.updateLast(sentiment);
-    }, interval);
-  }
-  async analyzeMessage(message: Message) {
-    let sentiment = { tone: Sentiment.DEFAULT, score: 100 };
-    const { text, uid } = message;
-    try {
-      const apiResponse = await sendMessageStream(`${uid}:${text}`, this.chat);
-      const toneParts = apiResponse.match(/tone:(.*);score:(.*)/);
-      let tone: Sentiment;
-      if (toneParts && toneParts.length === 3) {
-        tone = formatSentiment(toneParts[1]);
-        sentiment = {
-          tone,
-          score: Number(toneParts[2]),
-        };
-      } else {
-        sentiment = { tone: Sentiment.ILLEGAL_RESPONSE, score: 100 };
-      }
-      if (this.sentiments[sentiment.tone] === undefined) {
-        this.addSentiment(sentiment.tone);
-      }
-      this.sentiments[sentiment.tone].addScore(sentiment.score);
-      this.messageCounter++;
-      return sentiment;
-    } catch (error) {
-      console.log("Error in sentiment analysis: ", error);
-      return { tone: Sentiment.ILLEGAL_RESPONSE, score: 100 };
-    }
-  }
+interface SentimentCheck {
+  duration: number;
+  callback: Callback<number>;
+}
+const sentimentChecks = new Map<Sentiment, SentimentCheck>();
+export function getSentimentChecks(sentiment: Sentiment) {
+  return sentimentChecks.get(sentiment);
+}
+export function registerSentimentCheck(
+  sentiment: Sentiment,
+  duration: number,
+  callback: Callback<number>
+) {
+  sentimentChecks.set(sentiment, { duration, callback });
 }
 
-export const sentimentManager = new SentimentManager();
+export function getLastMessages(messages: Message[], duration: number) {
+  const startCheck = Date.now() - duration;
+  return messages.filter((msg) => {
+    const msgCreatedAt = msg.createdAt.toDate().valueOf();
+    return msgCreatedAt > startCheck;
+  });
+}
+export function applySentimentCallbacks(tone: Sentiment, messages: Message[]) {
+  if (!tone) {
+    return;
+  }
+  const sentimentCheck = getSentimentChecks(tone);
+  if (!sentimentCheck) {
+    return;
+  }
+
+  const { duration, callback } = sentimentCheck;
+  const lastMessages = getLastMessages(messages, duration);
+  if (lastMessages.length === 0) {
+    return;
+  }
+  const totalScore = lastMessages.reduce((acc, msg) => {
+    return acc + (msg.sentiment?.score || 0);
+  }, 0);
+  setTimeout(() => {
+    callback(totalScore / lastMessages.length);
+  }, 0);
+}

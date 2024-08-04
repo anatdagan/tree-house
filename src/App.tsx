@@ -1,22 +1,25 @@
-import "./App.css";
-import Chat from "./features/chat/Chat.tsx";
-import ChatHeader from "./features/chat/ChatHeader.tsx";
-import ChatMessages from "./features/chat/ChatMessages.tsx";
-import ChatFooter from "./features/chat/ChatFooter.tsx";
-import ChatNewMessage from "./features/chat/ChatNewMessage.tsx";
-import { ChatProvider } from "./contexts/ChatContext.tsx";
+import { UserProvider } from "./context/UserContext.tsx";
+import { lazy, Suspense } from "react";
+import LoadingIndicator from "./ui/LoadingIndicator.tsx";
+const ChatMessagesContainer = lazy(
+  () => import("./components/chat/ChatMessagesContainer.tsx")
+);
+
+const Chat = lazy(() => import("./components/chat/Chat.tsx"));
+const ChatHeader = lazy(() => import("./components/chat/ChatHeader.tsx"));
+const ChatFooter = lazy(() => import("./components/chat/ChatFooter.tsx"));
 
 function App() {
   return (
-    <ChatProvider>
-      <Chat>
-        <ChatHeader />
-        <ChatMessages />
-        <ChatFooter>
-          <ChatNewMessage />
-        </ChatFooter>
-      </Chat>
-    </ChatProvider>
+    <UserProvider>
+      <Suspense fallback={<LoadingIndicator />}>
+        <Chat>
+          <ChatHeader />
+          <ChatMessagesContainer />
+          <ChatFooter></ChatFooter>
+        </Chat>
+      </Suspense>
+    </UserProvider>
   );
 }
 export default App;

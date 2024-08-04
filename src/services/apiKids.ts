@@ -23,7 +23,6 @@ export interface Kid {
 
 export async function getKidInfo(email?: string | null) {
   if (!email) throw new Error("getKidInfo error: Email is required");
-  console.log("Getting kid info", email);
   const kidInfo = (await getDocDataFromCollection(
     "kids",
     "email",
@@ -41,7 +40,7 @@ export function getAvatar(avatar?: string, email?: string) {
   return getDownloadURL(
     ref(
       storage,
-      `gs://treehouse-chat-app.appspot.com/o/images/${folder}/${
+      `gs://treehouse-chat-app.appspot.com/b/treehouse-chat-app.appspot.com/o/images/${folder}/${
         avatar || "avatar.png"
       }`
     )
@@ -49,12 +48,22 @@ export function getAvatar(avatar?: string, email?: string) {
 }
 
 export async function updateKidInfo(kid: Kid, newData: Partial<Kid>) {
-  console.log("Updating kid info", kid);
   return await updateDocData("kids", kid.email, { ...kid, ...newData });
+}
+export async function updateKidStatus(kid: Kid, status: KidStatus) {
+  return await updateKidInfo(kid, { status });
 }
 
 export async function getKidParent(kid: Kid) {
   return await getDocDataById("parents", kid.parentId);
+}
+
+export async function getKidInfoByUid(uid?: string | null) {
+  if (!uid) {
+    return null;
+  }
+  console.log("Getting kid info", uid);
+  return await getDocDataFromCollection<Kid>("kids", "uid", uid);
 }
 
 // todo: add fuzzy spelling search
