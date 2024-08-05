@@ -37,6 +37,7 @@ const initialState = {
   defaultRoom: null,
   activeCounselorId: null,
   counselorActivatedAt: null,
+  counselors: new Map(),
 };
 interface ChatProviderProps {
   children?: ReactNode;
@@ -66,7 +67,11 @@ const UserProvider = ({ children, value }: ChatProviderProps) => {
     return user;
   }
   async function onSignIn(kidInfo: Kid, selectedChatRoom: ChatRoom) {
-    await initCounselors(kidInfo);
+    const counselors = await initCounselors(kidInfo);
+    dispatch({
+      type: UserActionTypes.INIT_COUNSELORS,
+      payload: { counselors },
+    });
     await initParentNotifications(kidInfo);
     if (selectedChatRoom.type === RoomType.WELCOME) {
       await startWelcomeChatWithKid(selectedChatRoom);

@@ -38,6 +38,7 @@ describe("Chat", () => {
       defaultRoom: null,
       activeCounselorId: "",
       counselorActivatedAt: "",
+      counselors: new Map(),
     };
     customUserContextRender(<Chat />, state);
     screen.debug();

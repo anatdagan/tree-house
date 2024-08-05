@@ -102,7 +102,7 @@ const PERSONAL_INFORMATION_CHAT_PARAMS = {
       },
       { text: "If the parents approve a meeting, you can arrange it." },
       {
-        text: "but information about the child that can reveal their full identity should not be shared with other kids in the chatroom.",
+        text: "The kid's private name or nickname is safe and not considered personal information.",
       },
       { text: "Having parents is not considered personal information." },
       {

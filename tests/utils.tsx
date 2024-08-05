@@ -114,4 +114,5 @@ export const getFakeState = () => ({
   defaultRoom: null,
   activeCounselorId: "",
   counselorActivatedAt: "",
+  counselors: getFakeCounselors(),
 });

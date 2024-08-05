@@ -6,7 +6,7 @@ import { Kid, KidStatus, updateKidStatus } from "../services/apiKids";
 export enum UserActionTypes {
   INIT = "chat/init",
   LOAD = "chat/load",
-
+  INIT_COUNSELORS = "counselor/init",
   SWITCH_ROOM = "room/switch",
   SET_ERROR = "error/set",
   KID_NOT_FOUND = "kid/not_found",
@@ -24,6 +24,7 @@ export interface UserState {
   defaultRoom: ChatRoom | null;
   activeCounselorId: string | null;
   counselorActivatedAt: string | null;
+  counselors: Map<string, { id: string; name: string; avatar: string }>;
 }
 
 interface INIT_ACTION {
@@ -32,7 +33,12 @@ interface INIT_ACTION {
 interface LOAD_ACTION {
   type: UserActionTypes.LOAD;
 }
-
+interface INIT_COUNSELORS_ACTION {
+  type: UserActionTypes.INIT_COUNSELORS;
+  payload: {
+    counselors: Map<string, { id: string; name: string; avatar: string }>;
+  };
+}
 interface SWITCH_ROOM_ACTION {
   type: UserActionTypes.SWITCH_ROOM;
   payload: { room: ChatRoom | null };
@@ -70,6 +76,7 @@ interface ACTIVATE_COUNSELOR_ACTION {
 export type ChatAction =
   | INIT_ACTION
   | LOAD_ACTION
+  | INIT_COUNSELORS_ACTION
   | SWITCH_ROOM_ACTION
   | SET_ERROR_ACTION
   | KID_NOT_FOUND_ACTION
@@ -96,7 +103,11 @@ export const userReducer = (
         ...state,
         isLoading: true,
       };
-
+    case UserActionTypes.INIT_COUNSELORS:
+      return {
+        ...state,
+        counselors: action.payload.counselors,
+      };
     case UserActionTypes.SWITCH_ROOM:
       if (
         state.selectedChatRoom?.type === RoomType.WELCOME &&

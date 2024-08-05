@@ -39,6 +39,7 @@ describe("Boredom", {}, () => {
         defaultRoom: null,
         activeCounselorId: "",
         counselorActivatedAt: "",
+        counselors: new Map(),
       };
       customUserContextRender(<Chat />, state);
       expect(getSentimentChecks(Sentiment.BORED)?.callback).toBeDefined();

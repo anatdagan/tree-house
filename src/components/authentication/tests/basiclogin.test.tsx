@@ -15,6 +15,7 @@ describe("Basic Login", () => {
       defaultRoom: null,
       activeCounselorId: "",
       counselorActivatedAt: "",
+      counselors: new Map(),
     };
 
     customUserContextRender(<BasicLogin />, state);
