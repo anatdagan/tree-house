@@ -24,28 +24,46 @@ export async function getDocDataFromCollection<T extends DocumentData>(
   key: string,
   value: string | number
 ): Promise<T | null> {
-  const docsData = await getDocsFromCollection(collectionName, key, value);
-  if (docsData.length === 0) {
+  const docs = await getDocsFromCollection(collectionName, key, value);
+  if (docs.length === 0) {
     return Promise.resolve(null);
   } else {
-    return docsData[0];
+    const doc = docs[0];
+    return doc.data() as T;
   }
 }
 
-export async function getDocsFromCollection<T>(
+export async function getDocsFromCollection(
   collectionName: string,
   key?: string,
-  value?: T,
+  value?: string | number,
   limit?: number,
   orderBy?: string
-): Promise<DocumentData> {
+): Promise<DocumentData[]> {
   const snapshot = await getDocs(
     createQuery(collectionName, key, value, limit, orderBy)
   );
   if (snapshot.empty) {
     Promise.resolve(null);
   }
-  return snapshot.docs.map((doc) => doc.data());
+  return snapshot.docs;
+}
+
+export async function getDocsData<T extends DocumentData>(
+  collectionName: string,
+  key?: string,
+  value?: string | number,
+  limit?: number,
+  orderBy?: string
+): Promise<T[]> {
+  const docs = await getDocsFromCollection(
+    collectionName,
+    key,
+    value,
+    limit,
+    orderBy
+  );
+  return docs.map((doc) => doc.data() as T);
 }
 
 export async function addDocToCollection<T>(

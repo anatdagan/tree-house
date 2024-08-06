@@ -19,7 +19,7 @@ describe("Counselors", {}, () => {
   describe("appointCounselor", {}, () => {
     it("should appoint a counselor if it is mentioned in the message", () => {
       const message = {
-        text: "@minnie I need help",
+        text: "@jimmy I need help",
         roomId: "123",
         uid: "123",
         id: "123",
@@ -29,7 +29,7 @@ describe("Counselors", {}, () => {
       const chatRoom = getFakeChatRoom();
 
       const counselor = appointCounselor(message, chatRoom);
-      expect(counselor?.id).toBe("minnie");
+      expect(counselor?.id).toBe("jimmy");
     });
     it("should appoint the active counselor if there is no mention in the message", () => {
       const message = {
@@ -42,8 +42,8 @@ describe("Counselors", {}, () => {
       };
       const chatRoom = getFakeChatRoom();
 
-      const counselor = appointCounselor(message, chatRoom, "jimmy");
-      expect(counselor?.id).toBe("jimmy");
+      const counselor = appointCounselor(message, chatRoom, "minnie");
+      expect(counselor?.id).toBe("minnie");
     });
   });
 });

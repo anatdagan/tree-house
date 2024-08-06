@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import classes from "./chat.module.css";
+import appClasses from "../../App.module.css";
 import { Message, MessageStatus } from "./types/Messages.d";
 import { Timestamp } from "firebase/firestore";
 import { findViolations } from "../../services/apiModeration";
@@ -88,7 +89,7 @@ const ChatNewMessage = () => {
         value={newMessage}
         onChange={(e) => setNewMessage(e.target.value)}
       />
-      <button type="submit" className="btn">
+      <button type="submit" className={appClasses.btn}>
         Send
       </button>
     </form>

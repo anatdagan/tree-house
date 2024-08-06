@@ -1,6 +1,8 @@
 import { UserProvider } from "./context/UserContext.tsx";
 import { lazy, Suspense } from "react";
 import LoadingIndicator from "./ui/LoadingIndicator.tsx";
+import "./App.module.css";
+import ChatSubHeader from "./components/chat/ChatSubHeader.tsx";
 const ChatMessagesContainer = lazy(
   () => import("./components/chat/ChatMessagesContainer.tsx")
 );
@@ -15,6 +17,7 @@ function App() {
       <Suspense fallback={<LoadingIndicator />}>
         <Chat>
           <ChatHeader />
+          <ChatSubHeader />
           <ChatMessagesContainer />
           <ChatFooter></ChatFooter>
         </Chat>

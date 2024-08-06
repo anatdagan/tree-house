@@ -35,37 +35,30 @@ const ChatMessages = () => {
   }
 
   return (
-    <main className={classes["messages-chat"]} id="messages">
-      <ul>
-        {messages.map((message: Message) => (
-          <li
-            key={message.id}
-            className={`${classes.message} ${
-              message.uid === uid ? classes.current : classes.other
-            } {message.to === uid ? classes.private : ""}`}
-          >
-            <time className={classes.time}>
-              {extractTime(message.createdAt)}
-            </time>
+    <ul className={classes["messages-list"]}>
+      {messages.map((message: Message) => (
+        <li
+          key={message.id}
+          className={`${classes.message} ${
+            message.uid === uid ? classes.current : classes.other
+          } {message.to === uid ? classes.private : ""}`}
+        >
+          <time className={classes.time}>{extractTime(message.createdAt)}</time>
 
-            <img
-              src={message?.avatar}
-              alt={message?.avatar}
-              height={45}
-              width={45}
-              onClick={() =>
-                onAvatarClick(message.uid, kidInfo, switchRoom).catch(
-                  (error) => {
-                    catchErrors(error);
-                  }
-                )
-              }
-            />
-            <p className={classes.text}>{message.text}</p>
-          </li>
-        ))}
-      </ul>
-    </main>
+          <img
+            className={classes.avatar}
+            src={message?.avatar}
+            alt={message?.avatar}
+            onClick={() =>
+              onAvatarClick(message.uid, kidInfo, switchRoom).catch((error) => {
+                catchErrors(error);
+              })
+            }
+          />
+          <p className={classes.text}>{message.text}</p>
+        </li>
+      ))}
+    </ul>
   );
 };
 export default ChatMessages;

@@ -1,0 +1,35 @@
+html {
+  font-size: 62.5%;
+  margin: 0px;
+  padding: 0px;
+}
+body {
+  margin: 0px;
+  padding: 0px;
+  background-image: linear-gradient(
+    rgb(223, 160, 106) 0%,
+    rgb(177, 115, 70) 100%
+  );
+}
+
+.container {
+  padding: 1rem;
+  background-color: #e4a154;
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.19),
+    0 0.6rem 0.6rem rgba(0, 0, 0, 0.23);
+}
+
+.btn {
+  background-color: #44c767;
+  border-radius: 2.8rem;
+  border: 1px solid #18ab29;
+  display: inline-block;
+  cursor: pointer;
+  color: #ffffff;
+  font-family: Arial;
+  font-size: 1.7rem;
+  padding: 1rem;
+  text-decoration: none;
+  text-shadow: 0px 1px 0px #2f6627;
+  box-shadow: 0.3rem 0.3rem 0.3rem brown;
+}

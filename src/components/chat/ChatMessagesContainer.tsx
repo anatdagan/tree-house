@@ -7,7 +7,6 @@ import ChatNewMessage from "./ChatNewMessage";
 const ChatMessagesContainer = () => {
   return (
     <main className={classes["messages-chat"]} id="messages">
-      <h2>Chat Messages</h2>
       <MessageProvider>
         <ChatMessages />
 

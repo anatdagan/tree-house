@@ -9,8 +9,8 @@ const HomeIcon = () => {
           src="images/home-icon.png"
           alt="Home"
           onClick={() => switchRoom(defaultRoom)}
-          width="72px"
-          height="72px"
+          width="50rem"
+          height="50rem"
         />
       </a>
     </>

@@ -1,8 +1,8 @@
 import { auth } from "../../../firebase";
-
+import classes from "../../App.module.css";
 const Logout = () => {
   return (
-    <button onClick={() => auth.signOut()} className="btn right">
+    <button onClick={() => auth.signOut()} className={classes.btn}>
       Logout
     </button>
   );

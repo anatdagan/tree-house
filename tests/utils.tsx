@@ -6,6 +6,7 @@ import { vi } from "vitest";
 import { MessageProvider } from "@/context/MessagesContext";
 import { Message } from "@/components/chat/types/Messages.d";
 import { RoomType } from "@/components/chatroom/types/Rooms.d";
+import { InboxMessageData } from "@/components/Inbox/inbox.d";
 
 /**
  * A custom render function for the UserContext, which is used to test the UserProvider.
@@ -114,4 +115,6 @@ export const getFakeState = () => ({
   defaultRoom: null,
   activeCounselorId: "",
   counselorActivatedAt: "",
+  counselors: getFakeCounselors(),
+  inboxMessages: [] as InboxMessageData[],
 });

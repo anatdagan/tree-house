@@ -1,9 +1,15 @@
 import useUser from "@/hooks/useUser";
-import classes from "./chat.module.css";
-
+import UserProfile from "@/components/authentication/UserProfile";
+import classes from "@/components/chat/chat.module.css";
 const ChatUser = () => {
   const { kidInfo } = useUser();
-  const displayName = kidInfo?.displayName || "Anonymous";
-  return <p className={classes.name}>{displayName}</p>;
+  if (!kidInfo) {
+    return null;
+  }
+  return (
+    <div className={classes["user-profile"]}>
+      <UserProfile kidInfo={kidInfo} />
+    </div>
+  );
 };
 export default ChatUser;

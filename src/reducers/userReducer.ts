@@ -1,3 +1,4 @@
+import { InboxMessageData } from "@/components/Inbox/inbox.d";
 import User from "../components/authentication/types/Users";
 
 import { ChatRoom, RoomType } from "../components/chatroom/types/Rooms.d";
@@ -6,7 +7,7 @@ import { Kid, KidStatus, updateKidStatus } from "../services/apiKids";
 export enum UserActionTypes {
   INIT = "chat/init",
   LOAD = "chat/load",
-
+  INIT_COUNSELORS = "counselor/init",
   SWITCH_ROOM = "room/switch",
   SET_ERROR = "error/set",
   KID_NOT_FOUND = "kid/not_found",
@@ -14,6 +15,7 @@ export enum UserActionTypes {
   SIGN_IN = "user/sign_in",
   LOG_OUT = "user/logout",
   ACTIVATE_COUNSELOR = "counselor/active",
+  GET_INBOX_MESSAGES = "inbox/get",
 }
 export interface UserState {
   selectedChatRoom: ChatRoom | null;
@@ -24,6 +26,8 @@ export interface UserState {
   defaultRoom: ChatRoom | null;
   activeCounselorId: string | null;
   counselorActivatedAt: string | null;
+  counselors: Map<string, { id: string; name: string; avatar: string }>;
+  inboxMessages: InboxMessageData[];
 }
 
 interface INIT_ACTION {
@@ -32,7 +36,12 @@ interface INIT_ACTION {
 interface LOAD_ACTION {
   type: UserActionTypes.LOAD;
 }
-
+interface INIT_COUNSELORS_ACTION {
+  type: UserActionTypes.INIT_COUNSELORS;
+  payload: {
+    counselors: Map<string, { id: string; name: string; avatar: string }>;
+  };
+}
 interface SWITCH_ROOM_ACTION {
   type: UserActionTypes.SWITCH_ROOM;
   payload: { room: ChatRoom | null };
@@ -54,6 +63,7 @@ interface SIGN_IN_ACTION {
     kidInfo: Kid;
     defaultRoom: ChatRoom;
     selectedChatRoom: ChatRoom;
+    inboxMessages: InboxMessageData[];
   };
 }
 interface LOG_OUT_ACTION {
@@ -66,16 +76,24 @@ interface ACTIVATE_COUNSELOR_ACTION {
     counselorActivatedAt: string | null;
   };
 }
+interface GET_INBOX_MESSAGES_ACTION {
+  type: UserActionTypes.GET_INBOX_MESSAGES;
+  payload: {
+    inboxMessages: InboxMessageData[];
+  };
+}
 
 export type ChatAction =
   | INIT_ACTION
   | LOAD_ACTION
+  | INIT_COUNSELORS_ACTION
   | SWITCH_ROOM_ACTION
   | SET_ERROR_ACTION
   | KID_NOT_FOUND_ACTION
   | UNAUTHORIZED_ACTION
   | SIGN_IN_ACTION
   | ACTIVATE_COUNSELOR_ACTION
+  | GET_INBOX_MESSAGES_ACTION
   | LOG_OUT_ACTION;
 
 function getErrorMessage(error: unknown) {
@@ -96,7 +114,11 @@ export const userReducer = (
         ...state,
         isLoading: true,
       };
-
+    case UserActionTypes.INIT_COUNSELORS:
+      return {
+        ...state,
+        counselors: action.payload.counselors,
+      };
     case UserActionTypes.SWITCH_ROOM:
       if (
         state.selectedChatRoom?.type === RoomType.WELCOME &&
@@ -138,6 +160,11 @@ export const userReducer = (
         ...state,
         activeCounselorId: action.payload.activeCounselorId,
         counselorActivatedAt: action.payload.counselorActivatedAt,
+      };
+    case UserActionTypes.GET_INBOX_MESSAGES:
+      return {
+        ...state,
+        inboxMessages: action.payload.inboxMessages,
       };
     case UserActionTypes.LOG_OUT:
       return {

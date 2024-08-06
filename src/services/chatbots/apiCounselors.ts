@@ -73,6 +73,7 @@ class Counselor implements ChatBot {
     this.name = data.name;
     this.age = data.age;
     this.avatar = data.avatar;
+
     (this.welcomeMessages = data.welcomeMessages.map((message) =>
       message.replace("{{kidName}}", this.kidInfo.displayName)
     )),
@@ -154,7 +155,7 @@ class Counselor implements ChatBot {
       id: crypto.randomUUID(),
       roomId,
       status: MessageStatus.Sent,
-      avatar: await getAvatar(app, this.avatar, this.id),
+      avatar: this.avatar,
       createdAt: Timestamp.fromMillis(new Date().getTime() + index),
     });
     return messageText;
@@ -183,7 +184,7 @@ class Counselor implements ChatBot {
       id: crypto.randomUUID(),
       roomId,
       status: MessageStatus.Sent,
-      avatar: await getAvatar(app, this.avatar, this.id),
+      avatar: this.avatar,
       createdAt: Timestamp.now(),
     });
   }
@@ -201,8 +202,12 @@ async function initCounselor(id: string, kidInfo: Kid) {
   if (!data) {
     throw new Error(`Chatbot with id ${id} not found`);
   }
+  data.avatar = await getAvatar(app, data.avatar, id);
 
-  const history = await getChatbotHistory(kidInfo, id);
+  let history = await getChatbotHistory(kidInfo, id);
+  if (!history) {
+    history = [];
+  }
   if (!history.length) {
     history.push(
       {
@@ -221,6 +226,7 @@ async function initCounselor(id: string, kidInfo: Kid) {
 export async function initCounselors(kidInfo: Kid) {
   counselors.set("jimmy", await initCounselor("jimmy", kidInfo));
   counselors.set("minnie", await initCounselor("minnie", kidInfo));
+  return counselors;
 }
 
 export function getCounselor(id: string) {
