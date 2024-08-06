@@ -34,6 +34,9 @@
   margin: 0px;
   padding: 1rem;
 }
+.chat .header-chat button {
+  padding: 0%;
+}
 .chat .user-profile {
   position: relative;
   margin: 0;
@@ -135,8 +138,8 @@
 
 .chat .messages-chat .text {
   background-color: #f6f6f6;
-  padding: 15px;
-  border-radius: 12px;
+  padding: 1.5rem;
+  border-radius: 1.2rem;
 }
 
 .footer-chat {
@@ -147,23 +150,11 @@
   padding: 0 1rem;
 }
 
-.chat .footer-chat .send {
-  color: #fff;
-  background-color: #4f6ebd;
-  right: 50px;
-  padding: 12px 12px 12px 12px;
-  border-radius: 50px;
-  font-size: 4em;
-}
-
-.chat .footer-chat .right {
-  right: 4rem;
-}
-
 .write-message {
   border: 1px solid lightblue !important;
   height: 5rem;
   padding: 1rem;
+  margin: 1rem;
 }
 
 .footer-chat *::-webkit-input-placeholder {

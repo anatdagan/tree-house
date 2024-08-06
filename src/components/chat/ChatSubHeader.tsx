@@ -7,10 +7,10 @@ const ChatSubHeader = () => {
   const { selectedChatRoom } = useUser();
 
   return (
-    <h2 className={classes["sub-header"]}>
+    <header className={classes["sub-header"]}>
       {selectedChatRoom && <ChatroomHeader room={selectedChatRoom} />}
       <CounselorIcons />
-    </h2>
+    </header>
   );
 };
 export default ChatSubHeader;

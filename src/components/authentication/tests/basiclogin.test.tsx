@@ -1,22 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
 import BasicLogin from "../BasicLogin";
-import { customUserContextRender } from "../../../../tests/utils";
+import { customUserContextRender, getFakeState } from "../../../../tests/utils";
 
 describe("Basic Login", () => {
   it("should render the basic login form", () => {
-    const state = {
-      messages: [],
-      selectedChatRoom: null,
-      isLoading: false,
-      user: null,
-      kidInfo: null,
-      error: "",
-      defaultRoom: null,
-      activeCounselorId: "",
-      counselorActivatedAt: "",
-      counselors: new Map(),
-    };
+    const state = getFakeState();
 
     customUserContextRender(<BasicLogin />, state);
 

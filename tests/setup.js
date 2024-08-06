@@ -49,7 +49,7 @@ vi.mock("@/services/chatbots/apiCounselors", async (importOriginal) => {
   const original = await importOriginal();
   return {
     ...original,
-    getCounselor: vi.fn().mockResolvedValue({
+    getCounselor: vi.fn().mockReturnValue({
       id: "123",
       name: "Counselor",
       description: "Counselor description",
@@ -140,6 +140,11 @@ vi.mock("../firebase.ts", () => {
     },
     getFirestore: vi.fn(),
     getAnalytics: vi.fn(),
+    app: {
+      options: {
+        projectId: "treehouse-chat-app",
+      },
+    },
   };
 });
 vi.mock("@/hooks/useMessages", () => {

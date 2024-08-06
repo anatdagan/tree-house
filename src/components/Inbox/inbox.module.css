@@ -1,10 +1,18 @@
 .inbox {
   position: absolute;
-  top: 50px;
+  top: 5rem;
   width: 80%;
   height: 80%;
   padding: 1.5rem;
   margin: auto;
   border: 1px solid #ccc;
   background-color: aliceblue;
+}
+h3 {
+  font-size: 2rem;
+  font-family: "Montserrat", sans-serif;
+  color: #333;
+}
+h3.read {
+  color: #ccc;
 }

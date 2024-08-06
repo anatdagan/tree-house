@@ -204,7 +204,10 @@ async function initCounselor(id: string, kidInfo: Kid) {
   }
   data.avatar = await getAvatar(app, data.avatar, id);
 
-  const history = await getChatbotHistory(kidInfo, id);
+  let history = await getChatbotHistory(kidInfo, id);
+  if (!history) {
+    history = [];
+  }
   if (!history.length) {
     history.push(
       {

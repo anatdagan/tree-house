@@ -13,7 +13,7 @@ const ChatHeader = () => {
       </a>
       <HomeIcon />
       <h1>Treehouse Chat</h1>
-      {user?.email && <InboxIcon email={user.email} />}
+      {user?.email && <InboxIcon />}
       <ChatUser />
     </header>
   );

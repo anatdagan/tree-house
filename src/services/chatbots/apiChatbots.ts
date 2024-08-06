@@ -1,4 +1,8 @@
-import { getDocById, getDocsFromCollection, addDocToCollection } from "../db";
+import {
+  getDocById,
+  addDocToCollection,
+  getDocDataFromCollection,
+} from "../db";
 import { Content, POSSIBLE_ROLES } from "firebase/vertexai-preview";
 import { ChatBotData, HistoryExchange } from "./types/chatbot";
 import type { Kid } from "../apiKids";
@@ -29,13 +33,13 @@ export function convertExchageToHistory(
 }
 export async function getChatbotHistory(kidInfo: Kid, chatbotId: string) {
   // Get chatbot history from DB
-  const exchanges = await getDocsFromCollection(
+  const exchanges = await getDocDataFromCollection<HistoryExchange[]>(
     `chatbots/${chatbotId}/history`,
     "uid",
     kidInfo.uid
   );
   const kidName = kidInfo.displayName;
-  return exchanges.flatMap((exchange: HistoryExchange) =>
+  return exchanges?.flatMap((exchange: HistoryExchange) =>
     convertExchageToHistory(exchange, kidName)
   );
 }

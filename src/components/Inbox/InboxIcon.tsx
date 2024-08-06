@@ -1,20 +1,16 @@
 import { useState } from "react";
-import { getInboxMessages } from "@/services/apiInbox";
 import Modal from "@/ui/Modal/Modal";
-import { InboxMessageData } from "@/components/Inbox/inbox.d";
+import { InboxMessageStatus } from "@/components/Inbox/inbox.d";
 import Inbox from "@/components/Inbox/Inbox";
+import useUser from "@/hooks/useUser";
 
-interface Props {
-  email: string;
-}
-const InboxIcon = ({ email }: Props) => {
+const InboxIcon = () => {
   const [inboxOpen, setInboxOpen] = useState(false);
-  const [inboxMessages, setInboxMessages] = useState<InboxMessageData[]>([]);
-
+  const { inboxMessages } = useUser();
+  const unreadMessages = inboxMessages.filter(
+    (message) => message.status === InboxMessageStatus.Unread
+  );
   const toggleInbox = async () => {
-    if (!inboxOpen) {
-      setInboxMessages((await getInboxMessages(email)) as InboxMessageData[]);
-    }
     setInboxOpen(!inboxOpen);
   };
 
@@ -34,6 +30,18 @@ const InboxIcon = ({ email }: Props) => {
           <metadata>
             Created by potrace 1.16, written by Peter Selinger 2001-2019
           </metadata>
+          {unreadMessages.length && (
+            <circle
+              data-testid="unread"
+              fill="red"
+              stroke="blue"
+              stroke-width="1rem"
+              fill-opacity="1"
+              cx="20rem"
+              cy="10rem"
+              r="10rem"
+            />
+          )}
           <g
             transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"
             fill="#000000"

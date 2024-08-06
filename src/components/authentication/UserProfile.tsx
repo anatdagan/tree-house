@@ -8,6 +8,8 @@ const UserProfile = ({ kidInfo }: UserProfileProps) => {
   const { avatar, displayName } = kidInfo;
   return (
     <>
+      {/* 
+// @ts-ignore */}
       <button popovertarget="user-details">
         <ProfilePic
           avatar={avatar}
@@ -16,6 +18,8 @@ const UserProfile = ({ kidInfo }: UserProfileProps) => {
           height="45px"
         />
       </button>
+      {/* 
+// @ts-ignore */}
       <div id="user-details" popover="true">
         <section>
           <ProfilePic

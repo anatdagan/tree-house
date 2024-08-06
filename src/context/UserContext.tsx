@@ -22,6 +22,7 @@ import {
   startWelcomeChatWithKid,
 } from "@/services/chatbots/apiCounselors";
 import { initParentNotifications } from "@/services/apiParentNotifications";
+import { getInboxMessages } from "@/services/apiInbox";
 
 export interface ChatContextProps extends UserState {
   switchRoom: (room: ChatRoom | null) => void;
@@ -38,6 +39,7 @@ const initialState = {
   activeCounselorId: null,
   counselorActivatedAt: null,
   counselors: new Map(),
+  inboxMessages: [],
 };
 interface ChatProviderProps {
   children?: ReactNode;
@@ -116,6 +118,7 @@ const UserProvider = ({ children, value }: ChatProviderProps) => {
       console.error("No room found");
       return;
     }
+    const inboxMessages = await getInboxMessages(newKidInfo.email);
     const selectedChatRoom = room || defaultRoom;
     dispatch({
       type: UserActionTypes.SIGN_IN,
@@ -124,6 +127,7 @@ const UserProvider = ({ children, value }: ChatProviderProps) => {
         defaultRoom,
         kidInfo: newKidInfo || null,
         selectedChatRoom,
+        inboxMessages,
       },
     });
     await onSignIn(newKidInfo, selectedChatRoom);
