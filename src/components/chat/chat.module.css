@@ -1,3 +1,9 @@
+.chat {
+  background-image: linear-gradient(
+    rgb(223, 160, 106) 0%,
+    rgb(177, 115, 70) 100%
+  );
+}
 .header-chat {
   background-image: linear-gradient(
     rgb(202, 238, 250) 0%,

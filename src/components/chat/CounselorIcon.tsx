@@ -6,7 +6,10 @@ interface CounselorIconProps {
 }
 const CounselorIcon = ({ counselorId }: CounselorIconProps) => {
   const counselor = getCounselor(counselorId);
-  const counselorIcon = counselor?.avatar || "default-counselor.png";
+  if (!counselor?.avatar) {
+    return null;
+  }
+  const counselorIcon = counselor.avatar;
   const { setActiveCounselorId, kidInfo, selectedChatRoom } = useUser();
   if (!selectedChatRoom) {
     return null;

@@ -1,17 +1,38 @@
 .login-page {
-  width: 360px;
-  padding: 8% 0 0;
-  margin: auto;
+  position: relative;
+  z-index: 1;
+  background: #ffffff;
+  max-width: 36rem;
+  margin: 0 auto 10rem;
+  margin: 4.5rem;
+  padding: 4.5rem;
+  text-align: center;
+  box-shadow: 0 0 2rem 0 rgba(0, 0, 0, 0.2),
+    0 0.5rem 0.5rem 0 rgba(0, 0, 0, 0.24);
 }
+.intro {
+  font-family: "Rocher";
+  text-align: center;
+  font-size: 5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  font-family: "Rocher";
+  override-colors: 0 #00ffbb, 1 #007744;
+}
+@font-face {
+  font-family: "Rocher";
+  src: url(https://assets.codepen.io/9632/RocherColorGX.woff2);
+}
+
 .form {
   position: relative;
   z-index: 1;
   background: #ffffff;
-  max-width: 360px;
-  margin: 0 auto 100px;
-  padding: 45px;
+  max-width: 36rem;
   text-align: center;
-  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
 }
 .form input {
   font-family: sans-serif;
@@ -28,12 +49,13 @@
   font-family: sans-serif;
   text-transform: uppercase;
   outline: 0;
-  background: #4caf50;
+  background: #4285f4;
   width: 100%;
   border: 0;
-  padding: 15px;
+  padding: 1.5rem;
   color: #ffffff;
-  font-size: 14px;
+  font-size: 1.4rem;
+  margin: 0%;
   -webkit-transition: all 0.3 ease;
   transition: all 0.3 ease;
   cursor: pointer;
@@ -44,9 +66,9 @@
   background: #43a047;
 }
 .form .message {
-  margin: 15px 0 0;
+  margin: 1.5rem 0 0;
   color: #b3b3b3;
-  font-size: 12px;
+  font-size: 1.2rem;
 }
 .form .message a {
   color: #4caf50;
@@ -55,43 +77,48 @@
 .form .register-form {
   display: none;
 }
-.container {
-  position: relative;
-  z-index: 1;
-  max-width: 300px;
-  margin: 0 auto;
-}
-.container:before,
-.container:after {
-  content: "";
-  display: block;
-  clear: both;
-}
-.container .info {
-  margin: 50px auto;
-  text-align: center;
-}
-.container .info h1 {
-  margin: 0 0 15px;
-  padding: 0;
-  font-size: 36px;
-  font-weight: 300;
-  color: #1a1a1a;
-}
-.container .info span {
-  color: #4d4d4d;
-  font-size: 12px;
-}
-.container .info span a {
-  color: #000000;
-  text-decoration: none;
-}
-.container .info span .fa {
-  color: #ef3b3a;
+
+button {
+  margin: 1rem;
 }
 
 .or {
-  position: relative;
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin: 1rem;
+  font-size: 1.5rem;
+}
+
+/* GOOGLE SIGN IN BUTTON */
+
+.googleSignIn {
+  border: none;
+  border-radius: 2px;
+  background-color: #4285f4;
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.24), 0 0 1px 0 rgba(0, 0, 0, 0.12);
+  border: none;
+  display: flex;
+  padding: 1px;
+  color: #fff;
+  margin: auto;
+  &:hover {
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.24), 0 0 2px 0 rgba(0, 0, 0, 0.12);
+  }
+  &:active {
+    background: #3367d6;
+  }
+}
+
+.googleSignIn:disabled {
+  background: rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.4);
+  box-shadow: none;
+}
+
+.googleSignIn__text {
+  padding: 11px;
+  font-family: "Roboto";
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  text-align: left;
+  white-space: nowrap;
 }
