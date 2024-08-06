@@ -30,7 +30,8 @@
 }
 .chat .header-chat h1 {
   font-family: fantasy;
-  font-size: 2.5rem;
+  text-shadow: 0.2rem 0.2rem 0.2rem blanchedalmond;
+  font-size: 3rem;
   margin: 0px;
   padding: 1rem;
 }
@@ -60,6 +61,7 @@
 }
 .chat .sub-header h1 {
   font-family: fantasy;
+  text-shadow: 0.1rem 0.1rem 0.1rem greenyellow;
   font-size: 2.5rem;
   margin: 0;
   padding: 1rem;
@@ -72,6 +74,9 @@
 }
 .counselor-icons li {
   margin: 1rem;
+  border-radius: 50px;
+
+  box-shadow: 0.3rem 0.3rem 0.3rem darkgreen;
 }
 .chat .messages-chat {
   padding: 0rem;
@@ -102,18 +107,13 @@
   margin-bottom: 1rem;
   margin-right: 2rem;
 }
-.chat .messages-list li .message {
-  display: table-cell;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 1rem;
-  margin-bottom: 1rem;
-}
+
 .chat .messages-chat .message {
   display: flex;
   align-items: center;
   margin-bottom: 0.8rem;
   font-family: "Montserrat", sans-serif;
+
   font-size: 2rem;
 }
 
@@ -132,12 +132,14 @@
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
+  box-shadow: 0.2rem 0.2rem 0.2rem brown;
 }
 
 .chat .messages-chat .text {
   background-color: #f6f6f6;
   padding: 1.5rem;
   border-radius: 1.2rem;
+  box-shadow: 0.5rem 0.5rem 0.5rem rgba(0, 0, 0, 0.1);
 }
 
 .write-message {
