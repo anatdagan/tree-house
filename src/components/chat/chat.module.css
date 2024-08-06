@@ -34,9 +34,7 @@
   margin: 0px;
   padding: 1rem;
 }
-.chat .header-chat button {
-  padding: 0%;
-}
+
 .chat .user-profile {
   position: relative;
   margin: 0;
@@ -142,14 +140,6 @@
   border-radius: 1.2rem;
 }
 
-.footer-chat {
-  box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 1rem;
-}
-
 .write-message {
   border: 1px solid lightblue !important;
   height: 5rem;
@@ -157,29 +147,16 @@
   margin: 1rem;
 }
 
-.footer-chat *::-webkit-input-placeholder {
-  color: #c0c0c0;
-  font-size: 4em;
-}
-.footer-chat input *:-moz-placeholder {
-  color: #c0c0c0;
-  font-size: 4em;
-}
-.footer-chat input *::-moz-placeholder {
-  color: #c0c0c0;
-  font-size: 13pt;
-  margin-left: 5px;
-}
-.footer-chat input *:-ms-input-placeholder {
-  color: #c0c0c0;
-  font-size: 13pt;
-}
 .chatNewMessageForm {
   display: flex;
   justify-content: space-between;
   padding: 3rem;
   font-size: 1.5rem;
   font-family: "Montserrat", sans-serif;
+}
+.chatNewMessageForm label {
+  vertical-align: middle;
+  margin: auto;
 }
 .time {
   font-size: 1rem;

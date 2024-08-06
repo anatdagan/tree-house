@@ -10,7 +10,7 @@ const UserProfile = ({ kidInfo }: UserProfileProps) => {
     <>
       {/* 
 // @ts-ignore */}
-      <button popovertarget="user-details">
+      <button popovertarget="user-details" style={{ padding: 0 }}>
         <ProfilePic
           avatar={avatar}
           displayName={displayName}
