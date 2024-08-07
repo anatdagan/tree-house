@@ -1,16 +1,10 @@
-html {
-  font-size: 62.5%;
-  margin: 0px;
-  padding: 0px;
-}
-body {
-  margin: 0px;
-  padding: 0px;
+#root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 100vh;
-  background-image: url("/images/ffflux.svg");
-  background-size: cover;
+  width: 100%;
 }
-
 .btn {
   background-color: #44c767;
   border-radius: 2.8rem;

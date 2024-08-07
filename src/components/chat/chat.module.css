@@ -45,8 +45,6 @@
 .chat .user-profile {
   position: relative;
   margin: 0;
-  right: 0;
-  top: 0;
 }
 
 .chat .user-profile section {

@@ -2,16 +2,39 @@
   position: relative;
   z-index: 1;
   background: #ffffff;
-  max-width: 36rem;
-  margin: 0 auto 10rem;
-  margin: 4.5rem;
+  max-width: 30rem;
+  margin: auto;
   padding: 4.5rem;
   text-align: center;
-  box-shadow: 0 0 2rem 0 rgba(0, 0, 0, 0.2),
-    0 0.5rem 0.5rem 0 rgba(0, 0, 0, 0.24);
+  box-shadow: 0 0 2rem 0 rgba(0, 0, 0, 0.2), 0 0.5rem 0.5rem 0 rgba(0, 0, 0, 0);
+}
+.login-page button {
+  font-family: sans-serif;
+  text-transform: uppercase;
+  outline: 0;
+  background: #4285f4;
+  width: 100%;
+  border: 0;
+  color: #ffffff;
+  font-size: 1.4rem;
+  margin: 0%;
+  -webkit-transition: all 0.3 ease;
+  transition: all 0.3 ease;
+  cursor: pointer;
+  height: 3.8rem;
+  border-image-width: 0%;
+}
+.login-page button :hover,
+.login-page button :active,
+.login-page button :focus {
+  background: #3367d6;
 }
 .intro {
+  padding: 5rem 0;
+}
+.intro h1 {
   font-family: "Rocher";
+  color: rgb(177, 115, 70);
   text-align: center;
   font-size: 5rem;
   display: flex;
@@ -19,12 +42,10 @@
   align-items: center;
   justify-content: center;
   margin: 0;
-  font-family: "Rocher";
-  override-colors: 0 #00ffbb, 1 #007744;
 }
 @font-face {
   font-family: "Rocher";
-  src: url(https://assets.codepen.io/9632/RocherColorGX.woff2);
+  src: url(/fonts/RocherColorGX.woff2);
 }
 
 .form {
@@ -45,26 +66,7 @@
   box-sizing: border-box;
   font-size: 14px;
 }
-.form button {
-  font-family: sans-serif;
-  text-transform: uppercase;
-  outline: 0;
-  background: #4285f4;
-  width: 100%;
-  border: 0;
-  padding: 1.5rem;
-  color: #ffffff;
-  font-size: 1.4rem;
-  margin: 0%;
-  -webkit-transition: all 0.3 ease;
-  transition: all 0.3 ease;
-  cursor: pointer;
-}
-.form button:hover,
-.form button:active,
-.form button:focus {
-  background: #43a047;
-}
+
 .form .message {
   margin: 1.5rem 0 0;
   color: #b3b3b3;
@@ -78,8 +80,8 @@
   display: none;
 }
 
-button {
-  margin: 1rem;
+.form button {
+  padding: 1rem;
 }
 
 .or {
@@ -90,35 +92,12 @@ button {
 /* GOOGLE SIGN IN BUTTON */
 
 .googleSignIn {
-  border: none;
-  border-radius: 2px;
-  background-color: #4285f4;
-  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.24), 0 0 1px 0 rgba(0, 0, 0, 0.12);
-  border: none;
   display: flex;
-  padding: 1px;
-  color: #fff;
-  margin: auto;
-  &:hover {
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.24), 0 0 2px 0 rgba(0, 0, 0, 0.12);
-  }
-  &:active {
-    background: #3367d6;
-  }
-}
-
-.googleSignIn:disabled {
-  background: rgba(0, 0, 0, 0.08);
-  color: rgba(0, 0, 0, 0.4);
-  box-shadow: none;
+  padding: 0;
 }
 
 .googleSignIn__text {
-  padding: 11px;
-  font-family: "Roboto";
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-  text-align: left;
-  white-space: nowrap;
+  text-align: center;
+  padding: 1rem;
+  padding-left: 4rem;
 }
