@@ -3,10 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+    <style>
+      html {
+        font-size: 62.5%;
+        margin: 0px;
+        padding: 0px;
+      }
+      body {
+        margin: 0px;
+        height: 100vh;
+        background-image: url("/images/ffflux.svg"),
+          linear-gradient(rgb(177, 115, 70), #18ab29, rgb(150, 222, 246));
+        background-size: cover;
+      }
+    </style>
     <title>TreeHouse</title>
   </head>
   <body>
-    <div id="root" class="container chat"></div>
+    <div id="root"></div>
     <div id="modal-root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
