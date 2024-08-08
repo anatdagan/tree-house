@@ -73,12 +73,12 @@ export async function addDocToCollection<T>(
   return await addDoc(collection(db, collectionName), data);
 }
 
-export async function listenToDocChanges<T>(
+export function listenToDocChanges<T>(
   query: Query,
   changeType: DocumentChangeType,
   callback: (data: T) => void
-): Promise<void> {
-  await onSnapshot(query, (snapshot) => {
+): void {
+  onSnapshot(query, (snapshot) => {
     snapshot.docChanges().forEach((change) => {
       if (change.type === changeType) {
         callback(change.doc.data() as T);

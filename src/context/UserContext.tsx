@@ -23,11 +23,13 @@ import {
 } from "@/services/chatbots/apiCounselors";
 import { initParentNotifications } from "@/services/apiParentNotifications";
 import { getInboxMessages } from "@/services/apiInbox";
+import { InboxMessageData } from "@/components/Inbox/inbox.d";
 
 export interface ChatContextProps extends UserState {
   switchRoom: (room: ChatRoom | null) => void;
   catchErrors: (error: unknown) => void;
   setActiveCounselorId: (id: string | null) => void;
+  setInboxMessages: (inboxMessages: InboxMessageData[]) => void;
 }
 const initialState = {
   selectedChatRoom: null,
@@ -101,6 +103,14 @@ const UserProvider = ({ children, value }: ChatProviderProps) => {
     });
   };
 
+  const setInboxMessages = (inboxMessages: InboxMessageData[]) => {
+    dispatch({
+      type: UserActionTypes.GET_INBOX_MESSAGES,
+      payload: {
+        inboxMessages,
+      },
+    });
+  };
   const signIn = async (user: User | null) => {
     if (!user) {
       return;
@@ -141,6 +151,7 @@ const UserProvider = ({ children, value }: ChatProviderProps) => {
             catchErrors,
             switchRoom,
             setActiveCounselorId,
+            setInboxMessages,
           },
           ...state,
         }

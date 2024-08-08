@@ -1,4 +1,4 @@
-import classes from "@/components/authentication/auth.module.css";
+import classes from "@/components/chat/chat.module.css";
 interface ProfilePicProps {
   avatar: string;
   displayName: string;
@@ -12,7 +12,7 @@ const ProfilePic = ({
   height,
 }: ProfilePicProps) => (
   <img
-    className={classes.avatar}
+    className={classes["profile-pic"]}
     src={avatar}
     alt={displayName}
     height={width}

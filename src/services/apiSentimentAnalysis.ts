@@ -8,6 +8,7 @@ import { POSSIBLE_ROLES, StartChatParams } from "firebase/vertexai-preview";
 import type { Message } from "@/components/chat/types/Messages.d";
 import { Callback } from "@/types/common.d";
 import { vertexAI } from "../../firebase";
+import { Kid } from "./apiKids";
 
 export const SENTIMENT_HISYORY_LENGTH = 5;
 export enum Sentiment {
@@ -222,6 +223,7 @@ export async function analyzeMessage(
 }
 interface SentimentCheck {
   duration: number;
+  kidInfo: Kid;
   callback: Callback<number>;
 }
 const sentimentChecks = new Map<Sentiment, SentimentCheck>();
@@ -229,11 +231,12 @@ export function getSentimentChecks(sentiment: Sentiment) {
   return sentimentChecks.get(sentiment);
 }
 export function registerSentimentCheck(
+  kidInfo: Kid,
   sentiment: Sentiment,
   duration: number,
   callback: Callback<number>
 ) {
-  sentimentChecks.set(sentiment, { duration, callback });
+  sentimentChecks.set(sentiment, { duration, callback, kidInfo });
 }
 
 export function getLastMessages(messages: Message[], duration: number) {
@@ -252,8 +255,10 @@ export function applySentimentCallbacks(tone: Sentiment, messages: Message[]) {
     return;
   }
 
-  const { duration, callback } = sentimentCheck;
-  const lastMessages = getLastMessages(messages, duration);
+  const { kidInfo, duration, callback } = sentimentCheck;
+  const lastMessages = getLastMessages(messages, duration).filter(
+    (msg) => msg.uid === kidInfo.uid
+  );
   if (lastMessages.length === 0) {
     return;
   }

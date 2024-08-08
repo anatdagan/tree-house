@@ -19,6 +19,7 @@ const sessionNotifacations = new Map<NotificationType, ParentNotification[]>();
 
 export async function initParentNotifications(kid: Kid) {
   registerSentimentCheck(
+    kid,
     Sentiment.DEPRESSED,
     DEPRESSION_CHECK_INTERVAL,
     (score) => {

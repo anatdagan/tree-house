@@ -20,7 +20,7 @@ const UserProfile = ({ kidInfo }: UserProfileProps) => {
       </button>
       {/* 
 // @ts-ignore */}
-      <div id="user-details" popover="true">
+      <div id="user-details" popover="auto">
         <section>
           <ProfilePic
             avatar={avatar}

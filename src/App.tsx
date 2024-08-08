@@ -8,7 +8,6 @@ const ChatMessagesContainer = lazy(
 
 const Chat = lazy(() => import("./components/chat/Chat.tsx"));
 const ChatHeader = lazy(() => import("./components/chat/ChatHeader.tsx"));
-const ChatFooter = lazy(() => import("./components/chat/ChatFooter.tsx"));
 
 function App() {
   return (
@@ -18,7 +17,6 @@ function App() {
           <ChatHeader />
           <ChatSubHeader />
           <ChatMessagesContainer />
-          <ChatFooter></ChatFooter>
         </Chat>
       </Suspense>
     </UserProvider>

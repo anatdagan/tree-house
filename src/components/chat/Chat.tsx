@@ -10,17 +10,26 @@ import {
   Sentiment,
 } from "@/services/apiSentimentAnalysis";
 import { getRandomCounselor } from "@/services/chatbots/apiCounselors";
+import { Kid } from "@/services/apiKids";
+import { listenToInboxMessages } from "@/services/apiInbox";
 interface Props {
   children?: ReactNode;
 }
 const Chat = ({ children }: Props) => {
-  const { user, selectedChatRoom, setActiveCounselorId } = useUser();
+  const {
+    user,
+    selectedChatRoom,
+    setActiveCounselorId,
+    kidInfo,
+    setInboxMessages,
+  } = useUser();
 
-  function listenToBoredom(selectedChatRoom: ChatRoom) {
+  function listenToBoredom(selectedChatRoom: ChatRoom, kidInfo: Kid) {
     const BOREDOM_INTERVAL = 1000 * 60; // 1 minute
 
     console.log("Listening to boredom");
     registerSentimentCheck(
+      kidInfo,
       Sentiment.BORED,
       BOREDOM_INTERVAL,
       (score: number) => {
@@ -34,8 +43,11 @@ const Chat = ({ children }: Props) => {
       }
     );
   }
-  if (selectedChatRoom) {
-    listenToBoredom(selectedChatRoom);
+  if (selectedChatRoom && kidInfo) {
+    listenToBoredom(selectedChatRoom, kidInfo);
+    listenToInboxMessages(kidInfo.email, (message) => {
+      setInboxMessages([message]);
+    });
   }
 
   return (

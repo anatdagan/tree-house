@@ -1,3 +1,4 @@
+import ChatUser from "./ChatUser";
 import CounselorIcon from "./CounselorIcon";
 import classes from "./chat.module.css";
 const CounselorIcons = () => {
@@ -8,6 +9,9 @@ const CounselorIcons = () => {
       </li>
       <li>
         <CounselorIcon counselorId="minnie" />
+      </li>
+      <li>
+        <ChatUser />
       </li>
     </ul>
   );

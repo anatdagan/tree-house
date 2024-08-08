@@ -6,7 +6,10 @@ import useUser from "@/hooks/useUser";
 
 const InboxIcon = () => {
   const [inboxOpen, setInboxOpen] = useState(false);
-  const { inboxMessages } = useUser();
+  const { inboxMessages, kidInfo } = useUser();
+  if (!kidInfo) {
+    return null;
+  }
   const unreadMessages = inboxMessages.filter(
     (message) => message.status === InboxMessageStatus.Unread
   );
@@ -35,8 +38,8 @@ const InboxIcon = () => {
               data-testid="unread"
               fill="red"
               stroke="blue"
-              stroke-width="1rem"
-              fill-opacity="1"
+              strokeWidth="1rem"
+              fillOpacity="1"
               cx="20rem"
               cy="10rem"
               r="10rem"
