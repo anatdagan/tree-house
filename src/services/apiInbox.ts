@@ -31,10 +31,13 @@ export async function updateInboxMessage(
   return await updateDocData(`kids/${email}/inbox`, inboxMessageId, newMessage);
 }
 
+let is_listeningToInboxMessages = false;
 export async function listenToInboxMessages(
   email: string,
   callback: (data: InboxMessageData) => void
 ) {
+  if (is_listeningToInboxMessages) return;
+  is_listeningToInboxMessages = true;
   return listenToDocChanges<InboxMessageData>(
     createQuery(`kids/${email}/inbox`),
     "added",

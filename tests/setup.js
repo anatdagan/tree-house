@@ -18,11 +18,13 @@ vi.mock("@/services/db", () => {
     getChatRoom: vi.fn(),
     getMessages: vi.fn(),
     addMessage: vi.fn(),
+    createQuery: vi.fn(),
     switchRoom: vi.fn(),
     deleteAllMessages: vi.fn(),
     getDocById: vi.fn(),
     addDocToCollection: vi.fn(),
     getDocDataFromCollection: vi.fn(),
+    listenToDocChanges: vi.fn(),
   };
 });
 vi.mock("@/services/apiMessages", () => {

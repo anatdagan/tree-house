@@ -25,6 +25,7 @@ export const customUserContextRender = async (
     addMessage: vi.fn(),
     catchErrors: vi.fn(),
     setActiveCounselorId: vi.fn(),
+    setInboxMessages: vi.fn(),
   };
 
   return render(<UserProvider value={value}>{ui}</UserProvider>, {});
@@ -62,6 +63,7 @@ export const customRender = async (
     addMessage: vi.fn(),
     catchErrors: vi.fn(),
     setActiveCounselorId: vi.fn(),
+    setInboxMessages: vi.fn(),
   };
 
   const messageValue = {

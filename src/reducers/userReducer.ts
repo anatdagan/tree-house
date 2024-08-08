@@ -164,7 +164,10 @@ export const userReducer = (
     case UserActionTypes.GET_INBOX_MESSAGES:
       return {
         ...state,
-        inboxMessages: action.payload.inboxMessages,
+        inboxMessages: [
+          ...state.inboxMessages,
+          ...action.payload.inboxMessages,
+        ],
       };
     case UserActionTypes.LOG_OUT:
       return {

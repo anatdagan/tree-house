@@ -3,6 +3,7 @@
     rgb(223, 160, 106) 0%,
     rgb(177, 115, 70) 100%
   );
+  height: 100%;
 }
 .header-chat {
   background-image: linear-gradient(
@@ -25,7 +26,9 @@
   font-size: 1em;
   color: #515151;
 }
-
+.profile-pic {
+  border-radius: 50px;
+}
 :popover-open {
   width: 30rem;
   height: 20rem;
@@ -72,6 +75,7 @@
   margin: 0;
   padding: 1rem;
 }
+
 .counselor-icons {
   display: flex;
   justify-content: space-between;
@@ -83,6 +87,9 @@
   border-radius: 50px;
 
   box-shadow: 0.3rem 0.3rem 0.3rem darkgreen;
+}
+.counselor-icons button {
+  border-radius: 50px;
 }
 .chat .messages-chat {
   padding: 0rem;
@@ -152,6 +159,7 @@
   border: 1px solid lightblue !important;
   height: 5rem;
   padding: 1rem;
+  width: -webkit-fill-available;
   margin: 1rem;
 }
 

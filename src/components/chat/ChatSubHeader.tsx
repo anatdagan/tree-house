@@ -1,8 +1,7 @@
-import classes from "./chat.module.css";
-import ChatroomHeader from "../chatroom/ChatroomHeader";
+import classes from "@/components/chat/chat.module.css";
+import ChatroomHeader from "@/components/chatroom/ChatroomHeader";
 import useUser from "@/hooks/useUser";
-import CounselorIcons from "./CounselorIcons";
-import ChatUser from "./ChatUser";
+import CounselorIcons from "@/components/chat/CounselorIcons";
 
 const ChatSubHeader = () => {
   const { selectedChatRoom } = useUser();
@@ -10,7 +9,6 @@ const ChatSubHeader = () => {
   return (
     <header className={classes["sub-header"]}>
       {selectedChatRoom && <ChatroomHeader room={selectedChatRoom} />}
-      <ChatUser />
       <CounselorIcons />
     </header>
   );

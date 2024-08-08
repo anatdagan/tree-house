@@ -1,6 +1,6 @@
 import useUser from "@/hooks/useUser";
 import { getCounselor } from "@/services/chatbots/apiCounselors";
-
+import classes from "@/components/chat/chat.module.css";
 interface CounselorIconProps {
   counselorId: string;
 }
@@ -23,7 +23,7 @@ const CounselorIcon = ({ counselorId }: CounselorIconProps) => {
     );
   };
   return (
-    <div className="counselor-icon">
+    <div className={classes["counselor-icon"]}>
       <a href="#">
         <img
           src={counselorIcon}
