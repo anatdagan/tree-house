@@ -8,6 +8,7 @@ interface ParentNotification {
   createdAt: Date;
   type: NotificationType;
   status: "read" | "unread";
+  kidId: string;
 }
 enum NotificationType {
   DEPRESSED_SENTIMENT = "DEPRESSED_SENTIMENT",
@@ -35,9 +36,10 @@ function notifyParentOnDepressedSentiment(kid: Kid, score: number) {
     return;
   }
   const notification: ParentNotification = {
-    subject: "Depressed sentiment detected",
-    body: `Your kid, ${kid.displayName}, has been detected with a depressed sentiment.`,
+    subject: "We noticed something",
+    body: `${kid.displayName} was a little down today. We believe that it might be good to have a parent child chat about it.`,
     createdAt: new Date(),
+    kidId: kid.uid,
     type: NotificationType.DEPRESSED_SENTIMENT,
     status: "unread",
   };
@@ -69,6 +71,7 @@ export async function notifyParentOnMeetingRequest(
     createdAt: new Date(),
     type: NotificationType.MEETING_REQUEST,
     status: "unread",
+    kidId: yourKid.uid,
   };
   sendParentNotification(yourKid.parentId, notification);
 }

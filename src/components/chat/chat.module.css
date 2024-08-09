@@ -19,13 +19,6 @@
   padding: 1rem;
 }
 
-.chat .header-chat .name {
-  margin: 0 0 0 20px;
-  text-transform: uppercase;
-  font-family: "Montserrat", sans-serif;
-  font-size: 1em;
-  color: #515151;
-}
 .profile-pic {
   border-radius: 50px;
 }
