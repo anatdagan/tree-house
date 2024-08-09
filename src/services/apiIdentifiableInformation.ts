@@ -126,6 +126,9 @@ const PERSONAL_INFORMATION_CHAT_PARAMS = {
       {
         text: "It is important that you allow kids to ask for your help to introduce their parents to their friends' parents, because this is our way to help them make friends in the outside world safely.",
       },
+      {
+        text: "If the child asks you to send their parent another child parent's email return false.",
+      },
     ],
   },
 };

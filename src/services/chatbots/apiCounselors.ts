@@ -153,10 +153,13 @@ class Counselor implements ChatBot {
     );
     console.log(re);
     const match = response.match(re);
-    console.log("Match", match);
-    const friendInfo = match ? await getKidByDisplayName(app, match[1]) : null;
+    if (match) {
+      const friendInfo = match
+        ? await getKidByDisplayName(app, match[1])
+        : null;
 
-    await notifyParentOnMeetingRequest(this.kidInfo, friendInfo);
+      await notifyParentOnMeetingRequest(this.kidInfo, friendInfo);
+    }
     await this.addMessage(message, response, roomId, this.kidInfo);
   }
   async displayWelcomeMessage(index: number, roomId: string) {
@@ -321,7 +324,7 @@ export function appointCounselor(
  * @returns
  */
 export function isActiveCounselorExpired(activatedAt: string | null) {
-  const ENTERTAINMENT_DURATION = 60000; // 1 minutes
+  const ENTERTAINMENT_DURATION = 60000 * 3; // 1 minutes
   console.log("Checking if counselor is expired", activatedAt);
   if (!activatedAt) {
     return false;
