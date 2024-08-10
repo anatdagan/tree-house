@@ -14,7 +14,6 @@ const InboxMessage = ({ message }: InboxMessageProps) => {
       console.error("Kid info not found");
       return;
     }
-    console.log(`Message clicked: ${message.subject}`);
     const chatRoom = message.roomId ? await getChatroom(message.roomId) : null;
     switch (message.type) {
       case InboxMessageType.ChatroomInvite:

@@ -31,7 +31,6 @@ export async function flagMessage(
   messageRef: DocumentReference,
   flagReasons: FlagReason[]
 ) {
-  console.log(`Message flagged: ${messageRef.path} for reason:`, flagReasons);
   await addDocToCollection("flagged_messages", {
     messageRef,
     flagReasons,
@@ -40,7 +39,6 @@ export async function flagMessage(
 
 async function findSentimentViolations(message: Message) {
   const sentiment = message.sentiment;
-  console.log("Sentiment analysis result: ", sentiment);
   switch (sentiment.tone) {
     case Sentiment.AGGRESSIVE:
     case Sentiment.OFFENSIVE:

@@ -29,8 +29,6 @@ const useMessages = () => {
       return;
     }
 
-    console.log("Fetching messages", selectedChatRoom.id);
-
     const q = query(
       collection(db, "messages"),
       where("roomId", "==", selectedChatRoom.id),
@@ -45,7 +43,6 @@ const useMessages = () => {
           if (message.status !== MessageStatus.Sent) {
             message.text = "This message was removed";
           }
-          console.log("New message: ", message);
           refAddMessage.current(message);
         }
       });

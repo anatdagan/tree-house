@@ -55,13 +55,11 @@ const UserProvider = ({ children, value }: ChatProviderProps) => {
     const [user, setUser] = useState<User | null>(null);
     useEffect(() => {
       const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
-        console.log("Auth state changed", authUser);
         setUser(authUser);
         if (authUser === null) {
           dispatch({ type: UserActionTypes.LOG_OUT });
           return;
         }
-        console.log("User signed in", authUser);
         signIn(authUser);
       });
 
@@ -79,7 +77,6 @@ const UserProvider = ({ children, value }: ChatProviderProps) => {
     await initParentNotifications(kidInfo);
     if (selectedChatRoom.type === RoomType.WELCOME) {
       await startWelcomeChatWithKid(selectedChatRoom);
-      console.log("Welcome chat started");
     }
   }
   const catchErrors = (error: unknown) => {

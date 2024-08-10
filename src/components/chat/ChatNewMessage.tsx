@@ -40,7 +40,6 @@ const ChatNewMessage = () => {
       console.log("Message is not allowed");
       return;
     }
-    console.log("Sending message: ", newMessage);
     await addMessage(newMessage);
     const responder = appointCounselor(
       newMessage,
@@ -58,7 +57,6 @@ const ChatNewMessage = () => {
   };
   const sendMessage = async (e: FormEvent) => {
     const MESSAGE_CONEXT_DURATION = 600000; // 10 minutes
-    console.log("Sending message: ", newMessage);
     e.preventDefault();
     const message: Message = {
       id: crypto.randomUUID(),

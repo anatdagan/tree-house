@@ -48,7 +48,6 @@ export async function sendMessageStream(msg: string, chat: ChatSession) {
     let text = "";
     for await (const chunk of result.stream) {
       const chunkText = chunk.text();
-      console.log(chunkText);
       text += chunkText;
     }
     return text.trim();

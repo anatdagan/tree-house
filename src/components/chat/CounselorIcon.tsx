@@ -15,7 +15,6 @@ const CounselorIcon = ({ counselorId }: CounselorIconProps) => {
     return null;
   }
   const onCounselorIconClick = () => {
-    console.log("Counselor icon clicked", counselorId);
     setActiveCounselorId(counselorId);
     counselor?.onKidMessage(
       `${kidInfo?.displayName} is inviting you to join the chat.`,

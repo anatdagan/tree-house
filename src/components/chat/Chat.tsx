@@ -27,15 +27,12 @@ const Chat = ({ children }: Props) => {
   function listenToBoredom(selectedChatRoom: ChatRoom, kidInfo: Kid) {
     const BOREDOM_INTERVAL = 1000 * 60; // 1 minute
 
-    console.log("Listening to boredom");
     registerSentimentCheck(
       kidInfo,
       Sentiment.BORED,
       BOREDOM_INTERVAL,
       (score: number) => {
-        console.log("Average boredom score", score);
         if (score > 0.5) {
-          console.log("Boredom detected");
           const counselor = getRandomCounselor();
           setActiveCounselorId(counselor?.id || null);
           counselor?.onKidMessage("I am bored", selectedChatRoom?.id);

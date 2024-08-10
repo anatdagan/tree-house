@@ -85,7 +85,6 @@ class Counselor implements ChatBot {
     counselorHistory: Content[] = [],
     private kidInfo: Kid
   ) {
-    console.log("Creating counselor", id, data, counselorHistory);
     this.id = id;
     this.name = data.name;
     this.age = data.age;
@@ -125,11 +124,9 @@ class Counselor implements ChatBot {
     });
   }
   onKidMessage(message: string, roomId: string) {
-    console.log("Kid message", message);
     if (!this.chat) {
       this.startChat();
     }
-    console.log("Sending message to chat", message);
     this.respond(message, roomId);
   }
   async respond(message: string, roomId: string) {
@@ -151,7 +148,6 @@ class Counselor implements ChatBot {
     const re = new RegExp(
       contactParentsMessage.replace(`(the friend's name)`, `(.+)`)
     );
-    console.log(re);
     const match = response.match(re);
     if (match) {
       const friendInfo = match
@@ -166,7 +162,6 @@ class Counselor implements ChatBot {
     if (index >= this.welcomeMessages.length) {
       return;
     }
-    console.log("Displaying welcome message", index);
     const messageText = this.welcomeMessages[index];
 
     await addMessage({
@@ -209,7 +204,6 @@ class Counselor implements ChatBot {
     });
   }
   async removeAllMessages() {
-    console.log("Removing all messages for", this.id);
     await deleteDocsFromCollection("messages", "uid", this.id);
   }
 }
@@ -217,7 +211,6 @@ class Counselor implements ChatBot {
 const counselors = new Map<string, Counselor>();
 let activeCounselor: Counselor | null = null;
 async function initCounselor(id: string, kidInfo: Kid) {
-  console.log("Initializing counselor", id);
   const data = await getChatbot(id);
   if (!data) {
     throw new Error(`Chatbot with id ${id} not found`);
@@ -240,7 +233,6 @@ async function initCounselor(id: string, kidInfo: Kid) {
       }
     );
   }
-  console.log("Chatbot history", history);
   return new Counselor(id, data, history, kidInfo);
 }
 export async function initCounselors(kidInfo: Kid) {
@@ -273,7 +265,6 @@ async function displayWelcomeMessages(room: ChatRoom) {
   let index = 1;
   await updateRoomData(room, { welcomed: true });
   while (minnieMessage || jimmyMessage) {
-    console.log("messages:", minnieMessage, jimmyMessage);
     minnieMessage = await minnie.displayWelcomeMessage(index, room.id);
     jimmyMessage = await jimmy.displayWelcomeMessage(index, room.id);
     index++;
@@ -285,9 +276,7 @@ export async function startWelcomeChatWithKid(room: ChatRoom) {
   }
   const minnie = counselors.get("minnie");
 
-  console.log("minnie", minnie);
   const jimmy = counselors.get("jimmy");
-  console.log("jimmy", jimmy);
 
   if (!minnie || !jimmy) {
     throw new Error("Counselors not found");
@@ -325,7 +314,6 @@ export function appointCounselor(
  */
 export function isActiveCounselorExpired(activatedAt: string | null) {
   const ENTERTAINMENT_DURATION = 60000 * 3; // 1 minutes
-  console.log("Checking if counselor is expired", activatedAt);
   if (!activatedAt) {
     return false;
   }
