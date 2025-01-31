@@ -1,0 +1,19 @@
+{
+  "name": "o/images/default/avatar.png",
+  "bucket": "treehouse-chat-app.appspot.com",
+  "metageneration": 1,
+  "generation": 1719838039307,
+  "contentType": "image/png",
+  "storageClass": "STANDARD",
+  "contentDisposition": "inline",
+  "downloadTokens": [
+    "c08e4b90-323f-4888-8216-61dbdffe79bc"
+  ],
+  "etag": "PDxIabg332XhJJewEjoixIX9IeE",
+  "customMetadata": {},
+  "timeCreated": "2024-07-01T12:47:19.307Z",
+  "updated": "2024-07-01T12:47:19.307Z",
+  "size": 4670,
+  "md5Hash": "oiPJAqWl8+UzPWXbrZbjmQ==",
+  "crc32c": "2794442540"
+}
