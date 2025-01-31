@@ -24,7 +24,7 @@ const InboxMessage = ({ message }: InboxMessageProps) => {
         switchRoom(chatRoom);
         break;
       default:
-        console.log(`Unknown message type: ${message.type}`);
+        console.debug(`Unknown message type: ${message.type}`);
     }
     const updatedMessage = { ...message, status: InboxMessageStatus.Read };
     await updateInboxMessage(kidInfo.email, message.id, updatedMessage);

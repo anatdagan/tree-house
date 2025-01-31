@@ -54,7 +54,7 @@ async function findSentimentViolations(message: Message) {
   }
 }
 async function findIdentifiableInformation(message: Message) {
-  console.log("Checking for personal information in message: ", message);
+  console.debug("Checking for personal information in message: ", message);
   const chat = await initPersonalInfoIdentifier();
   if (await containsPersonalInformation(message, chat)) {
     const counselor = getRandomCounselor();

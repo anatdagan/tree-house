@@ -10,6 +10,7 @@ const Chat = lazy(() => import("./components/chat/Chat.tsx"));
 const ChatHeader = lazy(() => import("./components/chat/ChatHeader.tsx"));
 
 function App() {
+  console.debug("App");
   return (
     <UserProvider>
       <Suspense fallback={<LoadingIndicator />}>

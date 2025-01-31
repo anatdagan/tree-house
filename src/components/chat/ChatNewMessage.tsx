@@ -33,11 +33,11 @@ const ChatNewMessage = () => {
   const { uid, avatar } = kidInfo;
   const onNewMessage = async (newMessage: Message) => {
     if (!selectedChatRoom) {
-      console.log("No chat room selected");
+      console.debug("No chat room selected");
       return;
     }
     if (await findViolations(newMessage)) {
-      console.log("Message is not allowed");
+      console.debug("Message is not allowed");
       return;
     }
     await addMessage(newMessage);
@@ -46,9 +46,15 @@ const ChatNewMessage = () => {
       selectedChatRoom,
       activeCounselorId
     );
+
     if (!responder) {
       return;
     }
+
+    if (!activeCounselorId) {
+      setActiveCounselorId(responder?.id);
+    }
+
     if (isActiveCounselorExpired(counselorActivatedAt)) {
       responder.breakConversation();
       setActiveCounselorId(null);
