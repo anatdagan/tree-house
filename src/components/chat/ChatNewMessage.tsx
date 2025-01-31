@@ -33,23 +33,28 @@ const ChatNewMessage = () => {
   const { uid, avatar } = kidInfo;
   const onNewMessage = async (newMessage: Message) => {
     if (!selectedChatRoom) {
-      console.log("No chat room selected");
+      console.debug("No chat room selected");
       return;
     }
     if (await findViolations(newMessage)) {
-      console.log("Message is not allowed");
+      console.debug("Message is not allowed");
       return;
     }
-    console.log("Sending message: ", newMessage);
     await addMessage(newMessage);
     const responder = appointCounselor(
       newMessage,
       selectedChatRoom,
       activeCounselorId
     );
+
     if (!responder) {
       return;
     }
+
+    if (!activeCounselorId) {
+      setActiveCounselorId(responder?.id);
+    }
+
     if (isActiveCounselorExpired(counselorActivatedAt)) {
       responder.breakConversation();
       setActiveCounselorId(null);
@@ -58,7 +63,6 @@ const ChatNewMessage = () => {
   };
   const sendMessage = async (e: FormEvent) => {
     const MESSAGE_CONEXT_DURATION = 600000; // 10 minutes
-    console.log("Sending message: ", newMessage);
     e.preventDefault();
     const message: Message = {
       id: crypto.randomUUID(),

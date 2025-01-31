@@ -14,13 +14,11 @@ async function onAvatarClick(
   kid: Kid,
   switchRoom: (room: ChatRoom) => void
 ) {
-  console.log("Avatar clicked", uid);
   const selectedKid = await getKidInfoByUid(app, uid);
   if (!selectedKid) {
     throw new Error("Kid not found");
     return;
   }
-  console.log("Selected kid", selectedKid);
   const privateChatRoom = await startPrivateChat(kid, selectedKid);
   switchRoom(privateChatRoom);
 }

@@ -14,7 +14,6 @@ const InboxMessage = ({ message }: InboxMessageProps) => {
       console.error("Kid info not found");
       return;
     }
-    console.log(`Message clicked: ${message.subject}`);
     const chatRoom = message.roomId ? await getChatroom(message.roomId) : null;
     switch (message.type) {
       case InboxMessageType.ChatroomInvite:
@@ -25,7 +24,7 @@ const InboxMessage = ({ message }: InboxMessageProps) => {
         switchRoom(chatRoom);
         break;
       default:
-        console.log(`Unknown message type: ${message.type}`);
+        console.debug(`Unknown message type: ${message.type}`);
     }
     const updatedMessage = { ...message, status: InboxMessageStatus.Read };
     await updateInboxMessage(kidInfo.email, message.id, updatedMessage);

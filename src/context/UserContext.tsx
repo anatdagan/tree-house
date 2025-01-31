@@ -2,6 +2,8 @@ import {
   ReactNode,
   createContext,
   useEffect,
+  useMemo,
+  memo,
   useReducer,
   useState,
 } from "react";
@@ -48,20 +50,22 @@ interface ChatProviderProps {
   value?: ChatContextProps;
 }
 const UserContext = createContext<undefined | ChatContextProps>(undefined);
-const UserProvider = ({ children, value }: ChatProviderProps) => {
+const UserProvider = memo(({ children, value }: ChatProviderProps) => {
+  console.debug("UserProvider");
   const [state, dispatch] = useReducer(userReducer, initialState);
+  console.debug("state", state);
   useUserSession();
   function useUserSession() {
     const [user, setUser] = useState<User | null>(null);
     useEffect(() => {
+      console.debug("useUserSession");
       const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
-        console.log("Auth state changed", authUser);
+        console.debug("onAuthStateChanged", authUser);
         setUser(authUser);
         if (authUser === null) {
           dispatch({ type: UserActionTypes.LOG_OUT });
           return;
         }
-        console.log("User signed in", authUser);
         signIn(authUser);
       });
 
@@ -79,7 +83,6 @@ const UserProvider = ({ children, value }: ChatProviderProps) => {
     await initParentNotifications(kidInfo);
     if (selectedChatRoom.type === RoomType.WELCOME) {
       await startWelcomeChatWithKid(selectedChatRoom);
-      console.log("Welcome chat started");
     }
   }
   const catchErrors = (error: unknown) => {
@@ -118,7 +121,7 @@ const UserProvider = ({ children, value }: ChatProviderProps) => {
     const { uid } = user;
     const newKidInfo = await getKidInfoByUid(app, uid);
     if (!newKidInfo) {
-      auth.signOut();
+      //auth.signOut();
       dispatch({ type: UserActionTypes.KID_NOT_FOUND });
       return;
     }
@@ -142,24 +145,20 @@ const UserProvider = ({ children, value }: ChatProviderProps) => {
     });
     await onSignIn(newKidInfo, selectedChatRoom);
   };
-
+  value = value || {
+    ...{
+      catchErrors,
+      switchRoom,
+      setActiveCounselorId,
+      setInboxMessages,
+    },
+    ...state,
+  };
   return (
-    <UserContext.Provider
-      value={
-        value || {
-          ...{
-            catchErrors,
-            switchRoom,
-            setActiveCounselorId,
-            setInboxMessages,
-          },
-          ...state,
-        }
-      }
-    >
+    <UserContext.Provider value={useMemo(() => value, [value, state])}>
       {children}
     </UserContext.Provider>
   );
-};
+});
 
 export { UserProvider, UserContext };

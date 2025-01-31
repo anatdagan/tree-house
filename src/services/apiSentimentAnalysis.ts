@@ -205,7 +205,7 @@ export async function analyzeMessage(
   try {
     const analyzer = await getSentimentAnalyzer(lastMessages);
     const apiResponse = (await sendMessageStream(`${text}`, analyzer)) ?? "";
-    console.log("Sentiment analysis response: ", apiResponse);
+    console.debug("Sentiment analysis response: ", apiResponse);
     if (apiResponse === "illegal_response") {
       return illegalResponse;
     }
@@ -217,7 +217,7 @@ export async function analyzeMessage(
       score: score ? parseFloat(score) : defaultSentiment.score,
     };
   } catch (error) {
-    console.log("Error in sentiment analysis: ", error);
+    console.debug("Error in sentiment analysis: ", error);
     return defaultSentiment;
   }
 }

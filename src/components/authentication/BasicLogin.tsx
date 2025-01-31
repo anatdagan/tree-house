@@ -5,11 +5,13 @@ import useUser from "@/hooks/useUser";
 const BasicLogin = () => {
   const { catchErrors } = useUser();
   const login = (email: string, password: string) => {
+    console.debug("login");
     const auth = getAuth();
     signInWithEmailAndPassword(auth, email, password).catch(catchErrors);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    console.debug("handleSubmit");
     e.preventDefault();
     const form = e.currentTarget as HTMLFormElement;
     const formData = new FormData(form);

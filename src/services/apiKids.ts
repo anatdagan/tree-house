@@ -51,7 +51,6 @@ export async function getKidInfoByUid(app: FirebaseApp, uid?: string | null) {
   if (!uid) {
     return null;
   }
-  console.log("Getting kid info", uid);
   const kidInfo = await getDocDataFromCollection<Kid>("kids", "uid", uid);
   if (!kidInfo) {
     return null;

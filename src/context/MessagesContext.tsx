@@ -34,7 +34,6 @@ const MessageProvider = ({ children, value }: MessageProviderProps) => {
       applySentimentCallbacks(tone, newmessages);
       return newmessages;
     });
-    console.log("messages", messages);
   };
 
   return (
