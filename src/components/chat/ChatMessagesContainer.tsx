@@ -1,4 +1,3 @@
-"use client";
 import classes from "./chat.module.css";
 import { MessageProvider } from "@/context/MessagesContext";
 import ChatMessages from "./ChatMessages";
