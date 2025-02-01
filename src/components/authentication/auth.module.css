@@ -1,12 +1,16 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 5rem;
+}
 .login-page {
-  position: relative;
-  z-index: 1;
   background: #ffffff;
   max-width: 30rem;
-  margin: auto;
-  padding: 4.5rem;
+  width: 70%;
+  padding: 3rem;
   text-align: center;
-  box-shadow: 0 0 2rem 0 rgba(0, 0, 0, 0.2), 0 0.5rem 0.5rem 0 rgba(0, 0, 0, 0);
+  box-shadow: 1rem 0.5rem 5rem #023047;
 }
 .login-page button {
   font-family: sans-serif;
@@ -30,7 +34,7 @@
   background: #3367d6;
 }
 .intro {
-  padding: 5rem 0;
+  padding: 0 0 5rem 0;
 }
 .intro h1 {
   font-family: "Rocher";
@@ -41,6 +45,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  box-shadow: 1rem 0.5rem 5rem #023047;
+
   margin: 0;
 }
 @font-face {

@@ -34,7 +34,7 @@ const Chat = ({ children }: Props) => {
       (score: number) => {
         if (score > 0.5) {
           const counselor = getRandomCounselor();
-          setActiveCounselorId(counselor?.id || null);
+          setActiveCounselorId(counselor?.id ?? null);
           counselor?.onKidMessage("I am bored", selectedChatRoom?.id);
         }
       }

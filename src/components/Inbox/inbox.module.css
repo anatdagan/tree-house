@@ -1,18 +1,47 @@
 .inbox {
-  position: absolute;
-  top: 5rem;
   width: 80%;
-  height: 80%;
-  padding: 1.5rem;
+  padding: 0 1.5rem 1.5rem;
   margin: auto;
-  border: 1px solid #ccc;
-  background-color: aliceblue;
+  border: 1rem solid #2364aa;
+  border-radius: 5px;
+  background-color: #fffaff;
+}
+h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #00072d;
+  font-family: fantasy;
 }
 h3 {
   font-size: 2rem;
   font-family: "Montserrat", sans-serif;
   color: #333;
+  padding: 1rem;
+  margin: 0;
 }
+h3:nth-child(even) {
+  background-color: #97dffc;
+}
+h3:nth-child(odd) {
+  background-color: #d4c1ec;
+}
+
 h3.read {
-  color: #ccc;
+  color: #757575;
+}
+.emptyInboxIcon {
+  font-size: 5.5rem;
+  margin: auto;
+}
+.emptyInboxText {
+  font-size: 2rem;
+  text-align: center;
+  margin: 1rem;
+}
+.emptyInbox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }

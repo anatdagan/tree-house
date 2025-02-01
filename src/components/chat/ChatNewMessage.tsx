@@ -71,7 +71,7 @@ const ChatNewMessage = () => {
       uid: uid,
       avatar: avatar,
       status: MessageStatus.Sent,
-      roomId: selectedChatRoom?.id || "general",
+      roomId: selectedChatRoom?.id ?? "general",
       sentiment: {},
     };
     (message.sentiment = await analyzeMessage(

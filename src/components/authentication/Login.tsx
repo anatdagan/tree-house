@@ -7,11 +7,13 @@ const Login = () => {
   return (
     <>
       <Intro />
-      <div className={classes["login-page"]} data-testid="login">
-        <BasicLogin />
-        <div className={classes.or}>Or</div>
-        <LoginWithGoogle />
-      </div>
+      <main className={classes["login-container"]}>
+        <div className={classes["login-page"]} data-testid="login">
+          <BasicLogin />
+          <div className={classes.or}>Or</div>
+          <LoginWithGoogle />
+        </div>
+      </main>
     </>
   );
 };

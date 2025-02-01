@@ -35,12 +35,18 @@ const Inbox = ({ toggleInbox, inboxMessages }: InboxProps) => {
       onFocus={handleFocus}
     >
       <h1 ref={ref} tabIndex={-1}>
-        Inbox
+        Incoming Messages
       </h1>
-      {inboxMessages &&
+      {inboxMessages.length ? (
         inboxMessages.map((message) => (
           <InboxMessage message={message} key={message.id} />
-        ))}
+        ))
+      ) : (
+        <section className={classes.emptyInbox}>
+          <span className={classes.emptyInboxIcon}>📭</span>
+          <span className={classes.emptyInboxText}>No messages yet</span>
+        </section>
+      )}
     </div>
   );
 };

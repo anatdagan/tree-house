@@ -8,6 +8,7 @@ import { Message } from "@/components/chat/types/Messages.d";
 import { RoomType } from "@/components/chatroom/types/Rooms.d";
 import { InboxMessageData } from "@/components/Inbox/inbox.d";
 
+const catchErrorsMock = vi.fn();
 /**
  * A custom render function for the UserContext, which is used to test the UserProvider.
  * @param ui
@@ -23,7 +24,7 @@ export const customUserContextRender = async (
     deleteAllMessages: vi.fn(),
     switchRoom: vi.fn(),
     addMessage: vi.fn(),
-    catchErrors: vi.fn(),
+    catchErrors: catchErrorsMock,
     setActiveCounselorId: vi.fn(),
     setInboxMessages: vi.fn(),
   };
@@ -61,7 +62,7 @@ export const customRender = async (
     deleteAllMessages: vi.fn(),
     switchRoom: vi.fn(),
     addMessage: vi.fn(),
-    catchErrors: vi.fn(),
+    catchErrors: catchErrorsMock,
     setActiveCounselorId: vi.fn(),
     setInboxMessages: vi.fn(),
   };
@@ -120,3 +121,4 @@ export const getFakeState = () => ({
   counselors: getFakeCounselors(),
   inboxMessages: [] as InboxMessageData[],
 });
+export const getCatchErrors = () => catchErrorsMock;

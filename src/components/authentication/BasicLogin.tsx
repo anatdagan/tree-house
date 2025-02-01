@@ -2,12 +2,28 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import classes from "./auth.module.css";
 import useUser from "@/hooks/useUser";
 
+function formatLoginError(error: any) {
+  console.debug("formatLoginError", error.message);
+  function getMessage(error: Error) {
+    switch (error.message) {
+      case "Firebase: Error (auth/user-not-found).":
+        return "User not found";
+      case "Firebase: Error (auth/wrong-password).":
+        return "Wrong password";
+      default:
+        return "Login failed";
+    }
+  }
+  return new Error(getMessage(error));
+}
 const BasicLogin = () => {
   const { catchErrors } = useUser();
   const login = (email: string, password: string) => {
     console.debug("login");
     const auth = getAuth();
-    signInWithEmailAndPassword(auth, email, password).catch(catchErrors);
+    return signInWithEmailAndPassword(auth, email, password).catch((error) => {
+      return catchErrors(formatLoginError(error));
+    });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

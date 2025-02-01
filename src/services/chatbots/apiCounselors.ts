@@ -313,7 +313,7 @@ export function appointCounselor(
  * @returns
  */
 export function isActiveCounselorExpired(activatedAt: string | null) {
-  const ENTERTAINMENT_DURATION = 60000 * 3; // 1 minutes
+  const ENTERTAINMENT_DURATION = 60000 * 3; // 3 minutes
   if (!activatedAt) {
     return false;
   }

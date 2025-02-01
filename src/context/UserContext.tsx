@@ -97,11 +97,12 @@ const UserProvider = memo(({ children, value }: ChatProviderProps) => {
   };
 
   const setActiveCounselorId = (id: string | null) => {
+    const counselorActivatedAt = id ? new Date().toISOString() : null;
     dispatch({
       type: UserActionTypes.ACTIVATE_COUNSELOR,
       payload: {
         activeCounselorId: id,
-        counselorActivatedAt: new Date().toISOString(),
+        counselorActivatedAt: counselorActivatedAt,
       },
     });
   };
@@ -121,7 +122,6 @@ const UserProvider = memo(({ children, value }: ChatProviderProps) => {
     const { uid } = user;
     const newKidInfo = await getKidInfoByUid(app, uid);
     if (!newKidInfo) {
-      //auth.signOut();
       dispatch({ type: UserActionTypes.KID_NOT_FOUND });
       return;
     }

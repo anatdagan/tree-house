@@ -23,8 +23,9 @@ const LoginWithGoogle = () => {
           viewBox="0 0 38 38"
           version="1.1"
         >
-          // Generator: Sketch 47.1 (45422) -
-          http://www.bohemiancoding.com/sketch
+          {
+            // Generator: Sketch 47.1 (45422) - http://www.bohemiancoding.com/sketch
+          }
           <title>j3tG-on-white</title>
           <desc>Created with Sketch.</desc>
           <defs />

@@ -11,6 +11,7 @@ vi.mock("firebase/auth", () => {
     getAuth: vi.fn(),
     onAuthStateChanged: vi.fn().mockReturnValue(vi.fn()),
     connectAuthEmulator: vi.fn(),
+    signInWithEmailAndPassword: vi.fn(),
   };
 });
 vi.mock("@/services/db", () => {

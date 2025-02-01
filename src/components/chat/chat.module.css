@@ -1,15 +1,48 @@
 .chat {
-  background-image: linear-gradient(
-    rgb(223, 160, 106) 0%,
-    rgb(177, 115, 70) 100%
+  background: hsla(42, 100%, 91%, 1);
+
+  background: linear-gradient(
+    90deg,
+    hsla(42, 100%, 91%, 1) 1%,
+    hsla(33, 94%, 57%, 1) 99%
   );
-  height: 100%;
+
+  background: -moz-linear-gradient(
+    90deg,
+    hsla(42, 100%, 91%, 1) 1%,
+    hsla(33, 94%, 57%, 1) 99%
+  );
+
+  background: -webkit-linear-gradient(
+    90deg,
+    hsla(42, 100%, 91%, 1) 1%,
+    hsla(33, 94%, 57%, 1) 99%
+  );
+
+  filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#FFF1D0", endColorstr="#F89B29", GradientType=1 );
 }
 .header-chat {
-  background-image: linear-gradient(
-    rgb(202, 238, 250) 0%,
-    rgb(150, 222, 246) 100%
+  background: hsla(199, 64%, 73%, 1);
+
+  background: linear-gradient(
+    90deg,
+    hsla(199, 64%, 73%, 1) 1%,
+    hsla(192, 70%, 43%, 1) 100%
   );
+
+  background: -moz-linear-gradient(
+    90deg,
+    hsla(199, 64%, 73%, 1) 1%,
+    hsla(192, 70%, 43%, 1) 100%
+  );
+
+  background: -webkit-linear-gradient(
+    90deg,
+    hsla(199, 64%, 73%, 1) 1%,
+    hsla(192, 70%, 43%, 1) 100%
+  );
+
+  filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#8ECAE6", endColorstr="#219EBC", GradientType=1 );
   box-shadow: 0px 0.3rem 0.2rem rgba(0, 0, 0, 0.1);
   height: 10rem;
   display: flex;
@@ -53,13 +86,35 @@
   vertical-align: center;
 }
 .chat .sub-header {
-  background-image: linear-gradient(rgb(23, 205, 29) 0%, rgb(16, 126, 25) 100%);
+  background: hsla(152, 100%, 50%, 1);
+
+  background: linear-gradient(
+    90deg,
+    hsla(152, 100%, 50%, 1) 1%,
+    hsla(174, 37%, 60%, 1) 100%
+  );
+
+  background: -moz-linear-gradient(
+    90deg,
+    hsla(152, 100%, 50%, 1) 1%,
+    hsla(174, 37%, 60%, 1) 100%
+  );
+
+  background: -webkit-linear-gradient(
+    90deg,
+    hsla(152, 100%, 50%, 1) 1%,
+    hsla(174, 37%, 60%, 1) 100%
+  );
+
+  filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#00FF87", endColorstr="#73BFB8", GradientType=1 );
+
   display: flex;
   margin: 0;
   font-size: 1rem;
   padding: 0 4rem 0 4rem;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0.5rem 0.5rem 0.5rem rgba(103, 54, 1, 0.5);
 }
 .chat .sub-header h1 {
   font-family: fantasy;
